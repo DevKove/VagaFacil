@@ -171,7 +171,6 @@ function LoginScreen({ role, onBack, onAuthenticated, onMfaRequired }: { role: P
 
 function AdminMfaScreen({ profile, onVerified, onCancel }: { profile: UserProfile; onVerified: () => void; onCancel: () => void }) {
   const [factorId, setFactorId] = useState('');
-  const [challengeId, setChallengeId] = useState('');
   const [qrCode, setQrCode] = useState('');
   const [secret, setSecret] = useState('');
   const [code, setCode] = useState('');
@@ -190,7 +189,7 @@ function AdminMfaScreen({ profile, onVerified, onCancel }: { profile: UserProfil
         if (verified) {
           // O desafio deve ser criado no momento de cada tentativa de verificação.
           // Desafios antigos/reutilizados podem expirar ou já ter sido consumidos.
-          if (active) { setFactorId(verified.id); setChallengeId(''); setSetup(false); }
+          if (active) { setFactorId(verified.id); setSetup(false); }
         } else {
           // Um cadastro TOTP pendente não devolve novamente o QR Code/segredo.
           // Remova apenas fatores pendentes criados por este fluxo antes de gerar outro.
