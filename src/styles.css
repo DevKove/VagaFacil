@@ -919,3 +919,44 @@ th{font-size:12px!important;color:#263e54;background:#e4edf5}
   .portal-hero-art { height: 175px; margin: 14px auto 0; }
   .portal-hero-image { max-width: 100%; border-radius: 12px; }
 }
+
+
+/* Imagem oficial aplicada como fundo de toda a página inicial */
+.portal-page {
+  position: relative;
+  isolation: isolate;
+  background-color: #071b30;
+  background-image:
+    linear-gradient(115deg, rgba(4, 20, 36, .78), rgba(5, 35, 55, .58) 52%, rgba(4, 48, 66, .42)),
+    url('../IMG/banner.jpg');
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+.portal-header,
+.portal-footer,
+.portal-footer-refined {
+  background: rgba(5, 23, 39, .70);
+  color: #f3faff;
+  border-color: rgba(220, 244, 255, .16);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+.portal-brand { color: #fff; }
+.portal-brand small,
+.portal-header-note,
+.portal-footer { color: #d0e0eb; }
+.portal-hero {
+  background: transparent;
+  flex: 1 0 auto;
+  min-height: min(620px, calc(100vh - 140px));
+  align-content: center;
+}
+.portal-hero:before { content: none; }
+.portal-hero:after { border-color: rgba(255,255,255,.12); }
+.portal-hero-art { display: none; }
+@media (max-width: 760px) {
+  .portal-page { background-attachment: scroll; background-position: center; }
+  .portal-hero { min-height: calc(100vh - 145px); }
+}
