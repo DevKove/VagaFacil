@@ -33,7 +33,7 @@ const portalRoles: { id: PortalRole; title: string; description: string; action:
 function Portal({ onSelect, onDemo }: { onSelect: (role: PortalRole) => void; onDemo: () => void }) {
   return <main className="portal-page">
     <header className="portal-header">
-      <a className="portal-brand" href="#" aria-label="VagaFácil início"><span className="portal-brand-mark">V</span><span><strong>VagaFácil</strong><small>Estacionar ficou mais fácil.</small></span></a>
+      <a className="portal-brand" href="#" aria-label="VagaFácil início"><img className="portal-brand-logo" src={`${import.meta.env.BASE_URL}IMG/logo.jpeg`} alt="VagaFácil" /><span><strong>VagaFácil</strong><small>Estacionar ficou mais fácil.</small></span></a>
       <span className="portal-header-note"><i /> Plataforma de estacionamento rotativo</span>
     </header>
     <section className="portal-hero">
@@ -143,7 +143,7 @@ function LoginScreen({ role, onBack, onAuthenticated }: { role: PortalRole; onBa
 
   const title = mode === 'signup' ? 'Criar conta de cidadão' : mode === 'recover' ? 'Recuperar acesso' : mode === 'password' ? 'Nova senha' : 'Entrar na sua conta';
   return <main className="portal-page login-page">
-    <header className="portal-header"><a className="portal-brand" href="#" onClick={e => {e.preventDefault();onBack();}}><span className="portal-brand-mark">V</span><span><strong>VagaFácil</strong><small>Estacionar ficou mais fácil.</small></span></a><button className="portal-back" onClick={onBack}>← Voltar aos perfis</button></header>
+    <header className="portal-header"><a className="portal-brand" href="#" onClick={e => {e.preventDefault();onBack();}}><img className="portal-brand-logo" src={`${import.meta.env.BASE_URL}IMG/logo.jpeg`} alt="VagaFácil" /><span><strong>VagaFácil</strong><small>Estacionar ficou mais fácil.</small></span></a><button className="portal-back" onClick={onBack}>← Voltar aos perfis</button></header>
     <section className="login-layout">
       <div className="login-intro"><span className="portal-kicker">ÁREA DE ACESSO</span><h1>Bem-vindo ao<br/><em>VagaFácil.</em></h1><p>Entre para continuar usando os serviços da plataforma.</p><div className="login-role-summary"><span className="portal-role-icon"><Icon size={23}/></span><div><strong>{selected.title}</strong><small>{selected.description}</small></div></div></div>
       <form className="login-card" onSubmit={submit}>
@@ -167,7 +167,7 @@ function LoginScreen({ role, onBack, onAuthenticated }: { role: PortalRole; onBa
 function AuthenticatedHome({ profile, role, onSignOut }: { profile: UserProfile; role: PortalRole; onSignOut: () => void }) {
   const label = role === 'citizen' ? 'Área do cidadão' : role === 'agent' ? 'Área do agente' : 'Área administrativa';
   return <main className="portal-page authenticated-page">
-    <header className="portal-header"><a className="portal-brand" href="#"><span className="portal-brand-mark">V</span><span><strong>VagaFácil</strong><small>Estacionar ficou mais fácil.</small></span></a><button className="portal-back" onClick={onSignOut}>Sair da conta</button></header>
+    <header className="portal-header"><a className="portal-brand" href="#"><img className="portal-brand-logo" src={`${import.meta.env.BASE_URL}IMG/logo.jpeg`} alt="VagaFácil" /><span><strong>VagaFácil</strong><small>Estacionar ficou mais fácil.</small></span></a><button className="portal-back" onClick={onSignOut}>Sair da conta</button></header>
     <section className="authenticated-card"><div className="login-card-icon"><CheckCircle2 size={23}/></div><span className="portal-kicker">ACESSO AUTENTICADO</span><h1>Olá, {profile.full_name || 'usuário'}.</h1><p>Sua conta foi autenticada com sucesso.</p><div className="auth-feedback success">{label} · Perfil ativo</div><p className="auth-pending">Os recursos operacionais deste ambiente serão liberados nas próximas etapas de desenvolvimento. Nenhum dado demonstrativo está sendo apresentado como dado real.</p></section>
     <footer className="portal-footer"><span>© 2026 VagaFácil · Plataforma municipal de estacionamento rotativo</span><span>Conexão segura</span></footer>
   </main>;
@@ -230,7 +230,7 @@ function Dashboard({ initialArea = 'admin' }: { initialArea?: Area }) {
   const title = area === 'admin' ? 'Central de controle' : area === 'agent' ? 'Painel operacional' : 'Olá, motorista!';
   return <div className="app-shell">
     <aside className={`sidebar ${menuOpen ? 'sidebar-open' : ''}`}>
-      <div className="brand"><div className="brand-mark">V</div><div><strong>VagaFácil</strong><span>Estacionar ficou mais fácil.</span></div><button className="icon-btn close-menu" onClick={() => setMenuOpen(false)} aria-label="Fechar menu"><X size={18}/></button></div>
+      <div className="brand"><img className="brand-logo" src={`${import.meta.env.BASE_URL}IMG/logo.jpeg`} alt="VagaFácil" /><div><strong>VagaFácil</strong><span>Estacionar ficou mais fácil.</span></div><button className="icon-btn close-menu" onClick={() => setMenuOpen(false)} aria-label="Fechar menu"><X size={18}/></button></div>
       <div className="workspace-label">AMBIENTE DE TRABALHO</div>
       <div className="area-switch">
         <button className={area === 'admin' ? 'selected' : ''} onClick={() => {setArea('admin');setActive(nav.admin[0]);}}>Administração</button>
