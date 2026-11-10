@@ -27,8 +27,7 @@ type PortalRole = 'citizen' | 'agent' | 'admin';
 
 const portalRoles: { id: PortalRole; title: string; description: string; action: string; icon: typeof CarFront; featured?: boolean; details: string[] }[] = [
   { id: 'citizen', title: 'Sou cidadão', description: 'Estacione com praticidade. Registre sua vaga, acompanhe o tempo e consulte seu histórico.', action: 'Acessar área do cidadão', icon: CarFront, featured: true, details: ['Registrar estacionamento', 'Acompanhar tempo restante', 'Gerenciar veículos'] },
-  { id: 'agent', title: 'Sou agente de trânsito', description: 'Acesse as ferramentas de fiscalização e consulta em campo.', action: 'Acesso do agente', icon: ShieldCheck, details: ['Consultar placas e sessões', 'Ver alertas operacionais', 'Registrar ocorrências'] },
-  { id: 'admin', title: 'Sou administrador', description: 'Gerencie a operação municipal, regras, zonas e indicadores.', action: 'Acesso administrativo', icon: Users, details: ['Gerenciar zonas e vagas', 'Administrar usuários', 'Acompanhar relatórios'] },
+  { id: 'admin', title: 'Área administrativa', description: 'Acesso de administradores, supervisores e agentes de trânsito.', action: 'Acessar área administrativa', icon: ShieldCheck, details: ['Fiscalização e consultas', 'Gerenciamento da operação', 'Usuários e relatórios'] },
 ];
 
 function Portal({ onSelect }: { onSelect: (role: PortalRole) => void }) {
@@ -133,7 +132,7 @@ function LoginScreen({ role, onBack, onAuthenticated }: { role: PortalRole; onBa
       const { data: profile, error: profileError } = await client.from('profiles').select('id,full_name,role,is_active').eq('id', data.user.id).single();
       if (profileError) { await client.auth.signOut(); throw new Error('Perfil não encontrado. Verifique se a migração do banco foi aplicada.'); }
       if (!profile.is_active) { await client.auth.signOut(); throw new Error('Acesso desativado. Procure a administração municipal.'); }
-      if (profile.role !== role && !(role === 'admin' && profile.role === 'supervisor')) { await client.auth.signOut(); throw new Error('Esta conta não tem permissão para acessar este ambiente.'); }
+      if (profile.role !== role && !(role === 'admin' && ['supervisor', 'agent'].includes(profile.role))) { await client.auth.signOut(); throw new Error('Esta conta não tem permissão para acessar este ambiente.'); }
       onAuthenticated(profile);
     });
   };
