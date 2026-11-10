@@ -921,12 +921,26 @@ th{font-size:12px!important;color:#263e54;background:#e4edf5}
 }
 
 
-/* Imagem oficial como único fundo da página inicial, levemente reduzida */
+/* Fundo exclusivo do portal: elimina os gradientes antigos do hero */
 .portal-page {
   position: relative;
   isolation: isolate;
-  background: #071b30 url('../IMG/banner.jpg') center center / 96% 96% no-repeat;
+  background-color: #071b30 !important;
+  background-image: url('../IMG/banner.jpg') !important;
+  background-position: center center !important;
+  background-size: 96% 96% !important;
+  background-repeat: no-repeat !important;
   background-attachment: fixed;
+}
+.portal-hero,
+.portal-hero::before,
+.portal-hero::after {
+  background: transparent !important;
+  background-image: none !important;
+}
+.portal-hero::before,
+.portal-hero::after {
+  content: none !important;
 }
 .portal-header,
 .portal-footer,
