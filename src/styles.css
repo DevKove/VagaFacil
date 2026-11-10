@@ -644,3 +644,10 @@ th{font-size:12px!important;color:#263e54;background:#e4edf5}
 .workspace-credential-notice>p{margin:0 0 12px;color:#653b17;font-size:14px;line-height:1.55}
 .workspace-credential-confirm{display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid #d6a65c;border-radius:9px;background:#fff;font-size:14px;font-weight:700;line-height:1.45;color:#422006;cursor:pointer}
 .workspace-credential-confirm input{width:19px;height:19px;min-height:19px;flex:0 0 auto;margin:1px 0 0;accent-color:#b45309}
+
+/* Centralizar acesso institucional no rodapé mobile */
+@media(max-width:520px){
+  .portal-footer-refined .portal-footer-actions{justify-content:center;width:100%}
+  .portal-footer-refined .institutional-access{margin-inline:auto}
+  .portal-footer-refined .institutional-toggle{justify-content:center}
+}
