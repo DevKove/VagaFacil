@@ -1,5 +1,8 @@
 -- Regras transacionais do estacionamento rotativo.
 -- A duração máxima é de 60 minutos, somente em dias úteis, das 09h às 18h.
+create unique index if not exists parking_sessions_one_active_user_idx
+  on public.parking_sessions (user_id) where status = 'active';
+
 create unique index if not exists parking_sessions_one_active_vehicle_idx
   on public.parking_sessions (vehicle_id) where status = 'active';
 
@@ -45,6 +48,7 @@ begin
     raise exception 'Apenas cidadãos com conta ativa podem registrar estacionamento.' using errcode = '42501';
   end if;
 
+  perform pg_advisory_xact_lock(hashtextextended(v_user_id::text, 0));
   perform pg_advisory_xact_lock(hashtextextended(p_vehicle_id::text, 0));
 
   select * into v_vehicle from public.vehicles v
@@ -90,6 +94,13 @@ begin
   update public.parking_sessions s
   set status = 'expired'
   where s.status = 'active' and s.expires_at <= now();
+
+  if exists (
+    select 1 from public.parking_sessions s
+    where s.user_id = v_user_id and s.status = 'active'
+  ) then
+    raise exception 'Você já possui um estacionamento em andamento.' using errcode = '23505';
+  end if;
 
   if exists (
     select 1 from public.parking_sessions s
