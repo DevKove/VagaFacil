@@ -191,11 +191,6 @@ function AdminMfaScreen({ profile, onVerified, onCancel }: { profile: UserProfil
           if (challenge.error) throw challenge.error;
           if (active) { setFactorId(verified.id); setChallengeId(challenge.data.id); setSetup(false); }
         } else {
-          const pending = data.totp.find(factor => factor.status === 'unverified');
-          if (pending) {
-            const removed = await supabase.auth.mfa.unenroll({ factorId: pending.id });
-            if (removed.error) throw removed.error;
-          }
           const enrollment = await supabase.auth.mfa.enroll({ factorType: 'totp', friendlyName: 'VagaFácil - Área administrativa' });
           if (enrollment.error) throw enrollment.error;
           if (active) {
