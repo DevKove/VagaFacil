@@ -48,7 +48,7 @@ function Portal({ onSelect }: { onSelect: (role: PortalRole) => void }) {
         <div className="portal-hero-points"><span><CheckCircle2 size={16}/> Rápido e intuitivo</span><span><Clock3 size={16}/> Controle do tempo</span></div>
       </div>
       <div className="portal-hero-art" aria-hidden="true">
-        <img className="portal-hero-image" src={`${import.meta.env.BASE_URL}IMG/banner.jpg`} alt="" />
+        <img className="portal-hero-image" src={new URL('../IMG/banner.jpg', import.meta.url).href} alt="" />
       </div>
     </section>
     <footer className="portal-footer portal-footer-refined">
