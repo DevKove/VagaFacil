@@ -89,7 +89,7 @@ begin
 
   update public.parking_sessions s
   set status = 'expired'
-  where s.vehicle_id = p_vehicle_id and s.status = 'active' and s.expires_at <= now();
+  where s.status = 'active' and s.expires_at <= now();
 
   if exists (
     select 1 from public.parking_sessions s
