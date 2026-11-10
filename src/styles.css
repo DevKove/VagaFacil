@@ -11,3 +11,20 @@
 @media(max-width:520px){.portal-header{height:68px;padding:0 18px}.portal-header-note{display:none}.portal-brand-mark{width:38px;height:38px}.portal-brand strong{font-size:18px}.portal-hero{padding:34px 22px 26px}.portal-hero h1{font-size:34px}.portal-hero-copy>p{font-size:11px}.portal-hero-points{gap:13px;flex-wrap:wrap;font-size:9px}.portal-hero-art{height:145px;transform:scale(.9);transform-origin:center top;margin-bottom:-12px}.road-sun{width:125px;height:125px}.road-car{width:120px;height:78px;right:27%;bottom:20px}.road-car svg{width:75px}.road-sign{transform:scale(.8);transform-origin:top right;right:4%}.portal-section-heading{align-items:flex-start}.portal-section-heading h2{font-size:21px}.portal-secure{font-size:0}.portal-role-grid{grid-template-columns:1fr}.portal-role-card,.portal-role-card.featured{grid-column:auto;min-height:0;padding:19px}.portal-role-card>p{min-height:0}.portal-role-card ul{margin:12px 0 16px}.portal-footer{padding:16px 18px;flex-direction:column}.login-layout{width:90%;padding:28px 0}.login-card{padding:22px}.portal-back{font-size:10px}}
 
 .portal-demo-link{border:0;background:transparent;color:#1789b5;font-size:9px;font-weight:700;cursor:pointer}.portal-demo-link:hover{text-decoration:underline}
+
+
+/* Autenticação e área autenticada */
+.auth-feedback{border-radius:8px;padding:11px 12px;margin-top:13px;font-size:10px;line-height:1.55}
+.auth-feedback.error{background:#fff0ee;border:1px solid #f2d0ca;color:#a74336}
+.auth-feedback.success{background:#edf9f3;border:1px solid #ccebd9;color:#237b55}
+.auth-links{display:flex;justify-content:space-between;gap:12px;margin-top:16px}
+.auth-links button,.login-create{border:0;background:transparent;color:#168bb7;font-size:10px;font-weight:700;cursor:pointer}
+.auth-links button:hover,.login-create:hover{text-decoration:underline}
+.login-card>button[type=submit]:disabled{opacity:.55;cursor:not-allowed}
+.auth-loading{margin:auto;color:#71879a;font-size:13px}
+.authenticated-page{background:linear-gradient(145deg,#f5f8fb,#edf5f8)}
+.authenticated-card{width:min(560px,90%);margin:auto;padding:38px;background:white;border:1px solid #e4ebf1;border-radius:16px;box-shadow:0 15px 45px #163c5b12}
+.authenticated-card h1{font:800 30px Manrope;color:#17334b;letter-spacing:-1px;margin:14px 0 8px}
+.authenticated-card>p{font-size:12px;line-height:1.7;color:#778a9b}
+.auth-pending{margin-top:22px!important;padding-top:18px;border-top:1px solid #e9eff3}
+@media(max-width:520px){.authenticated-card{padding:25px}.authenticated-card h1{font-size:25px}.auth-links{flex-direction:column;align-items:flex-start}}
