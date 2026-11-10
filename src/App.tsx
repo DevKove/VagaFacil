@@ -31,6 +31,7 @@ const portalRoles: { id: PortalRole; title: string; description: string; action:
 ];
 
 function Portal({ onSelect, onDemo }: { onSelect: (role: PortalRole) => void; onDemo: () => void }) {
+  const [institutionalOpen, setInstitutionalOpen] = useState(false);
   return <main className="portal-page">
     <header className="portal-header">
       <a className="portal-brand" href="#" aria-label="VagaFácil início"><img className="portal-brand-logo" src={`${import.meta.env.BASE_URL}IMG/logo.jpeg`} alt="VagaFácil" /><span><strong>VagaFácil</strong><small>Estacionar ficou mais fácil.</small></span></a>
@@ -44,27 +45,29 @@ function Portal({ onSelect, onDemo }: { onSelect: (role: PortalRole) => void; on
         <div className="portal-hero-points"><span><CheckCircle2 size={16}/> Rápido e intuitivo</span><span><Clock3 size={16}/> Controle do tempo</span></div>
       </div>
       <div className="portal-hero-art" aria-hidden="true">
-        <div className="road-sun"/>
-        <div className="road-line"/>
-        <div className="road-car"><CarFront size={96} strokeWidth={1.15}/></div>
-        <div className="road-sign"><span>P</span><small>ROTATIVO</small></div>
-        <div className="road-pin"><MapPin size={18}/><span>Vaga disponível</span></div>
+        <div className="road-sun"/><div className="road-line"/><div className="road-car"><CarFront size={96} strokeWidth={1.15}/></div>
+        <div className="road-sign"><span>P</span><small>ROTATIVO</small></div><div className="road-pin"><MapPin size={18}/><span>Vaga disponível</span></div>
       </div>
     </section>
-    <section className="portal-access">
-      <div className="portal-section-heading"><div><span className="portal-kicker">ACESSO À PLATAFORMA</span><h2>Como deseja acessar?</h2><p>Escolha seu perfil para continuar.</p></div><span className="portal-secure"><ShieldCheck size={15}/> Acesso por perfil</span></div>
-      <div className="portal-role-grid">
-        {portalRoles.map(role => <article key={role.id} className={role.featured ? 'portal-role-card featured' : 'portal-role-card'}>
-          {role.featured && <span className="portal-featured-tag">MAIS UTILIZADO</span>}
-          <div className="portal-role-icon"><role.icon size={24}/></div>
-          <h3>{role.title}</h3><p>{role.description}</p>
-          <ul>{role.details.map(detail => <li key={detail}><CheckCircle2 size={14}/>{detail}</li>)}</ul>
-          <button className={role.featured ? 'portal-role-button primary' : 'portal-role-button'} onClick={() => onSelect(role.id)}>{role.action}<ArrowUpRight size={17}/></button>
-        </article>)}
-      </div>
-      <p className="portal-help">Ainda não tem cadastro? <span>O acesso do cidadão poderá ser criado na própria plataforma.</span></p>
+    <section className="portal-access citizen-access">
+      <div className="portal-section-heading"><div><span className="portal-kicker">ÁREA DO CIDADÃO</span><h2>Seu estacionamento, sem complicação.</h2><p>Entre para registrar sua vaga e acompanhar o tempo de permanência.</p></div><span className="portal-secure"><ShieldCheck size={15}/> Ambiente seguro</span></div>
+      <article className="citizen-login-card">
+        <div className="citizen-login-icon"><CarFront size={34}/></div>
+        <div className="citizen-login-copy"><span className="citizen-login-eyebrow">ACESSO PRINCIPAL</span><h3>Bem-vindo ao VagaFácil</h3><p>Consulte seus veículos, registre um estacionamento e acompanhe seu tempo restante em um só lugar.</p><div className="citizen-benefits"><span><CheckCircle2 size={15}/> Cadastro gratuito</span><span><Clock3 size={15}/> Tempo em tempo real</span><span><CarFront size={15}/> Seus veículos</span></div></div>
+        <div className="citizen-login-actions"><button className="citizen-primary-button" onClick={() => onSelect('citizen')}>Entrar como cidadão <ArrowUpRight size={19}/></button><span>Primeiro acesso? Você pode criar sua conta gratuitamente.</span></div>
+      </article>
     </section>
-    <footer className="portal-footer"><span>© 2026 VagaFácil · Plataforma municipal de estacionamento rotativo</span><span>Mobilidade mais simples para todos.</span><button className="portal-demo-link" onClick={onDemo}>Visualizar painel demonstrativo</button></footer>
+    <footer className="portal-footer portal-footer-refined">
+      <span>© 2026 VagaFácil · Plataforma municipal de estacionamento rotativo</span>
+      <span>Mobilidade mais simples para todos.</span>
+      <div className="portal-footer-actions">
+        <button className="portal-demo-link" onClick={onDemo}>Painel demonstrativo</button>
+        <div className="institutional-access">
+          <button type="button" className="institutional-toggle" aria-expanded={institutionalOpen} onClick={() => setInstitutionalOpen(open => !open)}><LockKeyhole size={13}/> Acesso institucional <ChevronDown size={13}/></button>
+          {institutionalOpen && <div className="institutional-menu"><span>ACESSO RESTRITO</span><button onClick={() => onSelect('agent')}><ShieldCheck size={15}/> Agente de trânsito</button><button onClick={() => onSelect('admin')}><Users size={15}/> Administração</button></div>}
+        </div>
+      </div>
+    </footer>
   </main>;
 }
 
