@@ -2,14 +2,15 @@
   "name": "VagaFácil",
   "short_name": "VagaFácil",
   "description": "Estacionar ficou mais fácil.",
-  "start_url": "/",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#f4f7fb",
   "theme_color": "#102a43",
   "lang": "pt-BR",
   "icons": [
     {
-      "src": "/favicon.svg",
+      "src": "./favicon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
