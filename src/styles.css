@@ -1211,7 +1211,22 @@ th{font-size:12px!important;color:#263e54;background:#e4edf5}
     filter: none !important;
   }
 
+  .portal-hero-backdrop {
+    position: absolute !important;
+    inset: -14px !important;
+    display: block !important;
+    width: calc(100% + 28px) !important;
+    height: calc(100% + 28px) !important;
+    max-width: none !important;
+    object-fit: cover !important;
+    object-position: 100% center !important;
+    filter: blur(9px) brightness(.58) saturate(1.18) !important;
+    transform: scale(1.04);
+  }
+
   .portal-hero-image {
+    position: absolute !important;
+    inset: 0 !important;
     display: block !important;
     width: 100% !important;
     height: 100% !important;
@@ -1220,6 +1235,7 @@ th{font-size:12px!important;color:#263e54;background:#e4edf5}
     object-fit: contain !important;
     object-position: center center !important;
     border-radius: 0 !important;
+    filter: drop-shadow(0 8px 20px rgba(0,0,0,.28));
   }
 
   .portal-footer,
