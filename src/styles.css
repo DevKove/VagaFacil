@@ -653,13 +653,36 @@ th{font-size:12px!important;color:#263e54;background:#e4edf5}
 }
 
 
-/* Login acima do banner institucional */
-.login-page .login-layout{display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:24px;width:min(960px,88%);margin:0 auto;padding:28px 0 48px}
-.login-page .login-card{order:0;width:min(100%,560px);margin:0 auto}
-.login-page .login-intro{order:1;width:100%;padding:30px 36px;border-radius:18px;background:linear-gradient(112deg,#06172b 0%,#064b9b 48%,#087cf5 78%,#007d72 115%);box-shadow:0 14px 34px #071d3520}
+/* Login imediatamente abaixo do cabeçalho; banner institucional em seguida */
+.login-page .login-form-section{
+  width:min(560px,90%);
+  margin:28px auto 0;
+  position:relative;
+  z-index:2;
+}
+.login-page .login-card{width:100%;margin:0;padding:30px}
+.login-page .login-banner{
+  width:min(960px,88%);
+  margin:24px auto 48px;
+  position:relative;
+  z-index:1;
+}
+.login-page .login-intro{
+  width:100%;
+  padding:30px 36px;
+  border-radius:18px;
+  background:linear-gradient(112deg,#06172b 0%,#064b9b 48%,#087cf5 78%,#007d72 115%);
+  box-shadow:0 14px 34px #071d3520;
+}
 .login-page .login-intro .portal-kicker{color:#d6f7ff}
 .login-page .login-intro h1{color:#fff;margin-top:12px}
 .login-page .login-intro h1 em{color:#39e4ff}
 .login-page .login-intro>p{color:#f0f7ff;max-width:620px}
 .login-page .login-role-summary{background:#ffffffed;border-color:#ffffff70;max-width:560px}
-@media(max-width:760px){.login-page .login-layout{width:90%;gap:18px;padding:20px 0 32px}.login-page .login-card{max-width:100%;padding:22px}.login-page .login-intro{padding:22px;border-radius:15px}.login-page .login-intro h1{font-size:32px}}
+@media(max-width:760px){
+  .login-page .login-form-section{width:90%;margin:20px auto 0}
+  .login-page .login-card{max-width:100%;padding:22px}
+  .login-page .login-banner{width:90%;margin:18px auto 32px}
+  .login-page .login-intro{padding:22px;border-radius:15px}
+  .login-page .login-intro h1{font-size:32px}
+}
