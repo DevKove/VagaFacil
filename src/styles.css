@@ -1159,7 +1159,8 @@ th{font-size:12px!important;color:#263e54;background:#e4edf5}
     min-height: 100svh;
     height: 100svh;
     overflow: hidden;
-    background: #061a30 url('../IMG/banner.jpg') no-repeat right 50% / auto 78svh !important;
+    background: #061a30 !important;
+    background-image: none !important;
     background-attachment: scroll !important;
   }
 
@@ -1194,8 +1195,32 @@ th{font-size:12px!important;color:#263e54;background:#e4edf5}
     background: transparent !important;
   }
 
-  .portal-hero-art,
-  .portal-hero-image { display: none !important; }
+  /* Usa o próprio elemento IMG como camada de fundo: evita falhas de URL/cascade do background CSS */
+  .portal-hero-art {
+    display: block !important;
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 0 !important;
+    width: 100vw !important;
+    height: 100svh !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    pointer-events: none !important;
+    filter: none !important;
+  }
+
+  .portal-hero-image {
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    aspect-ratio: auto !important;
+    object-fit: cover !important;
+    object-position: 88% center !important;
+    border-radius: 0 !important;
+  }
 
   .portal-footer,
   .portal-footer-refined {
