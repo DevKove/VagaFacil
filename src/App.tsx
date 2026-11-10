@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Activity, AlertTriangle, ArrowDownRight, ArrowUpRight, Bell, CarFront, CheckCircle2, ChevronDown, Clock3, LockKeyhole, MapPin, Menu, Search, ShieldCheck, Users, X } from 'lucide-react';
-import { isSupabaseConfigured } from './lib/supabase';
+import { isSupabaseConfigured, supabase } from './lib/supabase';
 
 type Area = 'admin' | 'agent' | 'citizen';
 const nav = {
@@ -29,7 +29,7 @@ const portalRoles: { id: PortalRole; title: string; description: string; action:
   { id: 'admin', title: 'Sou administrador', description: 'Gerencie a operação municipal, regras, zonas e indicadores.', action: 'Acesso administrativo', icon: Users, details: ['Gerenciar zonas e vagas', 'Administrar usuários', 'Acompanhar relatórios'] },
 ];
 
-function Portal({ onSelect }: { onSelect: (role: PortalRole) => void }) {
+function Portal({ onSelect, onDemo }: { onSelect: (role: PortalRole) => void; onDemo: () => void }) {
   return <main className="portal-page">
     <header className="portal-header">
       <a className="portal-brand" href="#" aria-label="VagaFácil início"><span className="portal-brand-mark">V</span><span><strong>VagaFácil</strong><small>Estacionar ficou mais fácil.</small></span></a>
@@ -63,36 +63,150 @@ function Portal({ onSelect }: { onSelect: (role: PortalRole) => void }) {
       </div>
       <p className="portal-help">Ainda não tem cadastro? <span>O acesso do cidadão poderá ser criado na própria plataforma.</span></p>
     </section>
-    <footer className="portal-footer"><span>© 2026 VagaFácil · Plataforma municipal de estacionamento rotativo</span><span>Mobilidade mais simples para todos.</span><button className="portal-demo-link" onClick={() => setShowDemo(true)}>Visualizar painel demonstrativo</button></footer>
+    <footer className="portal-footer"><span>© 2026 VagaFácil · Plataforma municipal de estacionamento rotativo</span><span>Mobilidade mais simples para todos.</span><button className="portal-demo-link" onClick={onDemo}>Visualizar painel demonstrativo</button></footer>
   </main>;
 }
 
-function LoginScreen({ role, onBack }: { role: PortalRole; onBack: () => void }) {
+type UserProfile = { full_name: string; role: string; is_active: boolean };
+
+function LoginScreen({ role, onBack, onAuthenticated }: { role: PortalRole; onBack: () => void; onAuthenticated: (profile: UserProfile) => void }) {
   const selected = portalRoles.find(item => item.id === role)!;
   const Icon = selected.icon;
+  const [mode, setMode] = useState<'login' | 'signup' | 'recover' | 'password'>(
+    new URLSearchParams(window.location.search).get('recovery') === '1' ? 'password' : 'login'
+  );
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmation, setConfirmation] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
+
+  const redirectUrl = `${window.location.origin}${import.meta.env.BASE_URL}`;
+  const run = async (action: () => Promise<void>) => {
+    setBusy(true); setError(''); setMessage('');
+    try { await action(); } catch (err) { setError(err instanceof Error ? err.message : 'Não foi possível concluir a operação.'); }
+    finally { setBusy(false); }
+  };
+
+  const submit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!supabase) { setError('Serviço de autenticação não configurado. Configure VITE_SUPABASE_URL e VITE_SUPABASE_PUBLISHABLE_KEY.'); return; }
+    void run(async () => {
+      if (mode === 'signup') {
+        if (password.length < 10) throw new Error('A senha deve ter pelo menos 10 caracteres.');
+        if (!name.trim()) throw new Error('Informe seu nome completo.');
+        const { data, error: authError } = await supabase.auth.signUp({
+          email: email.trim().toLowerCase(), password,
+          options: { emailRedirectTo: redirectUrl, data: { full_name: name.trim(), phone: phone.trim() || null } },
+        });
+        if (authError) throw authError;
+        if (data.session) {
+          const { data: profile, error: profileError } = await supabase.from('profiles').select('full_name,role,is_active').eq('id', data.user!.id).single();
+          if (profileError) throw profileError;
+          if (profile.role !== 'citizen' || !profile.is_active) throw new Error('Este cadastro não possui autorização para a área do cidadão.');
+          onAuthenticated(profile);
+        } else {
+          setMessage('Cadastro recebido. Verifique seu e-mail para confirmar a conta e depois entre na plataforma.');
+          setMode('login');
+        }
+        return;
+      }
+      if (mode === 'recover') {
+        const { error: resetError } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), { redirectTo: `${redirectUrl}?recovery=1` });
+        if (resetError) throw resetError;
+        setMessage('Se o endereço estiver cadastrado, você receberá as instruções para redefinir a senha.');
+        return;
+      }
+      if (mode === 'password') {
+        if (password.length < 10) throw new Error('A nova senha deve ter pelo menos 10 caracteres.');
+        if (password !== confirmation) throw new Error('As senhas não coincidem.');
+        const { error: updateError } = await supabase.auth.updateUser({ password });
+        if (updateError) throw updateError;
+        setMessage('Senha atualizada. Você já pode continuar usando sua conta.');
+        window.history.replaceState({}, '', redirectUrl);
+        setMode('login');
+        return;
+      }
+      const { data, error: authError } = await supabase.auth.signInWithPassword({ email: email.trim().toLowerCase(), password });
+      if (authError) throw authError;
+      const { data: profile, error: profileError } = await supabase.from('profiles').select('full_name,role,is_active').eq('id', data.user.id).single();
+      if (profileError) { await supabase.auth.signOut(); throw new Error('Perfil não encontrado. Verifique se a migração do banco foi aplicada.'); }
+      if (!profile.is_active) { await supabase.auth.signOut(); throw new Error('Acesso desativado. Procure a administração municipal.'); }
+      if (profile.role !== role) { await supabase.auth.signOut(); throw new Error('Esta conta não tem permissão para acessar este ambiente.'); }
+      onAuthenticated(profile);
+    });
+  };
+
+  const title = mode === 'signup' ? 'Criar conta de cidadão' : mode === 'recover' ? 'Recuperar acesso' : mode === 'password' ? 'Nova senha' : 'Entrar na sua conta';
   return <main className="portal-page login-page">
     <header className="portal-header"><a className="portal-brand" href="#" onClick={e => {e.preventDefault();onBack();}}><span className="portal-brand-mark">V</span><span><strong>VagaFácil</strong><small>Estacionar ficou mais fácil.</small></span></a><button className="portal-back" onClick={onBack}>← Voltar aos perfis</button></header>
     <section className="login-layout">
       <div className="login-intro"><span className="portal-kicker">ÁREA DE ACESSO</span><h1>Bem-vindo ao<br/><em>VagaFácil.</em></h1><p>Entre para continuar usando os serviços da plataforma.</p><div className="login-role-summary"><span className="portal-role-icon"><Icon size={23}/></span><div><strong>{selected.title}</strong><small>{selected.description}</small></div></div></div>
-      <form className="login-card" onSubmit={e => e.preventDefault()}>
-        <div className="login-card-icon"><Icon size={22}/></div><h2>Entrar na sua conta</h2><p>Informe seus dados de acesso.</p>
-        <label>E-mail<input type="email" placeholder="seu@email.com" autoComplete="username" required /></label>
-        <label>Senha<input type="password" placeholder="Digite sua senha" autoComplete="current-password" required /></label>
-        <button type="submit" disabled>Entrar <ArrowUpRight size={17}/></button>
-        <div className="login-unavailable"><LockKeyhole size={16}/><span>A autenticação ainda está em implantação. O acesso será liberado após a configuração do serviço de contas.</span></div>
-        {role === 'citizen' && <button type="button" className="login-create" disabled>Criar minha conta em breve</button>}
+      <form className="login-card" onSubmit={submit}>
+        <div className="login-card-icon"><Icon size={22}/></div><h2>{title}</h2><p>{mode === 'signup' ? 'Preencha seus dados para começar.' : mode === 'recover' ? 'Informe seu e-mail cadastrado.' : mode === 'password' ? 'Escolha uma senha segura.' : 'Informe seus dados de acesso.'}</p>
+        {mode === 'signup' && <><label>Nome completo<input value={name} onChange={e=>setName(e.target.value)} autoComplete="name" maxLength={120} required /></label><label>Telefone (opcional)<input value={phone} onChange={e=>setPhone(e.target.value)} autoComplete="tel" maxLength={20} /></label></>}
+        {mode !== 'password' && <label>E-mail<input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="seu@email.com" autoComplete="email" required /></label>}
+        {(mode === 'login' || mode === 'signup' || mode === 'password') && <label>{mode === 'password' ? 'Nova senha' : 'Senha'}<input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Mínimo de 10 caracteres" autoComplete={mode === 'login' ? 'current-password' : 'new-password'} minLength={10} required /></label>}
+        {mode === 'password' && <label>Confirmar nova senha<input type="password" value={confirmation} onChange={e=>setConfirmation(e.target.value)} autoComplete="new-password" minLength={10} required /></label>}
+        <button type="submit" disabled={busy || !isSupabaseConfigured}>{busy ? 'Aguarde...' : mode === 'signup' ? 'Criar minha conta' : mode === 'recover' ? 'Enviar instruções' : mode === 'password' ? 'Salvar nova senha' : 'Entrar'} <ArrowUpRight size={17}/></button>
+        {error && <div className="auth-feedback error" role="alert">{error}</div>}
+        {message && <div className="auth-feedback success" role="status">{message}</div>}
+        {!isSupabaseConfigured && <div className="login-unavailable"><LockKeyhole size={16}/><span>Configure as credenciais públicas do Supabase para habilitar o acesso.</span></div>}
+        {role === 'citizen' && mode === 'login' && <div className="auth-links"><button type="button" onClick={()=>{setMode('recover');setError('');setMessage('');}}>Esqueci minha senha</button><button type="button" onClick={()=>{setMode('signup');setError('');setMessage('');}}>Criar minha conta</button></div>}
+        {mode !== 'login' && <button type="button" className="login-create" onClick={()=>{setMode('login');setError('');setMessage('');}}>Voltar para entrar</button>}
       </form>
     </section>
     <footer className="portal-footer"><span>© 2026 VagaFácil · Plataforma municipal de estacionamento rotativo</span><span>Ambiente seguro de acesso</span></footer>
   </main>;
 }
 
+function AuthenticatedHome({ profile, role, onSignOut }: { profile: UserProfile; role: PortalRole; onSignOut: () => void }) {
+  const label = role === 'citizen' ? 'Área do cidadão' : role === 'agent' ? 'Área do agente' : 'Área administrativa';
+  return <main className="portal-page authenticated-page">
+    <header className="portal-header"><a className="portal-brand" href="#"><span className="portal-brand-mark">V</span><span><strong>VagaFácil</strong><small>Estacionar ficou mais fácil.</small></span></a><button className="portal-back" onClick={onSignOut}>Sair da conta</button></header>
+    <section className="authenticated-card"><div className="login-card-icon"><CheckCircle2 size={23}/></div><span className="portal-kicker">ACESSO AUTENTICADO</span><h1>Olá, {profile.full_name || 'usuário'}.</h1><p>Sua conta foi autenticada com sucesso.</p><div className="auth-feedback success">{label} · Perfil ativo</div><p className="auth-pending">Os recursos operacionais deste ambiente serão liberados nas próximas etapas de desenvolvimento. Nenhum dado demonstrativo está sendo apresentado como dado real.</p></section>
+    <footer className="portal-footer"><span>© 2026 VagaFácil · Plataforma municipal de estacionamento rotativo</span><span>Conexão segura</span></footer>
+  </main>;
+}
+
 export default function App() {
   const [selectedRole, setSelectedRole] = useState<PortalRole | null>(null);
   const [showDemo, setShowDemo] = useState(false);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [authLoading, setAuthLoading] = useState(Boolean(supabase));
+
+  useEffect(() => {
+    if (!supabase) { setAuthLoading(false); return; }
+    let alive = true;
+    const loadProfile = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!alive) return;
+      if (!session) { setAuthLoading(false); return; }
+      const { data, error } = await supabase.from('profiles').select('full_name,role,is_active').eq('id', session.user.id).single();
+      if (!alive) return;
+      if (error || !data?.is_active) { await supabase.auth.signOut(); setProfile(null); }
+      else setProfile(data);
+      setAuthLoading(false);
+    };
+    void loadProfile();
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session) { setProfile(null); setAuthLoading(false); }
+    });
+    return () => { alive = false; listener.subscription.unsubscribe(); };
+  }, []);
+
+  const signOut = async () => { if (supabase) await supabase.auth.signOut(); setProfile(null); setSelectedRole(null); setShowDemo(false); };
+  if (authLoading) return <main className="portal-page"><div className="auth-loading">Verificando sessão segura...</div></main>;
+  if (profile) {
+    const role: PortalRole = profile.role === 'admin' ? 'admin' : profile.role === 'agent' ? 'agent' : 'citizen';
+    return <AuthenticatedHome profile={profile} role={role} onSignOut={signOut}/>;
+  }
   if (showDemo) return <Dashboard initialArea={selectedRole === 'citizen' ? 'citizen' : selectedRole === 'agent' ? 'agent' : 'admin'} />;
-  if (selectedRole) return <LoginScreen role={selectedRole} onBack={() => setSelectedRole(null)} />;
-  return <Portal onSelect={setSelectedRole} />;
+  if (selectedRole) return <LoginScreen role={selectedRole} onBack={() => setSelectedRole(null)} onAuthenticated={setProfile} />;
+  return <Portal onSelect={setSelectedRole} onDemo={() => setShowDemo(true)} />;
 }
 
 function Dashboard({ initialArea = 'admin' }: { initialArea?: Area }) {
