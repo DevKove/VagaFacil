@@ -200,7 +200,7 @@ function AdminMfaScreen({ profile, onVerified, onCancel }: { profile: UserProfil
             const { error: unenrollError } = await supabase.auth.mfa.unenroll({ factorId: factor.id });
             if (unenrollError) throw new Error(`Não foi possível reiniciar a configuração do autenticador: ${unenrollError.message}`);
           }
-          const enrollment = await supabase.auth.mfa.enroll({ factorType: 'totp', friendlyName: 'VagaFácil - Área administrativa' });
+          const enrollment = await supabase.auth.mfa.enroll({ factorType: 'totp', friendlyName: 'VagaFácil - Área administrativa', issuer: 'VagaFácil' });
           if (enrollment.error) throw enrollment.error;
           if (active) {
             setFactorId(enrollment.data.id);
