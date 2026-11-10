@@ -31,7 +31,7 @@ const portalRoles: { id: PortalRole; title: string; description: string; action:
   { id: 'admin', title: 'Sou administrador', description: 'Gerencie a operação municipal, regras, zonas e indicadores.', action: 'Acesso administrativo', icon: Users, details: ['Gerenciar zonas e vagas', 'Administrar usuários', 'Acompanhar relatórios'] },
 ];
 
-function Portal({ onSelect, onDemo }: { onSelect: (role: PortalRole) => void; onDemo: () => void }) {
+function Portal({ onSelect }: { onSelect: (role: PortalRole) => void }) {
   const [institutionalOpen, setInstitutionalOpen] = useState(false);
   return <main className="portal-page">
     <header className="portal-header">
@@ -62,7 +62,6 @@ function Portal({ onSelect, onDemo }: { onSelect: (role: PortalRole) => void; on
       <span>© 2026 VagaFácil · Plataforma municipal de estacionamento rotativo</span>
       <span>Mobilidade mais simples para todos.</span>
       <div className="portal-footer-actions">
-        <button className="portal-demo-link" onClick={onDemo}>Painel demonstrativo</button>
         <div className="institutional-access">
           <button type="button" className="institutional-toggle" aria-expanded={institutionalOpen} onClick={() => setInstitutionalOpen(open => !open)}><LockKeyhole size={13}/> Acesso institucional <ChevronDown size={13}/></button>
           {institutionalOpen && <div className="institutional-menu"><span>ACESSO RESTRITO</span><button onClick={() => onSelect('agent')}><ShieldCheck size={15}/> Agente de trânsito</button><button onClick={() => onSelect('admin')}><Users size={15}/> Administração</button></div>}
@@ -223,7 +222,7 @@ export default function App() {
   }
   if (showDemo) return <Dashboard initialArea={selectedRole === 'citizen' ? 'citizen' : selectedRole === 'agent' ? 'agent' : 'admin'} />;
   if (selectedRole) return <LoginScreen role={selectedRole} onBack={() => setSelectedRole(null)} onAuthenticated={setProfile} />;
-  return <Portal onSelect={setSelectedRole} onDemo={() => setShowDemo(true)} />;
+  return <Portal onSelect={setSelectedRole} />;
 }
 
 function Dashboard({ initialArea = 'admin' }: { initialArea?: Area }) {
