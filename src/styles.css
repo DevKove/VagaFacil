@@ -623,3 +623,17 @@ th{font-size:12px!important;color:#263e54;background:#e4edf5}
 @media(prefers-reduced-motion:reduce){
  .portal-page::before,.app-shell::before,.citizen-workspace::before{background-attachment:initial}
 }
+
+
+/* Seleção de categoria de permanência no registro do cidadão */
+.workspace-beneficiary{min-width:0;margin:18px 0;padding:16px;border:1px solid #8fa6b9;border-radius:14px;background:linear-gradient(135deg,#f0f8ff,#e8f8f4)}
+.workspace-beneficiary legend{padding:0 7px;font-size:15px;font-weight:800;color:#102b45}
+.workspace-beneficiary>p{margin:0 0 12px;color:#344b61;font-size:14px}
+.workspace-beneficiary-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.workspace-beneficiary-options label{display:flex;align-items:flex-start;gap:9px;min-width:0;padding:13px;border:2px solid #b8c9d8;border-radius:11px;background:#fff;cursor:pointer}
+.workspace-beneficiary-options label.selected{border-color:#075fe0;background:linear-gradient(145deg,#e5f3ff,#e2fbf5);box-shadow:0 0 0 2px #075fe01c}
+.workspace-beneficiary-options input{width:18px;height:18px;min-height:18px;margin:2px 0 0;accent-color:#075fe0;flex:0 0 auto}
+.workspace-beneficiary-options span{display:grid;gap:4px}
+.workspace-beneficiary-options strong{font-size:14px;color:#071d35}
+.workspace-beneficiary-options small{font-size:13px;color:#0759a5}
+@media(max-width:760px){.workspace-beneficiary{padding:12px}.workspace-beneficiary-options{grid-template-columns:1fr}.workspace-beneficiary-options label{padding:12px}}
