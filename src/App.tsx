@@ -32,6 +32,7 @@ const portalRoles: { id: PortalRole; title: string; description: string; action:
 
 function Portal({ onSelect }: { onSelect: (role: PortalRole) => void }) {
   const [accessOpen, setAccessOpen] = useState(false);
+  const [adminOptionsOpen, setAdminOptionsOpen] = useState(false);
   return <main className="portal-page">
     <header className="portal-header">
       <a className="portal-brand" href="#" aria-label="VagaFácil início"><img className="portal-brand-logo" src={`${import.meta.env.BASE_URL}IMG/logo-vagafacil.svg`} alt="VagaFácil" /><span><strong>VagaFácil</strong><small>Estacionar ficou mais fácil.</small></span></a>
@@ -57,7 +58,12 @@ function Portal({ onSelect }: { onSelect: (role: PortalRole) => void }) {
       <section className="access-picker" role="dialog" aria-modal="true" aria-labelledby="access-picker-title">
         <button type="button" className="access-picker-close" aria-label="Fechar" onClick={() => setAccessOpen(false)}><X size={20}/></button>
         <span className="portal-kicker">ACESSO À PLATAFORMA</span><h2 id="access-picker-title">Como deseja entrar?</h2><p>Selecione o ambiente correspondente ao seu perfil.</p>
-        {portalRoles.map(item => <button type="button" className="access-picker-option" key={item.id} onClick={() => { setAccessOpen(false); onSelect(item.id); }}><span className="portal-role-icon"><item.icon size={22}/></span><span><strong>{item.title}</strong><small>{item.description}</small></span><ArrowUpRight size={19}/></button>)}
+        <button type="button" className="access-picker-option" onClick={() => { setAccessOpen(false); onSelect('citizen'); }}><span className="portal-role-icon"><CarFront size={22}/></span><span><strong>Sou cidadão</strong><small>Registre estacionamentos, acompanhe o tempo e consulte seus veículos.</small></span><ArrowUpRight size={19}/></button>
+        <button type="button" className="access-picker-option" aria-expanded={adminOptionsOpen} onClick={() => setAdminOptionsOpen(value => !value)}><span className="portal-role-icon"><ShieldCheck size={22}/></span><span><strong>Área administrativa</strong><small>Acesso restrito para agentes de trânsito e administradores.</small></span><ChevronDown size={19}/></button>
+        {adminOptionsOpen && <div className="access-picker-suboptions">
+          <button type="button" className="access-picker-option" onClick={() => { setAccessOpen(false); onSelect('agent'); }}><span className="portal-role-icon"><ShieldCheck size={20}/></span><span><strong>Agente de trânsito</strong><small>Fiscalização e consultas operacionais.</small></span><ArrowUpRight size={18}/></button>
+          <button type="button" className="access-picker-option" onClick={() => { setAccessOpen(false); onSelect('admin'); }}><span className="portal-role-icon"><Users size={20}/></span><span><strong>Administrador</strong><small>Gestão da plataforma e da operação municipal.</small></span><ArrowUpRight size={18}/></button>
+        </div>}
       </section>
     </div>}
   </main>;
@@ -65,7 +71,7 @@ function Portal({ onSelect }: { onSelect: (role: PortalRole) => void }) {
 
 type UserProfile = { id: string; full_name: string; role: string; is_active: boolean };
 
-function LoginScreen({ role, onBack, onAuthenticated }: { role: PortalRole; onBack: () => void; onAuthenticated: (profile: UserProfile) => void }) {
+function LoginScreen({ role, onBack, onAuthenticated, onMfaRequired }: { role: PortalRole; onBack: () => void; onAuthenticated: (profile: UserProfile) => void; onMfaRequired: (profile: UserProfile) => void }) {
   const selected = portalRoles.find(item => item.id === role)!;
   const Icon = selected.icon;
   const [mode, setMode] = useState<'login' | 'signup' | 'recover' | 'password'>(
@@ -133,7 +139,8 @@ function LoginScreen({ role, onBack, onAuthenticated }: { role: PortalRole; onBa
       if (profileError) { await client.auth.signOut(); throw new Error('Perfil não encontrado. Verifique se a migração do banco foi aplicada.'); }
       if (!profile.is_active) { await client.auth.signOut(); throw new Error('Acesso desativado. Procure a administração municipal.'); }
       if (profile.role !== role && !(role === 'admin' && ['supervisor', 'agent'].includes(profile.role))) { await client.auth.signOut(); throw new Error('Esta conta não tem permissão para acessar este ambiente.'); }
-      onAuthenticated(profile);
+      if (profile.role === 'admin' || profile.role === 'supervisor' || profile.role === 'agent') onMfaRequired(profile);
+      else onAuthenticated(profile);
     });
   };
 
@@ -160,6 +167,96 @@ function LoginScreen({ role, onBack, onAuthenticated }: { role: PortalRole; onBa
   </div>;
 }
 
+function AdminMfaScreen({ profile, onVerified, onCancel }: { profile: UserProfile; onVerified: () => void; onCancel: () => void }) {
+  const [factorId, setFactorId] = useState('');
+  const [challengeId, setChallengeId] = useState('');
+  const [qrCode, setQrCode] = useState('');
+  const [secret, setSecret] = useState('');
+  const [code, setCode] = useState('');
+  const [setup, setSetup] = useState(false);
+  const [busy, setBusy] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    let active = true;
+    const initialize = async () => {
+      if (!supabase) { setError('Serviço de autenticação indisponível.'); setBusy(false); return; }
+      try {
+        const { data, error: factorsError } = await supabase.auth.mfa.listFactors();
+        if (factorsError) throw factorsError;
+        const verified = data.totp.find(factor => factor.status === 'verified');
+        if (verified) {
+          const challenge = await supabase.auth.mfa.challenge({ factorId: verified.id });
+          if (challenge.error) throw challenge.error;
+          if (active) { setFactorId(verified.id); setChallengeId(challenge.data.id); setSetup(false); }
+        } else {
+          const pending = data.totp.find(factor => factor.status === 'unverified');
+          if (pending) {
+            const removed = await supabase.auth.mfa.unenroll({ factorId: pending.id });
+            if (removed.error) throw removed.error;
+          }
+          const enrollment = await supabase.auth.mfa.enroll({ factorType: 'totp', friendlyName: 'VagaFácil - Área administrativa' });
+          if (enrollment.error) throw enrollment.error;
+          if (active) {
+            setFactorId(enrollment.data.id);
+            setQrCode(enrollment.data.totp.qr_code);
+            setSecret(enrollment.data.totp.secret);
+            setSetup(true);
+          }
+        }
+      } catch (err) {
+        if (active) setError(err instanceof Error ? err.message : 'Não foi possível iniciar a autenticação em duas etapas.');
+      } finally { if (active) setBusy(false); }
+    };
+    void initialize();
+    return () => { active = false; };
+  }, []);
+
+  const verify = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!supabase || !factorId || !/^\d{6}$/.test(code)) { setError('Informe o código de 6 dígitos do aplicativo autenticador.'); return; }
+    void (async () => {
+      setBusy(true); setError('');
+      try {
+        let currentChallengeId = challengeId;
+        if (setup || !currentChallengeId) {
+          const challenge = await supabase.auth.mfa.challenge({ factorId });
+          if (challenge.error) throw challenge.error;
+          currentChallengeId = challenge.data.id;
+        }
+        const result = await supabase.auth.mfa.verify({ factorId, challengeId: currentChallengeId, code });
+        if (result.error) throw result.error;
+        const assurance = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+        if (assurance.error) throw assurance.error;
+        if (assurance.data.currentLevel !== 'aal2') throw new Error('A autenticação em duas etapas ainda não foi concluída.');
+        onVerified();
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Código inválido ou expirado. Confira o aplicativo autenticador e tente novamente.');
+        setCode('');
+      } finally { setBusy(false); }
+    })();
+  };
+
+  return <div className="auth-modal-backdrop">
+    <section className="auth-modal mfa-modal" role="dialog" aria-modal="true" aria-labelledby="mfa-title">
+      <header className="auth-modal-header"><div><span className="portal-kicker">VERIFICAÇÃO DE SEGURANÇA</span><h2 id="mfa-title">{setup ? 'Ativar autenticador' : 'Confirme sua identidade'}</h2></div><button type="button" className="access-picker-close" aria-label="Sair" onClick={onCancel}><X size={20}/></button></header>
+      <div className="mfa-content">
+        {busy && !factorId ? <p>Preparando autenticação segura...</p> : <>
+          <p>{setup ? 'Para proteger a área administrativa, vincule um aplicativo autenticador à sua conta. Escaneie o QR Code abaixo.' : 'Abra seu aplicativo autenticador e informe o código temporário de 6 dígitos para continuar.'}</p>
+          {setup && qrCode && <div className="mfa-qr"><img src={qrCode} alt="QR Code para configurar o autenticador"/><small>Google Authenticator, Microsoft Authenticator, Authy ou compatível.</small><label>Chave de configuração manual<code>{secret}</code></label></div>}
+          <form onSubmit={verify}>
+            <label htmlFor="mfa-code">Código do autenticador</label>
+            <input id="mfa-code" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6}" maxLength={6} placeholder="000000" value={code} onChange={event => setCode(event.target.value.replace(/\D/g, '').slice(0,6))} required />
+            <button type="submit" disabled={busy || code.length !== 6}>{busy ? 'Verificando...' : setup ? 'Ativar e continuar' : 'Verificar código'} <ArrowUpRight size={17}/></button>
+          </form>
+        </>}
+        {error && <div className="auth-feedback error" role="alert">{error}</div>}
+        <div className="mfa-account">Conta: <strong>{profile.full_name || 'Usuário administrativo'}</strong></div>
+      </div>
+    </section>
+  </div>;
+}
+
 function AuthenticatedHome({ profile, role, onSignOut }: { profile: UserProfile; role: PortalRole; onSignOut: () => void }) {
   if (role === 'citizen') return <CitizenWorkspace profile={profile} onSignOut={onSignOut} />;
   const label = role === 'agent' ? 'Área do agente' : 'Área administrativa';
@@ -174,6 +271,7 @@ export default function App() {
   const [selectedRole, setSelectedRole] = useState<PortalRole | null>(null);
   const [showDemo, setShowDemo] = useState(false);
   const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [mfaProfile, setMfaProfile] = useState<UserProfile | null>(null);
   const [authLoading, setAuthLoading] = useState(Boolean(supabase));
 
   useEffect(() => {
@@ -188,7 +286,10 @@ export default function App() {
       const { data, error } = await client.from('profiles').select('id,full_name,role,is_active').eq('id', session.user.id).single();
       if (!alive) return;
       if (error || !data?.is_active) { await client.auth.signOut(); setProfile(null); }
-      else setProfile(data);
+      else if (['admin', 'supervisor', 'agent'].includes(data.role)) {
+        const { data: assurance } = await client.auth.mfa.getAuthenticatorAssuranceLevel();
+        if (assurance?.currentLevel !== 'aal2') setMfaProfile(data); else setProfile(data);
+      } else setProfile(data);
       setAuthLoading(false);
     };
     void loadProfile();
@@ -198,7 +299,12 @@ export default function App() {
       window.setTimeout(() => {
         void client.from('profiles').select('id,full_name,role,is_active').eq('id', session.user.id).single()
           .then(({ data, error }) => {
-            if (!error && data?.is_active) setProfile(data);
+            if (!error && data?.is_active) {
+              if (['admin', 'supervisor', 'agent'].includes(data.role)) {
+                const { data: assurance } = await client.auth.mfa.getAuthenticatorAssuranceLevel();
+                if (assurance?.currentLevel !== 'aal2') setMfaProfile(data); else setProfile(data);
+              } else setProfile(data);
+            }
             setAuthLoading(false);
           });
       }, 0);
@@ -206,14 +312,15 @@ export default function App() {
     return () => { alive = false; listener.subscription.unsubscribe(); };
   }, []);
 
-  const signOut = async () => { if (supabase) await supabase.auth.signOut(); setProfile(null); setSelectedRole(null); setShowDemo(false); };
+  const signOut = async () => { if (supabase) await supabase.auth.signOut(); setProfile(null); setMfaProfile(null); setSelectedRole(null); setShowDemo(false); };
   if (authLoading) return <main className="portal-page"><div className="auth-loading">Verificando sessão segura...</div></main>;
+  if (mfaProfile) return <AdminMfaScreen profile={mfaProfile} onVerified={() => { setProfile(mfaProfile); setMfaProfile(null); setSelectedRole(null); }} onCancel={signOut}/>;
   if (profile) {
     const role: PortalRole = profile.role === 'admin' || profile.role === 'supervisor' ? 'admin' : profile.role === 'agent' ? 'agent' : 'citizen';
     return <AuthenticatedHome profile={profile} role={role} onSignOut={signOut}/>;
   }
   if (showDemo) return <Dashboard initialArea={selectedRole === 'citizen' ? 'citizen' : selectedRole === 'agent' ? 'agent' : 'admin'} />;
-  return <><Portal onSelect={setSelectedRole} />{selectedRole && <LoginScreen role={selectedRole} onBack={() => setSelectedRole(null)} onAuthenticated={setProfile} />}</>;
+  return <><Portal onSelect={setSelectedRole} />{selectedRole && <LoginScreen role={selectedRole} onBack={() => setSelectedRole(null)} onAuthenticated={setProfile} onMfaRequired={setMfaProfile} />}</>;
 }
 
 function Dashboard({ initialArea = 'admin' }: { initialArea?: Area }) {
