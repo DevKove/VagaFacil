@@ -48,7 +48,7 @@ export default function OperationsWorkspace({ profile, area, onSignOut }: { prof
     setLoading(true); setError('');
     try {
       const [sessionRes, alertRes] = await Promise.all([
-        supabase.from('parking_sessions').select('id,plate_snapshot,started_at,expires_at,status,user_id,space_id,latitude,longitude,parking_spaces(code,latitude,longitude,parking_zones(name))'.in('status', ['active','expired']).order('started_at', { ascending: false }).limit(300),
+        supabase.from('parking_sessions').select('id,plate_snapshot,started_at,expires_at,status,user_id,space_id,latitude,longitude,parking_spaces(code,latitude,longitude,parking_zones(name))').in('status', ['active','expired']).order('started_at', { ascending: false }).limit(300),
         supabase.from('alerts').select('id,status,severity,created_at,session_id,claimed_by,parking_sessions(id,plate_snapshot,started_at,expires_at,status,user_id,space_id,latitude,longitude,parking_spaces(code,latitude,longitude,parking_zones(name)))').in('status', ['open','claimed']).order('created_at', { ascending: false }).limit(300),
       ]);
       if (sessionRes.error) throw sessionRes.error;
