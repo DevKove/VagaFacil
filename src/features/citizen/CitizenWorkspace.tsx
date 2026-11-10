@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import type { FormEvent } from 'react';
 import { Activity, Bell, CarFront, CheckCircle2, Clock3, History, MapPin, Plus, Power, Trash2, X } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
@@ -71,7 +72,7 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
     finally { setBusy(false); }
   };
 
-  const addVehicle = (event: React.FormEvent<HTMLFormElement>) => {
+  const addVehicle = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!supabase) return;
     void perform(async () => {
