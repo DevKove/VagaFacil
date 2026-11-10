@@ -605,7 +605,7 @@ th{font-size:12px!important;color:#263e54;background:#e4edf5}
 .portal-page,.app-shell,.citizen-workspace{position:relative;isolation:isolate}
 .portal-page::before,.app-shell::before,.citizen-workspace::before{
  content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
- background-image:url("../IMG/vagafacil-city-background.svg");
+ background-image:url("./vagafacil-city-background.svg");
  background-repeat:no-repeat;background-position:right bottom;
  background-size:min(88vw,1180px) auto;opacity:.20;
 }
