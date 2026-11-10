@@ -888,3 +888,34 @@ th{font-size:12px!important;color:#263e54;background:#e4edf5}
 @media(prefers-reduced-motion:reduce){
   .road-car,.road-pin{animation:none!important}
 }
+
+
+/* Banner principal: fotografia oficial do veículo */
+.portal-hero-art {
+  height: clamp(190px, 25vw, 300px);
+  min-width: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  isolation: isolate;
+  filter: drop-shadow(0 22px 30px #00132255);
+}
+.portal-hero-art::before { content: none; }
+.portal-hero-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: 560px;
+  object-fit: contain;
+  object-position: center;
+  border-radius: 16px;
+}
+@media (max-width: 800px) {
+  .portal-hero-art { height: 220px; margin: 18px auto 0; transform: none; }
+}
+@media (max-width: 520px) {
+  .portal-hero-art { height: 175px; margin: 14px auto 0; }
+  .portal-hero-image { max-width: 100%; border-radius: 12px; }
+}
