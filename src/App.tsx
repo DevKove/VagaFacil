@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import type { FormEvent } from 'react';
 import { Activity, AlertTriangle, ArrowDownRight, ArrowUpRight, Bell, CarFront, CheckCircle2, ChevronDown, Clock3, LockKeyhole, MapPin, Menu, Search, ShieldCheck, Users, X } from 'lucide-react';
 import { isSupabaseConfigured, supabase } from './lib/supabase';
 
@@ -91,7 +92,7 @@ function LoginScreen({ role, onBack, onAuthenticated }: { role: PortalRole; onBa
     finally { setBusy(false); }
   };
 
-  const submit = (event: React.FormEvent<HTMLFormElement>) => {
+  const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!supabase) { setError('Serviço de autenticação não configurado. Configure VITE_SUPABASE_URL e VITE_SUPABASE_PUBLISHABLE_KEY.'); return; }
     void run(async () => {
@@ -135,7 +136,7 @@ function LoginScreen({ role, onBack, onAuthenticated }: { role: PortalRole; onBa
       const { data: profile, error: profileError } = await supabase.from('profiles').select('full_name,role,is_active').eq('id', data.user.id).single();
       if (profileError) { await supabase.auth.signOut(); throw new Error('Perfil não encontrado. Verifique se a migração do banco foi aplicada.'); }
       if (!profile.is_active) { await supabase.auth.signOut(); throw new Error('Acesso desativado. Procure a administração municipal.'); }
-      if (profile.role !== role) { await supabase.auth.signOut(); throw new Error('Esta conta não tem permissão para acessar este ambiente.'); }
+      if (profile.role !== role && !(role === 'admin' && profile.role === 'supervisor')) { await supabase.auth.signOut(); throw new Error('Esta conta não tem permissão para acessar este ambiente.'); }
       onAuthenticated(profile);
     });
   };
@@ -184,6 +185,7 @@ export default function App() {
     const loadProfile = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!alive) return;
+      if (new URLSearchParams(window.location.search).get('recovery') === '1') { setAuthLoading(false); return; }
       if (!session) { setAuthLoading(false); return; }
       const { data, error } = await supabase.from('profiles').select('full_name,role,is_active').eq('id', session.user.id).single();
       if (!alive) return;
