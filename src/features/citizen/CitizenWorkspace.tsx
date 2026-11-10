@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
-import { Activity, Bell, CarFront, CheckCircle2, Clock3, History, MapPin, Plus, Power, Trash2, X } from 'lucide-react';
+import { Activity, Bell, CarFront, CheckCircle2, Clock3, History, MapPin, Menu, Plus, Power, Trash2, X } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
 type Vehicle = { id: string; plate: string; make: string | null; model: string | null; color: string | null; vehicle_type: string | null };
@@ -16,6 +16,7 @@ const timerLabel = (seconds: number) => `${String(Math.floor(seconds / 3600)).pa
 
 export default function CitizenWorkspace({ profile, onSignOut }: { profile: Profile; onSignOut: () => void }) {
   const [tab, setTab] = useState<'overview' | 'register' | 'vehicles' | 'history' | 'notifications'>('overview');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [spaces, setSpaces] = useState<ParkingSpace[]>([]);
   const [sessions, setSessions] = useState<ParkingSession[]>([]);
@@ -137,11 +138,13 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
 
   return <main className="citizen-workspace">
     <header className="workspace-header">
+      <button className="workspace-menu-toggle" type="button" aria-label={sidebarOpen ? "Fechar menu" : "Abrir menu"} aria-expanded={sidebarOpen} onClick={() => setSidebarOpen(open => !open)}><Menu size={20}/></button>
       <a className="portal-brand" href={import.meta.env.BASE_URL}><span className="workspace-brand-mark"><CarFront size={23}/></span><span><strong>VagaFácil</strong><small>Área do cidadão</small></span></a>
       <div className="workspace-user"><span className="workspace-avatar">{(profile.full_name || 'C').slice(0,1).toUpperCase()}</span><span><strong>{profile.full_name || 'Cidadão'}</strong><small>Conta ativa</small></span><button className="workspace-signout" onClick={onSignOut}><Power size={16}/> Sair</button></div>
     </header>
     <div className="workspace-body">
-      <aside className="workspace-sidebar"><div className="workspace-greeting"><small>PORTAL DO CIDADÃO</small><strong>Olá, {profile.full_name?.split(' ')[0] || 'tudo bem'}!</strong><span>Gerencie seus estacionamentos.</span></div><nav>{navItems.map(item => { const Icon = item.icon; return <button key={item.id} className={tab === item.id ? 'active' : ''} onClick={() => { setTab(item.id); setError(''); setSuccess(''); }}><Icon size={17}/>{item.label}{item.id === 'notifications' && unread > 0 && <b>{unread}</b>}</button>; })}</nav><div className="workspace-rule-note"><Clock3 size={16}/><span>Rotativo gratuito<br/><strong>Seg–Sex · 9h às 18h</strong><small>Até 1 hora por registro</small></span></div></aside>
+      {sidebarOpen && <button className="workspace-sidebar-scrim" aria-label="Fechar menu" onClick={() => setSidebarOpen(false)} />}
+      <aside className={`workspace-sidebar${sidebarOpen ? " is-open" : ""}`}><div className="workspace-greeting"><small>PORTAL DO CIDADÃO</small><strong>Olá, {profile.full_name?.split(' ')[0] || 'tudo bem'}!</strong><span>Gerencie seus estacionamentos.</span></div><nav>{navItems.map(item => { const Icon = item.icon; return <button key={item.id} className={tab === item.id ? 'active' : ''} onClick={() => { setTab(item.id); setError(''); setSuccess(''); setSidebarOpen(false); }}><Icon size={17}/>{item.label}{item.id === 'notifications' && unread > 0 && <b>{unread}</b>}</button>; })}</nav><div className="workspace-rule-note"><Clock3 size={16}/><span>Rotativo gratuito<br/><strong>Seg–Sex · 9h às 18h</strong><small>Até 1 hora por registro</small></span></div></aside>
       <section className="workspace-content">
         <div className="workspace-page-heading"><div><span className="portal-kicker">VAGAFÁCIL · SERVIÇOS DIGITAIS</span><h1>{navItems.find(item => item.id === tab)?.label}</h1><p>Seus dados e registros em um só lugar.</p></div>{tab === 'vehicles' && <button className="workspace-primary" onClick={() => setShowVehicleForm(true)}><Plus size={17}/> Adicionar veículo</button>}</div>
         {error && <div className="workspace-alert error" role="alert">{error}</div>}
