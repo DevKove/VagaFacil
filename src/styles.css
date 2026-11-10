@@ -939,8 +939,14 @@ th{font-size:12px!important;color:#263e54;background:#e4edf5}
   background-image: none !important;
 }
 .portal-hero::before,
-.portal-hero::after {
+.portal-hero::after,
+.portal-page::before {
   content: none !important;
+}
+.portal-page::before {
+  background: none !important;
+  background-image: none !important;
+  opacity: 0 !important;
 }
 .portal-header,
 .portal-footer,
