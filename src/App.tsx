@@ -32,11 +32,11 @@ const portalRoles: { id: PortalRole; title: string; description: string; action:
 ];
 
 function Portal({ onSelect }: { onSelect: (role: PortalRole) => void }) {
-  const [institutionalOpen, setInstitutionalOpen] = useState(false);
+  const [accessOpen, setAccessOpen] = useState(false);
   return <main className="portal-page">
     <header className="portal-header">
       <a className="portal-brand" href="#" aria-label="VagaFácil início"><img className="portal-brand-logo" src={`${import.meta.env.BASE_URL}IMG/logo-vagafacil.svg`} alt="VagaFácil" /><span><strong>VagaFácil</strong><small>Estacionar ficou mais fácil.</small></span></a>
-      <span className="portal-header-note"><i /> Plataforma de estacionamento rotativo</span>
+      <div className="portal-header-actions"><span className="portal-header-note"><i /> Plataforma de estacionamento rotativo</span><button type="button" className="portal-login-trigger" onClick={() => setAccessOpen(true)}><LockKeyhole size={17}/> Entrar</button></div>
     </header>
     <section className="portal-hero">
       <div className="portal-hero-copy">
@@ -50,24 +50,17 @@ function Portal({ onSelect }: { onSelect: (role: PortalRole) => void }) {
         <div className="road-sign"><span>P</span><small>ROTATIVO</small></div><div className="road-pin"><MapPin size={18}/><span>Vaga disponível</span></div>
       </div>
     </section>
-    <section className="portal-access citizen-access">
-      <div className="portal-section-heading"><div><span className="portal-kicker">ÁREA DO CIDADÃO</span><h2>Seu estacionamento, sem complicação.</h2><p>Entre para registrar sua vaga e acompanhar o tempo de permanência.</p></div><span className="portal-secure"><ShieldCheck size={15}/> Ambiente seguro</span></div>
-      <article className="citizen-login-card">
-        <div className="citizen-login-icon"><CarFront size={34}/></div>
-        <div className="citizen-login-copy"><span className="citizen-login-eyebrow">ACESSO PRINCIPAL</span><h3>Bem-vindo ao VagaFácil</h3><p>Consulte seus veículos, registre um estacionamento e acompanhe seu tempo restante em um só lugar.</p><div className="citizen-benefits"><span><CheckCircle2 size={15}/> Cadastro gratuito</span><span><Clock3 size={15}/> Tempo em tempo real</span><span><CarFront size={15}/> Seus veículos</span></div></div>
-        <div className="citizen-login-actions"><button className="citizen-primary-button" onClick={() => onSelect('citizen')}>Entrar como cidadão <ArrowUpRight size={19}/></button><span>Primeiro acesso? Você pode criar sua conta gratuitamente.</span></div>
-      </article>
-    </section>
     <footer className="portal-footer portal-footer-refined">
       <span>© 2026 VagaFácil · Plataforma municipal de estacionamento rotativo</span>
       <span>Mobilidade mais simples para todos.</span>
-      <div className="portal-footer-actions">
-        <div className="institutional-access">
-          <button type="button" className="institutional-toggle" aria-expanded={institutionalOpen} onClick={() => setInstitutionalOpen(open => !open)}><LockKeyhole size={13}/> Acesso institucional <ChevronDown size={13}/></button>
-          {institutionalOpen && <div className="institutional-menu"><span>ACESSO RESTRITO</span><button onClick={() => onSelect('agent')}><ShieldCheck size={15}/> Agente de trânsito</button><button onClick={() => onSelect('admin')}><Users size={15}/> Administração</button></div>}
-        </div>
-      </div>
     </footer>
+    {accessOpen && <div className="access-picker-backdrop" role="presentation" onMouseDown={event => { if (event.target === event.currentTarget) setAccessOpen(false); }}>
+      <section className="access-picker" role="dialog" aria-modal="true" aria-labelledby="access-picker-title">
+        <button type="button" className="access-picker-close" aria-label="Fechar" onClick={() => setAccessOpen(false)}><X size={20}/></button>
+        <span className="portal-kicker">ACESSO À PLATAFORMA</span><h2 id="access-picker-title">Como deseja entrar?</h2><p>Selecione o ambiente correspondente ao seu perfil.</p>
+        {portalRoles.map(item => <button type="button" className="access-picker-option" key={item.id} onClick={() => { setAccessOpen(false); onSelect(item.id); }}><span className="portal-role-icon"><item.icon size={22}/></span><span><strong>{item.title}</strong><small>{item.description}</small></span><ArrowUpRight size={19}/></button>)}
+      </section>
+    </div>}
   </main>;
 }
 
@@ -146,9 +139,10 @@ function LoginScreen({ role, onBack, onAuthenticated }: { role: PortalRole; onBa
   };
 
   const title = mode === 'signup' ? 'Criar conta de cidadão' : mode === 'recover' ? 'Recuperar acesso' : mode === 'password' ? 'Nova senha' : 'Entrar na sua conta';
-  return <main className="portal-page login-page">
-    <header className="portal-header"><a className="portal-brand" href="#" onClick={e => {e.preventDefault();onBack();}}><img className="portal-brand-logo" src={`${import.meta.env.BASE_URL}IMG/logo-vagafacil.svg`} alt="VagaFácil" /><span><strong>VagaFácil</strong><small>Estacionar ficou mais fácil.</small></span></a><button className="portal-back" onClick={onBack}>← Voltar aos perfis</button></header>
-    <section className="login-form-section">
+  return <div className="auth-modal-backdrop" role="presentation" onMouseDown={event => { if (event.target === event.currentTarget) onBack(); }}>
+    <section className="auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
+      <header className="auth-modal-header"><div><span className="portal-kicker">ACESSO SEGURO</span><h2 id="auth-modal-title">{selected.title}</h2></div><button type="button" className="access-picker-close" aria-label="Fechar" onClick={onBack}><X size={20}/></button></header>
+      <div className="login-form-section">
       <form className="login-card" onSubmit={submit}>
         <div className="login-card-icon"><Icon size={22}/></div><h2>{title}</h2><p>{mode === 'signup' ? 'Preencha seus dados para começar.' : mode === 'recover' ? 'Informe seu e-mail cadastrado.' : mode === 'password' ? 'Escolha uma senha segura.' : 'Informe seus dados de acesso.'}</p>
         {mode === 'signup' && <><label>Nome completo<input value={name} onChange={e=>setName(e.target.value)} autoComplete="name" maxLength={120} required /></label><label>Telefone (opcional)<input value={phone} onChange={e=>setPhone(e.target.value)} autoComplete="tel" maxLength={20} /></label></>}
@@ -162,12 +156,9 @@ function LoginScreen({ role, onBack, onAuthenticated }: { role: PortalRole; onBa
         {role === 'citizen' && mode === 'login' && <div className="auth-links"><button type="button" onClick={()=>{setMode('recover');setError('');setMessage('');}}>Esqueci minha senha</button><button type="button" onClick={()=>{setMode('signup');setError('');setMessage('');}}>Criar minha conta</button></div>}
         {mode !== 'login' && <button type="button" className="login-create" onClick={()=>{setMode('login');setError('');setMessage('');}}>Voltar para entrar</button>}
       </form>
+      </div>
     </section>
-    <section className="login-banner">
-      <div className="login-intro"><span className="portal-kicker">ÁREA DE ACESSO</span><h1>Bem-vindo ao<br/><em>VagaFácil.</em></h1><p>Entre para continuar usando os serviços da plataforma.</p><div className="login-role-summary"><span className="portal-role-icon"><Icon size={23}/></span><div><strong>{selected.title}</strong><small>{selected.description}</small></div></div></div>
-    </section>
-    <footer className="portal-footer"><span>© 2026 VagaFácil · Plataforma municipal de estacionamento rotativo</span><span>Ambiente seguro de acesso</span></footer>
-  </main>;
+  </div>;
 }
 
 function AuthenticatedHome({ profile, role, onSignOut }: { profile: UserProfile; role: PortalRole; onSignOut: () => void }) {
@@ -223,8 +214,7 @@ export default function App() {
     return <AuthenticatedHome profile={profile} role={role} onSignOut={signOut}/>;
   }
   if (showDemo) return <Dashboard initialArea={selectedRole === 'citizen' ? 'citizen' : selectedRole === 'agent' ? 'agent' : 'admin'} />;
-  if (selectedRole) return <LoginScreen role={selectedRole} onBack={() => setSelectedRole(null)} onAuthenticated={setProfile} />;
-  return <Portal onSelect={setSelectedRole} />;
+  return <><Portal onSelect={setSelectedRole} />{selectedRole && <LoginScreen role={selectedRole} onBack={() => setSelectedRole(null)} onAuthenticated={setProfile} />}</>;
 }
 
 function Dashboard({ initialArea = 'admin' }: { initialArea?: Area }) {
