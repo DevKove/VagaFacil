@@ -637,3 +637,10 @@ th{font-size:12px!important;color:#263e54;background:#e4edf5}
 .workspace-beneficiary-options strong{font-size:14px;color:#071d35}
 .workspace-beneficiary-options small{font-size:13px;color:#0759a5}
 @media(max-width:760px){.workspace-beneficiary{padding:12px}.workspace-beneficiary-options{grid-template-columns:1fr}.workspace-beneficiary-options label{padding:12px}}
+
+
+.workspace-credential-notice{margin:14px 0 4px;padding:15px;border:1px solid #c47a18;border-left:5px solid #d97706;border-radius:12px;background:linear-gradient(135deg,#fff7e6,#fff1dc);color:#512b08}
+.workspace-credential-notice>strong{display:block;margin-bottom:7px;color:#7c2d12;font-size:15px}
+.workspace-credential-notice>p{margin:0 0 12px;color:#653b17;font-size:14px;line-height:1.55}
+.workspace-credential-confirm{display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid #d6a65c;border-radius:9px;background:#fff;font-size:14px;font-weight:700;line-height:1.45;color:#422006;cursor:pointer}
+.workspace-credential-confirm input{width:19px;height:19px;min-height:19px;flex:0 0 auto;margin:1px 0 0;accent-color:#b45309}
