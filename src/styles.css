@@ -1055,3 +1055,94 @@ th{font-size:12px!important;color:#263e54;background:#e4edf5}
   .portal-login-trigger { min-height: 38px; padding-inline: 12px; font-size: 12px; }
   .portal-footer, .portal-footer-refined { padding-inline: 12px; font-size: 10px; }
 }
+
+
+/* Correção definitiva do portal em telas móveis: imagem sem cortes ou faixas vazias */
+@media (max-width: 760px) {
+  .portal-page {
+    min-height: 100svh;
+    height: auto;
+    overflow-x: clip;
+    overflow-y: auto;
+    justify-content: space-between;
+    background: radial-gradient(ellipse at 50% 45%, #123d60 0%, #092743 52%, #041629 100%) !important;
+  }
+
+  .portal-header {
+    flex: 0 0 auto;
+    width: 100%;
+    min-height: 68px;
+    height: auto;
+    padding: 10px 16px;
+    background: rgba(3, 17, 32, .94);
+    border-bottom: 1px solid rgba(255,255,255,.13);
+  }
+
+  .portal-brand { min-width: 0; gap: 9px; }
+  .portal-header .portal-brand-logo { width: 40px; height: 40px; }
+  .portal-brand strong { font-size: 17px; }
+  .portal-brand small { display: none; }
+  .portal-header-actions { flex: 0 0 auto; }
+  .portal-login-trigger { min-height: 42px; padding: 0 16px; font-size: 13px; }
+
+  .portal-hero {
+    flex: 1 0 auto;
+    width: 100%;
+    min-height: 0;
+    padding: clamp(24px, 7vh, 64px) 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
+    background: transparent !important;
+  }
+
+  .portal-hero-art {
+    display: flex !important;
+    width: 100%;
+    height: auto;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    filter: drop-shadow(0 18px 28px rgba(0,0,0,.38));
+  }
+
+  .portal-hero-image {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-width: none;
+    aspect-ratio: 16 / 9;
+    object-fit: contain;
+    object-position: center;
+    border-radius: 0;
+  }
+
+  .portal-footer,
+  .portal-footer-refined {
+    flex: 0 0 auto;
+    width: 100%;
+    margin-top: 0;
+    padding: 14px 16px calc(14px + env(safe-area-inset-bottom));
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    text-align: center;
+    line-height: 1.5;
+    font-size: 10px;
+    background: rgba(3, 17, 32, .96);
+    border-top: 1px solid rgba(255,255,255,.13);
+  }
+}
+
+@media (max-width: 390px) {
+  .portal-header { padding-inline: 12px; }
+  .portal-header .portal-brand-logo { width: 36px; height: 36px; }
+  .portal-brand strong { font-size: 16px; }
+  .portal-login-trigger { min-height: 40px; padding-inline: 13px; }
+  .portal-hero { padding-block: 22px; }
+  .portal-footer, .portal-footer-refined { padding-inline: 12px; }
+}
