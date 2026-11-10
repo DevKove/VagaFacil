@@ -599,3 +599,27 @@ th{font-size:12px!important;color:#263e54;background:#e4edf5}
   .workspace-user small{display:none}
   .portal-hero-points{gap:10px}
 }
+
+
+/* Ilustração institucional de mobilidade urbana — fundo decorativo */
+.portal-page,.app-shell,.citizen-workspace{position:relative;isolation:isolate}
+.portal-page::before,.app-shell::before,.citizen-workspace::before{
+ content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+ background-image:url("../IMG/vagafacil-city-background.svg");
+ background-repeat:no-repeat;background-position:right bottom;
+ background-size:min(88vw,1180px) auto;opacity:.20;
+}
+.portal-page::before{background-size:min(92vw,1320px) auto;opacity:.19}
+.app-shell::before{background-size:min(86vw,1120px) auto;opacity:.14}
+.citizen-workspace::before{background-size:min(92vw,1250px) auto;opacity:.18}
+.portal-header,.portal-footer,.portal-access,.login-layout,.workspace-header,.workspace-body,.main{position:relative;z-index:1}
+.portal-access{background:linear-gradient(180deg,#f4f8fcdd 0%,#eaf3f9d9 100%);border:1px solid #c9dce9;border-radius:22px;padding:24px;box-shadow:0 12px 35px #071d3510}
+.citizen-login-card,.portal-role-card,.login-card,.workspace-sidebar,.workspace-form-card,.workspace-session-card,.workspace-vehicle-card{backdrop-filter:blur(7px)}
+.workspace-content{position:relative;z-index:1}
+@media(max-width:760px){
+ .portal-page::before,.app-shell::before,.citizen-workspace::before{background-size:145vw auto;background-position:58% bottom;opacity:.12}
+ .portal-access{padding:17px;border-radius:16px}
+}
+@media(prefers-reduced-motion:reduce){
+ .portal-page::before,.app-shell::before,.citizen-workspace::before{background-attachment:initial}
+}
