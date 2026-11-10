@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Activity, AlertTriangle, ArrowDownRight, ArrowUpRight, Bell, CarFront, CheckCircle2, ChevronDown, Clock3, LockKeyhole, MapPin, Menu, Search, ShieldCheck, Users, X } from 'lucide-react';
 import { isSupabaseConfigured, supabase } from './lib/supabase';
+import CitizenWorkspace from './features/citizen/CitizenWorkspace';
 
 type Area = 'admin' | 'agent' | 'citizen';
 const nav = {
@@ -71,7 +72,7 @@ function Portal({ onSelect, onDemo }: { onSelect: (role: PortalRole) => void; on
   </main>;
 }
 
-type UserProfile = { full_name: string; role: string; is_active: boolean };
+type UserProfile = { id: string; full_name: string; role: string; is_active: boolean };
 
 function LoginScreen({ role, onBack, onAuthenticated }: { role: PortalRole; onBack: () => void; onAuthenticated: (profile: UserProfile) => void }) {
   const selected = portalRoles.find(item => item.id === role)!;
@@ -109,7 +110,7 @@ function LoginScreen({ role, onBack, onAuthenticated }: { role: PortalRole; onBa
         });
         if (authError) throw authError;
         if (data.session) {
-          const { data: profile, error: profileError } = await client.from('profiles').select('full_name,role,is_active').eq('id', data.user!.id).single();
+          const { data: profile, error: profileError } = await client.from('profiles').select('id,full_name,role,is_active').eq('id', data.user!.id).single();
           if (profileError) throw profileError;
           if (profile.role !== 'citizen' || !profile.is_active) throw new Error('Este cadastro não possui autorização para a área do cidadão.');
           onAuthenticated(profile);
@@ -169,10 +170,11 @@ function LoginScreen({ role, onBack, onAuthenticated }: { role: PortalRole; onBa
 }
 
 function AuthenticatedHome({ profile, role, onSignOut }: { profile: UserProfile; role: PortalRole; onSignOut: () => void }) {
-  const label = role === 'citizen' ? 'Área do cidadão' : role === 'agent' ? 'Área do agente' : 'Área administrativa';
+  if (role === 'citizen') return <CitizenWorkspace profile={profile} onSignOut={onSignOut} />;
+  const label = role === 'agent' ? 'Área do agente' : 'Área administrativa';
   return <main className="portal-page authenticated-page">
-    <header className="portal-header"><a className="portal-brand" href="#"><img className="portal-brand-logo" src={`${import.meta.env.BASE_URL}IMG/logo.jpeg`} alt="VagaFácil" /><span><strong>VagaFácil</strong><small>Estacionar ficou mais fácil.</small></span></a><button className="portal-back" onClick={onSignOut}>Sair da conta</button></header>
-    <section className="authenticated-card"><div className="login-card-icon"><CheckCircle2 size={23}/></div><span className="portal-kicker">ACESSO AUTENTICADO</span><h1>Olá, {profile.full_name || 'usuário'}.</h1><p>Sua conta foi autenticada com sucesso.</p><div className="auth-feedback success">{label} · Perfil ativo</div><p className="auth-pending">Os recursos operacionais deste ambiente serão liberados nas próximas etapas de desenvolvimento. Nenhum dado demonstrativo está sendo apresentado como dado real.</p></section>
+    <header className="portal-header"><a className="portal-brand" href={import.meta.env.BASE_URL}><img className="portal-brand-logo" src={`${import.meta.env.BASE_URL}IMG/logo.jpeg`} alt="VagaFácil" /><span><strong>VagaFácil</strong><small>Estacionar ficou mais fácil.</small></span></a><button className="portal-back" onClick={onSignOut}>Sair da conta</button></header>
+    <section className="authenticated-card"><div className="login-card-icon"><CheckCircle2 size={23}/></div><span className="portal-kicker">ACESSO AUTENTICADO</span><h1>Olá, {profile.full_name || 'usuário'}.</h1><p>Sua conta foi autenticada com sucesso.</p><div className="auth-feedback success">{label} · Perfil ativo</div><p className="auth-pending">O painel operacional está sendo implementado. Esta área não exibe dados fictícios como informações reais.</p></section>
     <footer className="portal-footer"><span>© 2026 VagaFácil · Plataforma municipal de estacionamento rotativo</span><span>Conexão segura</span></footer>
   </main>;
 }
