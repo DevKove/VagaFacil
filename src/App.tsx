@@ -27,7 +27,8 @@ type PortalRole = 'citizen' | 'agent' | 'admin';
 
 const portalRoles: { id: PortalRole; title: string; description: string; action: string; icon: typeof CarFront; featured?: boolean; details: string[] }[] = [
   { id: 'citizen', title: 'Sou cidadão', description: 'Estacione com praticidade. Registre sua vaga, acompanhe o tempo e consulte seu histórico.', action: 'Acessar área do cidadão', icon: CarFront, featured: true, details: ['Registrar estacionamento', 'Acompanhar tempo restante', 'Gerenciar veículos'] },
-  { id: 'admin', title: 'Área administrativa', description: 'Acesso de administradores, supervisores e agentes de trânsito.', action: 'Acessar área administrativa', icon: ShieldCheck, details: ['Fiscalização e consultas', 'Gerenciamento da operação', 'Usuários e relatórios'] },
+  { id: 'agent', title: 'Agente de trânsito', description: 'Acesso às ferramentas de fiscalização e consulta em campo.', action: 'Acesso do agente', icon: ShieldCheck, details: ['Consultar placas e sessões', 'Ver alertas operacionais', 'Registrar ocorrências'] },
+  { id: 'admin', title: 'Administrador', description: 'Gerencie a operação municipal, regras, zonas e indicadores.', action: 'Acesso administrativo', icon: Users, details: ['Gerenciar zonas e vagas', 'Administrar usuários', 'Acompanhar relatórios'] },
 ];
 
 function Portal({ onSelect }: { onSelect: (role: PortalRole) => void }) {
