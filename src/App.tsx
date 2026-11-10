@@ -42,7 +42,7 @@ function Portal({ onSelect }: { onSelect: (role: PortalRole) => void }) {
     </header>
     <section className="portal-hero">
       <div className="portal-hero-art" aria-hidden="true">
-        <img className="portal-hero-backdrop" src={new URL('../IMG/banner.jpg', import.meta.url).href} alt="" />
+        <img className="portal-hero-backdrop" src={new URL('../IMG/banner mobile.jpg', import.meta.url).href} alt="" />
         <picture className="portal-hero-picture">
           <source media="(max-width: 760px)" srcSet={new URL('../IMG/banner mobile.jpg', import.meta.url).href} />
           <img className="portal-hero-image" src={new URL('../IMG/banner.jpg', import.meta.url).href} alt="" />
