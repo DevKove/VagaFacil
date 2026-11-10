@@ -195,7 +195,15 @@ export default function App() {
     };
     void loadProfile();
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!session) { setProfile(null); setAuthLoading(false); }
+      if (!session) { setProfile(null); setAuthLoading(false); return; }
+      if (new URLSearchParams(window.location.search).get('recovery') === '1') return;
+      window.setTimeout(() => {
+        void supabase.from('profiles').select('full_name,role,is_active').eq('id', session.user.id).single()
+          .then(({ data, error }) => {
+            if (!error && data?.is_active) setProfile(data);
+            setAuthLoading(false);
+          });
+      }, 0);
     });
     return () => { alive = false; listener.subscription.unsubscribe(); };
   }, []);
