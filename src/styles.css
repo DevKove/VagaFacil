@@ -686,3 +686,42 @@ th{font-size:12px!important;color:#263e54;background:#e4edf5}
   .login-page .login-intro{padding:22px;border-radius:15px}
   .login-page .login-intro h1{font-size:32px}
 }
+
+
+/* Acesso de autenticação em modal */
+.portal-header{gap:18px}
+.portal-header-actions{display:flex;align-items:center;gap:22px}
+.portal-login-trigger{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:46px;padding:0 22px;border:0;border-radius:11px;background:linear-gradient(110deg,#064fc4,#087cf5 58%,#00796f);color:#fff;font-size:15px;font-weight:800;box-shadow:0 7px 18px #0759e83b;cursor:pointer}
+.portal-login-trigger:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.access-picker-backdrop,.auth-modal-backdrop{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:20px;background:#06172bcc;backdrop-filter:blur(7px);overflow-y:auto}
+.access-picker,.auth-modal{position:relative;width:min(100%,520px);max-height:min(90vh,850px);overflow-y:auto;padding:30px;border:1px solid #c6d9e8;border-radius:20px;background:#fff;box-shadow:0 25px 90px #00152b66;color:#071d35}
+.access-picker h2{margin:9px 36px 7px 0;font:800 27px Manrope;color:#071d35}
+.access-picker>p{margin:0 0 22px;color:#52677b;font-size:15px}
+.access-picker-close{position:absolute;right:20px;top:20px;width:40px;height:40px;display:grid;place-items:center;border:1px solid #c6d5e1;border-radius:10px;background:#f2f7fb;color:#173b57;cursor:pointer}
+.access-picker-option{width:100%;display:flex;align-items:center;gap:14px;margin-top:11px;padding:14px;border:1px solid #c6d8e6;border-radius:13px;background:#f8fbfe;text-align:left;color:#071d35;cursor:pointer}
+.access-picker-option:hover{border-color:#087cf5;background:#edf7ff}
+.access-picker-option .portal-role-icon{width:48px;height:48px;margin:0;flex:0 0 auto}
+.access-picker-option>span:nth-child(2){display:grid;gap:4px;flex:1}
+.access-picker-option strong{font-size:16px}
+.access-picker-option small{font-size:13px;line-height:1.4;color:#52677b}
+.auth-modal{width:min(100%,540px);padding:0}
+.auth-modal-header{position:relative;display:flex;align-items:center;justify-content:space-between;padding:24px 76px 18px 28px;border-bottom:1px solid #dce7ef;background:linear-gradient(110deg,#f1f8ff,#e9fbf6)}
+.auth-modal-header h2{margin:5px 0 0;font:800 22px Manrope;color:#071d35}
+.auth-modal-header .access-picker-close{right:20px;top:22px}
+.auth-modal .login-form-section{width:100%;margin:0;padding:24px 28px 28px}
+.auth-modal .login-card{width:100%;max-width:none;margin:0;padding:0;border:0;border-radius:0;box-shadow:none}
+.auth-modal .login-card h2{font-size:21px}
+.auth-modal .login-card label{font-size:14px}
+.auth-modal .login-card input{width:100%;min-width:0}
+.auth-modal .auth-links{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+@media(max-width:760px){
+ .portal-header-actions{gap:10px}
+ .portal-header-actions .portal-header-note{display:none}
+ .portal-login-trigger{min-height:42px;padding:0 16px;font-size:14px}
+ .access-picker,.auth-modal{padding:22px}
+ .auth-modal{padding:0}
+ .auth-modal-header{padding:20px 70px 16px 22px}
+ .auth-modal .login-form-section{padding:20px 22px 24px}
+ .access-picker h2{font-size:23px}
+}
+@media(max-width:390px){.portal-brand small{display:none}.portal-login-trigger{padding:0 12px}}
