@@ -452,3 +452,150 @@ input:focus-visible,button:focus-visible{outline:3px solid #00bfe8;outline-offse
   .btn-primary,.portal-role-button,.nav-item,.metric-card{transition:transform .18s ease,box-shadow .18s ease,filter .18s ease}
   .metric-card:hover{transform:translateY(-2px);box-shadow:0 11px 26px #0c3c631b}
 }
+
+
+/* Acessibilidade visual: tipografia ampliada e contraste AA */
+:root{
+  --vf-ink:#071d35;
+  --vf-muted:#344b61;
+  --vf-border:#b8c9d8;
+  --vf-blue:#064fc4;
+  --vf-electric:#075fe0;
+  --vf-cyan:#007f9f;
+  --vf-teal:#00796f;
+}
+html{font-size:16px;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{font-size:16px;color:#071d35;background:#edf2f7}
+button,input,select,textarea{font-size:inherit}
+:where(.breadcrumb,.system-status,.eyebrow,.metric-top,.metric-delta,.panel-heading p,.text-action,.legend>div,.search-box input,td,.table-footer,.content footer,.portal-header-note,.portal-brand small,.portal-section-heading p,.portal-secure,.portal-role-card>p,.portal-role-card li,.portal-help,.portal-footer,.login-intro>p,.login-role-summary small,.workspace-brand small,.workspace-greeting small,.workspace-greeting span,.workspace-sidebar nav button,.workspace-rule-note,.workspace-page-heading p,.workspace-metrics article span,.workspace-section-title p,.session-card-top,.workspace-session-card>small,.session-meta span,.workspace-form-card label,.workspace-form-intro p,.workspace-rule-callout small,.workspace-vehicle-card small,.workspace-table th,.workspace-table td,.workspace-notices article p,.workspace-notices article small,.workspace-footer){font-size:14px!important;line-height:1.5}
+:where(.workspace-sidebar nav button,.nav-item,.area-switch button,.btn-primary,.btn-secondary,.portal-role-button,.workspace-primary,.workspace-danger-outline,.workspace-signout,.workspace-section-title button,.workspace-notices article button){font-size:14px!important;font-weight:700}
+.welcome-row h1{font-size:clamp(30px,3vw,38px)}
+.panel-heading h2,.workspace-section-title h2{font-size:20px!important}
+.metric-value,.workspace-metrics article strong{font-size:32px!important}
+.metric-card,.panel,.portal-role-card,.workspace-metrics article,.workspace-session-card,.workspace-vehicle-card,.workspace-form-card,.workspace-modal{border-color:#b8c9d8;box-shadow:0 7px 22px #071d3518}
+.metric-top,.metric-delta,.eyebrow,.panel-heading p,.text-action,.legend>div,td,.table-footer,.content footer{color:#344b61}
+th{font-size:12px!important;color:#263e54;background:#e4edf5}
+.search-box{border-color:#9fb3c5}
+.search-box input{font-size:14px!important;color:#071d35}
+.search-box input::placeholder{color:#52677b}
+.nav-item{color:#e8f3ff}
+.nav-item.active{background:linear-gradient(100deg,#0759e8 0%,#007f9f 100%);color:#fff;box-shadow:inset 4px 0 #ffb21c,0 5px 15px #00172c45}
+.nav-item.active .nav-icon,.nav-icon{color:#b9f4ff}
+.portal-hero{background:linear-gradient(112deg,#06172b 0%,#064b9b 48%,#087cf5 78%,#007d72 115%)}
+.portal-hero-copy>p{font-size:16px;color:#f0f7ff}
+.portal-kicker{font-size:13px;font-weight:800;color:#d6f7ff}
+.portal-hero-points{font-size:14px;color:#fff}
+.portal-role-card h3{font-size:21px}
+.portal-role-card>p,.portal-role-card li{font-size:14px!important;color:#344b61}
+.portal-role-button{min-height:48px;font-size:15px!important}
+.portal-section-heading h2{font-size:28px}
+.portal-section-heading p,.portal-help,.portal-footer{font-size:13px}
+.portal-featured-tag{background:#0759e8;color:#fff}
+.workspace-header{min-height:78px}
+.workspace-brand strong{font-size:21px}
+.workspace-brand small{font-size:13px!important}
+.workspace-user strong{font-size:15px}
+.workspace-user small{font-size:12px!important}
+.workspace-greeting strong{font-size:23px}
+.workspace-sidebar nav button{min-height:50px;color:#203b54}
+.workspace-sidebar nav button.active{background:linear-gradient(100deg,#0759e8,#007f9f);color:#fff;box-shadow:inset 4px 0 #ffb21c}
+.workspace-sidebar nav button.active svg{color:#fff}
+.workspace-rule-note{background:linear-gradient(135deg,#d7f5ff,#c8f1e8);border:1px solid #78c9d7;color:#12384f}
+.workspace-rule-note strong{color:#071d35}
+.workspace-page-heading h1{font-size:clamp(30px,3vw,38px)}
+.workspace-page-heading p{font-size:16px!important;color:#344b61}
+.workspace-metrics article span{font-size:14px!important;color:#344b61}
+.workspace-section-title h2{font-size:22px!important}
+.workspace-section-title p{font-size:14px!important;color:#344b61}
+.workspace-empty strong{font-size:18px}
+.workspace-empty span{font-size:15px;color:#344b61}
+.session-timer{font-size:clamp(34px,4vw,46px);color:#064fc4}
+.session-live{font-size:13px;font-weight:900;color:#006b50}
+.session-meta span{font-size:14px!important;color:#263e54}
+.workspace-primary,.btn-primary{background:linear-gradient(110deg,#064fc4 0%,#087cf5 55%,#00796f 100%);border:1px solid #064fc4;color:#fff;min-height:46px}
+.workspace-danger-outline{min-height:46px;border:2px solid #bd3c35;color:#a3221c;background:#fff}
+.workspace-form-card label,.workspace-modal label{font-size:15px!important;color:#102b45;font-weight:700}
+.workspace-form-card input,.workspace-form-card select,.workspace-modal input,.workspace-modal select{font-size:16px;min-height:48px;border:1px solid #8fa6b9;color:#071d35}
+.workspace-rule-callout{background:linear-gradient(110deg,#d9f5ff,#d2f2e9);border:1px solid #64b9cb;color:#12384f}
+.workspace-rule-callout strong{font-size:15px}
+.workspace-rule-callout small{font-size:14px!important;color:#29465b}
+.workspace-table th{font-size:13px!important;color:#18354e;background:#dce8f2}
+.workspace-table td{font-size:14px!important;color:#243e54}
+.workspace-table td strong{font-size:15px;color:#071d35}
+.workspace-notices article p{font-size:14px!important;color:#29445a}
+.workspace-footer{font-size:13px!important;color:#40566b}
+.auth-feedback,.login-card label,.login-form label{font-size:14px}
+.login-intro h1{font-size:clamp(36px,4vw,48px)}
+.login-intro>p{font-size:16px!important;color:#344b61}
+.login-card,.login-form{color:#102b45}
+.login-card input,.login-form input{font-size:16px;min-height:48px}
+@media(max-width:760px){
+  body{font-size:16px}
+  .content{padding:22px 14px}
+  .welcome-row h1{font-size:29px}
+  .metric-top,.metric-delta{font-size:13px!important}
+  .metric-value{font-size:29px!important}
+  .panel-heading h2{font-size:19px!important}
+  th{font-size:12px!important}
+  td{font-size:14px!important}
+  .portal-header{min-height:70px;height:auto;padding:12px 18px}
+  .portal-brand strong{font-size:20px}
+  .portal-brand small{font-size:12px}
+  .portal-hero{padding:34px 22px;grid-template-columns:1fr;min-height:0}
+  .portal-hero h1{font-size:clamp(32px,8vw,42px)}
+  .portal-hero-copy>p{font-size:15px}
+  .portal-hero-points{font-size:13px;flex-wrap:wrap}
+  .portal-hero-art{height:150px;transform:scale(.82);transform-origin:center top;margin-top:12px}
+  .portal-access{width:calc(100% - 32px);margin:26px auto}
+  .portal-section-heading{display:block}
+  .portal-section-heading h2{font-size:24px}
+  .portal-role-grid{grid-template-columns:1fr;gap:13px}
+  .portal-role-card{min-height:0;padding:20px}
+  .portal-role-card h3{font-size:20px}
+  .portal-role-card>p,.portal-role-card li{font-size:14px!important}
+  .portal-footer{font-size:12px;flex-wrap:wrap}
+  .workspace-header{height:68px;padding:0 12px}
+  .workspace-brand strong{font-size:18px}
+  .workspace-brand small{font-size:12px!important}
+  .workspace-user strong{font-size:13px}
+  .workspace-user small{font-size:11px!important}
+  .workspace-signout{font-size:13px!important}
+  .workspace-body{padding:16px 14px 0}
+  .workspace-page-heading h1{font-size:29px}
+  .workspace-page-heading p{font-size:14px!important}
+  .workspace-metrics{gap:10px}
+  .workspace-metrics article{padding:15px}
+  .workspace-metrics article span{font-size:13px!important}
+  .workspace-metrics article strong{font-size:27px!important}
+  .workspace-section-title h2{font-size:19px!important}
+  .workspace-section-title p{font-size:13px!important}
+  .workspace-sidebar nav button{font-size:15px!important;min-height:50px}
+  .workspace-greeting strong{font-size:22px}
+  .workspace-greeting span,.workspace-greeting small{font-size:13px!important}
+  .workspace-rule-note{font-size:14px!important}
+  .workspace-empty strong{font-size:17px}
+  .workspace-empty span{font-size:14px}
+  .session-timer{font-size:36px}
+  .session-card-top,.session-meta span,.workspace-session-card>small{font-size:13px!important}
+  .workspace-danger-outline,.workspace-primary{font-size:14px!important;min-height:48px}
+  .workspace-form-card{padding:18px}
+  .workspace-form-intro h2{font-size:19px}
+  .workspace-form-intro p{font-size:14px!important}
+  .workspace-form-card label,.workspace-modal label{font-size:14px!important}
+  .workspace-form-card input,.workspace-form-card select,.workspace-modal input,.workspace-modal select{font-size:16px;min-height:48px}
+  .workspace-rule-callout strong{font-size:14px}
+  .workspace-rule-callout small{font-size:13px!important}
+  .workspace-vehicle-card strong{font-size:15px}
+  .workspace-vehicle-card small{font-size:13px!important}
+  .workspace-table th{font-size:12px!important}
+  .workspace-table td{font-size:13px!important}
+  .workspace-table td strong{font-size:14px}
+  .workspace-notices article p{font-size:14px!important}
+  .workspace-footer{font-size:12px!important}
+}
+@media(max-width:390px){
+  .workspace-metrics article span{font-size:12px!important}
+  .workspace-metrics article strong{font-size:25px!important}
+  .workspace-user small{display:none}
+  .portal-hero-points{gap:10px}
+}
