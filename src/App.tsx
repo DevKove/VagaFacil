@@ -149,7 +149,6 @@ function LoginScreen({ role, onBack, onAuthenticated }: { role: PortalRole; onBa
   return <main className="portal-page login-page">
     <header className="portal-header"><a className="portal-brand" href="#" onClick={e => {e.preventDefault();onBack();}}><img className="portal-brand-logo" src={`${import.meta.env.BASE_URL}IMG/logo-vagafacil.svg`} alt="VagaFácil" /><span><strong>VagaFácil</strong><small>Estacionar ficou mais fácil.</small></span></a><button className="portal-back" onClick={onBack}>← Voltar aos perfis</button></header>
     <section className="login-layout">
-      <div className="login-intro"><span className="portal-kicker">ÁREA DE ACESSO</span><h1>Bem-vindo ao<br/><em>VagaFácil.</em></h1><p>Entre para continuar usando os serviços da plataforma.</p><div className="login-role-summary"><span className="portal-role-icon"><Icon size={23}/></span><div><strong>{selected.title}</strong><small>{selected.description}</small></div></div></div>
       <form className="login-card" onSubmit={submit}>
         <div className="login-card-icon"><Icon size={22}/></div><h2>{title}</h2><p>{mode === 'signup' ? 'Preencha seus dados para começar.' : mode === 'recover' ? 'Informe seu e-mail cadastrado.' : mode === 'password' ? 'Escolha uma senha segura.' : 'Informe seus dados de acesso.'}</p>
         {mode === 'signup' && <><label>Nome completo<input value={name} onChange={e=>setName(e.target.value)} autoComplete="name" maxLength={120} required /></label><label>Telefone (opcional)<input value={phone} onChange={e=>setPhone(e.target.value)} autoComplete="tel" maxLength={20} /></label></>}
@@ -163,7 +162,8 @@ function LoginScreen({ role, onBack, onAuthenticated }: { role: PortalRole; onBa
         {role === 'citizen' && mode === 'login' && <div className="auth-links"><button type="button" onClick={()=>{setMode('recover');setError('');setMessage('');}}>Esqueci minha senha</button><button type="button" onClick={()=>{setMode('signup');setError('');setMessage('');}}>Criar minha conta</button></div>}
         {mode !== 'login' && <button type="button" className="login-create" onClick={()=>{setMode('login');setError('');setMessage('');}}>Voltar para entrar</button>}
       </form>
-    </section>
+
+      <div className="login-intro"><span className="portal-kicker">ÁREA DE ACESSO</span><h1>Bem-vindo ao<br/><em>VagaFácil.</em></h1><p>Entre para continuar usando os serviços da plataforma.</p><div className="login-role-summary"><span className="portal-role-icon"><Icon size={23}/></span><div><strong>{selected.title}</strong><small>{selected.description}</small></div></div></div>    </section>
     <footer className="portal-footer"><span>© 2026 VagaFácil · Plataforma municipal de estacionamento rotativo</span><span>Ambiente seguro de acesso</span></footer>
   </main>;
 }
