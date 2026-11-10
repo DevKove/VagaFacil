@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Activity, AlertTriangle, ArrowDownRight, ArrowUpRight, Bell, CarFront, CheckCircle2, ChevronDown, Clock3, MapPin, Menu, Search, ShieldCheck, Users, X } from 'lucide-react';
+import { ArrowUpRight, CheckCircle2, LockKeyhole, MapPin, Clock3, Activity, AlertTriangle, ArrowDownRight, ArrowUpRight, Bell, CarFront, CheckCircle2, ChevronDown, Clock3, MapPin, Menu, Search, ShieldCheck, Users, X } from 'lucide-react';
 import { isSupabaseConfigured } from './lib/supabase';
 
 type Area = 'admin' | 'agent' | 'citizen';
@@ -20,8 +20,83 @@ const sessions = [
   { plate: 'EPL-4C73', vehicle: 'VW Polo · Cinza', zone: 'Vila Nova — Rua Paraná', time: '08:21', remaining: 'Vencido há 18 min', status: 'Vencido' },
   { plate: 'RTA-9D10', vehicle: 'Chevrolet Onix · Preto', zone: 'Centro — Rua Campos Sales', time: '09:27', remaining: '55 min', status: 'Regular' },
 ];
+
+type PortalRole = 'citizen' | 'agent' | 'admin';
+
+const portalRoles: { id: PortalRole; title: string; description: string; action: string; icon: typeof CarFront; featured?: boolean; details: string[] }[] = [
+  { id: 'citizen', title: 'Sou cidadão', description: 'Estacione com praticidade. Registre sua vaga, acompanhe o tempo e consulte seu histórico.', action: 'Acessar área do cidadão', icon: CarFront, featured: true, details: ['Registrar estacionamento', 'Acompanhar tempo restante', 'Gerenciar veículos'] },
+  { id: 'agent', title: 'Sou agente de trânsito', description: 'Acesse as ferramentas de fiscalização e consulta em campo.', action: 'Acesso do agente', icon: ShieldCheck, details: ['Consultar placas e sessões', 'Ver alertas operacionais', 'Registrar ocorrências'] },
+  { id: 'admin', title: 'Sou administrador', description: 'Gerencie a operação municipal, regras, zonas e indicadores.', action: 'Acesso administrativo', icon: Users, details: ['Gerenciar zonas e vagas', 'Administrar usuários', 'Acompanhar relatórios'] },
+];
+
+function Portal({ onSelect }: { onSelect: (role: PortalRole) => void }) {
+  return <main className="portal-page">
+    <header className="portal-header">
+      <a className="portal-brand" href="#" aria-label="VagaFácil início"><span className="portal-brand-mark">V</span><span><strong>VagaFácil</strong><small>Estacionar ficou mais fácil.</small></span></a>
+      <span className="portal-header-note"><i /> Plataforma de estacionamento rotativo</span>
+    </header>
+    <section className="portal-hero">
+      <div className="portal-hero-copy">
+        <span className="portal-kicker"><i /> MOBILIDADE URBANA DIGITAL</span>
+        <h1>Chegou, estacionou.<br/><em>Simples assim.</em></h1>
+        <p>Mais praticidade para quem estaciona. Mais eficiência para quem cuida da mobilidade da cidade.</p>
+        <div className="portal-hero-points"><span><CheckCircle2 size={16}/> Rápido e intuitivo</span><span><Clock3 size={16}/> Controle do tempo</span></div>
+      </div>
+      <div className="portal-hero-art" aria-hidden="true">
+        <div className="road-sun"/>
+        <div className="road-line"/>
+        <div className="road-car"><CarFront size={96} strokeWidth={1.15}/></div>
+        <div className="road-sign"><span>P</span><small>ROTATIVO</small></div>
+        <div className="road-pin"><MapPin size={18}/><span>Vaga disponível</span></div>
+      </div>
+    </section>
+    <section className="portal-access">
+      <div className="portal-section-heading"><div><span className="portal-kicker">ACESSO À PLATAFORMA</span><h2>Como deseja acessar?</h2><p>Escolha seu perfil para continuar.</p></div><span className="portal-secure"><ShieldCheck size={15}/> Acesso por perfil</span></div>
+      <div className="portal-role-grid">
+        {portalRoles.map(role => <article key={role.id} className={role.featured ? 'portal-role-card featured' : 'portal-role-card'}>
+          {role.featured && <span className="portal-featured-tag">MAIS UTILIZADO</span>}
+          <div className="portal-role-icon"><role.icon size={24}/></div>
+          <h3>{role.title}</h3><p>{role.description}</p>
+          <ul>{role.details.map(detail => <li key={detail}><CheckCircle2 size={14}/>{detail}</li>)}</ul>
+          <button className={role.featured ? 'portal-role-button primary' : 'portal-role-button'} onClick={() => onSelect(role.id)}>{role.action}<ArrowUpRight size={17}/></button>
+        </article>)}
+      </div>
+      <p className="portal-help">Ainda não tem cadastro? <span>O acesso do cidadão poderá ser criado na própria plataforma.</span></p>
+    </section>
+    <footer className="portal-footer"><span>© 2026 VagaFácil · Plataforma municipal de estacionamento rotativo</span><span>Mobilidade mais simples para todos.</span></footer>
+  </main>;
+}
+
+function LoginScreen({ role, onBack }: { role: PortalRole; onBack: () => void }) {
+  const selected = portalRoles.find(item => item.id === role)!;
+  const Icon = selected.icon;
+  return <main className="portal-page login-page">
+    <header className="portal-header"><a className="portal-brand" href="#" onClick={e => {e.preventDefault();onBack();}}><span className="portal-brand-mark">V</span><span><strong>VagaFácil</strong><small>Estacionar ficou mais fácil.</small></span></a><button className="portal-back" onClick={onBack}>← Voltar aos perfis</button></header>
+    <section className="login-layout">
+      <div className="login-intro"><span className="portal-kicker">ÁREA DE ACESSO</span><h1>Bem-vindo ao<br/><em>VagaFácil.</em></h1><p>Entre para continuar usando os serviços da plataforma.</p><div className="login-role-summary"><span className="portal-role-icon"><Icon size={23}/></span><div><strong>{selected.title}</strong><small>{selected.description}</small></div></div></div>
+      <form className="login-card" onSubmit={e => e.preventDefault()}>
+        <div className="login-card-icon"><Icon size={22}/></div><h2>Entrar na sua conta</h2><p>Informe seus dados de acesso.</p>
+        <label>E-mail<input type="email" placeholder="seu@email.com" autoComplete="username" required /></label>
+        <label>Senha<input type="password" placeholder="Digite sua senha" autoComplete="current-password" required /></label>
+        <button type="submit" disabled>Entrar <ArrowUpRight size={17}/></button>
+        <div className="login-unavailable"><LockKeyhole size={16}/><span>A autenticação ainda está em implantação. O acesso será liberado após a configuração do serviço de contas.</span></div>
+        {role === 'citizen' && <button type="button" className="login-create" disabled>Criar minha conta em breve</button>}
+      </form>
+    </section>
+    <footer className="portal-footer"><span>© 2026 VagaFácil · Plataforma municipal de estacionamento rotativo</span><span>Ambiente seguro de acesso</span></footer>
+  </main>;
+}
+
 export default function App() {
-  const [area, setArea] = useState<Area>('admin');
+  const [selectedRole, setSelectedRole] = useState<PortalRole | null>(null);
+  const [showDemo, setShowDemo] = useState(false);
+  if (showDemo) return <Dashboard initialArea={selectedRole === 'citizen' ? 'citizen' : selectedRole === 'agent' ? 'agent' : 'admin'} />;
+  if (selectedRole) return <LoginScreen role={selectedRole} onBack={() => setSelectedRole(null)} />;
+  return <Portal onSelect={setSelectedRole} />;
+}
+
+function Dashboard({ initialArea = 'admin' }: { initialArea?: Area }) {
+  const [area, setArea] = useState<Area>(initialArea);
   const [active, setActive] = useState(nav.admin[0]);
   const [menuOpen, setMenuOpen] = useState(false);
   const [query, setQuery] = useState('');
