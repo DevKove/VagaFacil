@@ -3,6 +3,7 @@ import type { FormEvent } from 'react';
 import { Activity, AlertTriangle, ArrowDownRight, ArrowUpRight, Bell, CarFront, CheckCircle2, ChevronDown, Clock3, LockKeyhole, MapPin, Menu, Search, ShieldCheck, Users, X } from 'lucide-react';
 import { isSupabaseConfigured, supabase } from './lib/supabase';
 import CitizenWorkspace from './features/citizen/CitizenWorkspace';
+import OperationsWorkspace from './features/operations/OperationsWorkspace';
 
 type Area = 'admin' | 'agent' | 'citizen';
 const nav = {
@@ -255,12 +256,7 @@ function AdminMfaScreen({ profile, onVerified, onCancel }: { profile: UserProfil
 
 function AuthenticatedHome({ profile, role, onSignOut }: { profile: UserProfile; role: PortalRole; onSignOut: () => void }) {
   if (role === 'citizen') return <CitizenWorkspace profile={profile} onSignOut={onSignOut} />;
-  const label = role === 'agent' ? 'Área do agente' : 'Área administrativa';
-  return <main className="portal-page authenticated-page">
-    <header className="portal-header"><a className="portal-brand" href={import.meta.env.BASE_URL}><img className="portal-brand-logo" src={`${import.meta.env.BASE_URL}IMG/logo-vagafacil.svg`} alt="VagaFácil" /><span><strong>VagaFácil</strong><small>Estacionar ficou mais fácil.</small></span></a><button className="portal-back" onClick={onSignOut}>Sair da conta</button></header>
-    <section className="authenticated-card"><div className="login-card-icon"><CheckCircle2 size={23}/></div><span className="portal-kicker">ACESSO AUTENTICADO</span><h1>Olá, {profile.full_name || 'usuário'}.</h1><p>Sua conta foi autenticada com sucesso.</p><div className="auth-feedback success">{label} · Perfil ativo</div><p className="auth-pending">O painel operacional está sendo implementado. Esta área não exibe dados fictícios como informações reais.</p></section>
-    <footer className="portal-footer"><span>© 2026 VagaFácil · Plataforma municipal de estacionamento rotativo</span><span>Conexão segura</span></footer>
-  </main>;
+  return <OperationsWorkspace profile={profile} area={role} onSignOut={onSignOut} />;
 }
 
 export default function App() {
