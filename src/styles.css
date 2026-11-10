@@ -766,3 +766,125 @@ th{font-size:12px!important;color:#263e54;background:#e4edf5}
 @media(max-width:620px){.ops-map-frame{height:330px}.ops-map-list{grid-template-columns:1fr}}
 
 .ops-photo-link{display:inline-flex;margin:8px 7px 0 0;padding:6px 9px;border-radius:7px;background:#eaf5fb;color:#147ca3;font-size:9px;font-weight:750;text-decoration:none}
+
+
+/* Banner principal VagaFácil — identidade visual renovada */
+.portal-hero{
+  min-height:390px;
+  padding:58px max(8vw,35px);
+  grid-template-columns:minmax(0,1.08fr) minmax(360px,.92fr);
+  gap:34px;
+  background:
+    radial-gradient(ellipse at 82% 16%,#12a9d455 0,transparent 34%),
+    radial-gradient(ellipse at 58% 100%,#087f9a55 0,transparent 42%),
+    linear-gradient(118deg,#071b30 0%,#0b3555 48%,#075c78 100%);
+}
+.portal-hero:before{
+  content:"";
+  position:absolute;inset:0;pointer-events:none;opacity:.18;
+  background-image:linear-gradient(#ffffff12 1px,transparent 1px),linear-gradient(90deg,#ffffff12 1px,transparent 1px);
+  background-size:42px 42px;
+  mask-image:linear-gradient(90deg,transparent 0%,#000 65%);
+}
+.portal-hero:after{
+  width:620px;height:620px;right:-150px;top:-350px;
+  border:1px solid #a9efff30;
+  box-shadow:0 0 0 48px #ffffff09,0 0 0 96px #ffffff07,0 0 0 144px #ffffff04;
+}
+.portal-hero-copy{max-width:620px}
+.portal-hero .portal-kicker{
+  padding:9px 13px;border:1px solid #8deaff55;border-radius:30px;
+  background:#0a759044;color:#e0faff;font-size:10px;letter-spacing:1.65px;
+}
+.portal-hero .portal-kicker i{background:#58e3b4;box-shadow:0 0 0 4px #58e3b422}
+.portal-hero h1{
+  font-size:clamp(42px,5vw,62px);line-height:1.04;letter-spacing:-2.8px;
+  margin:22px 0 16px;text-shadow:0 5px 24px #00142655;
+}
+.portal-hero h1 em{
+  background:linear-gradient(90deg,#62e6f5,#6df0c2 75%,#d5f77a);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.portal-hero-copy>p{max-width:490px;color:#e0edf5;font-size:15px;line-height:1.75}
+.portal-hero-points{gap:12px 22px;margin-top:27px;font-size:12px}
+.portal-hero-points span{
+  padding:10px 13px;border:1px solid #d6f5ff2b;border-radius:9px;
+  background:#ffffff0b;color:#f2fbff;backdrop-filter:blur(8px);
+}
+.portal-hero-points svg{color:#69e6c0}
+.portal-hero-art{
+  height:270px;min-width:0;isolation:isolate;
+  filter:drop-shadow(0 24px 34px #00132255);
+}
+.portal-hero-art:before{
+  content:"";position:absolute;inset:8% 0 0 3%;z-index:-1;border-radius:48%;
+  background:radial-gradient(ellipse,#30c8d52b 0%,#30c8d510 48%,transparent 72%);
+}
+.road-sun{
+  width:190px;height:190px;right:21%;top:-3px;
+  background:linear-gradient(145deg,#ffe49a,#f6a34f 75%);
+  box-shadow:0 0 65px #ffca6b44;
+}
+.road-line{
+  left:-5%;right:-12%;bottom:5px;height:100px;
+  border-radius:65% 12% 0 0;
+  background:linear-gradient(180deg,#173d53,#071e31);
+  transform:skewY(-7deg);box-shadow:0 -5px 0 #d8f7ff25,0 -12px 30px #031a2a66;
+}
+.road-line:after{top:49px;border-top:3px dashed #f7f3d999}
+.road-car{
+  right:25%;bottom:45px;width:170px;height:105px;
+  border-radius:34px 34px 24px 24px;
+  background:linear-gradient(145deg,#fff 0%,#dcecf4 55%,#9bb9cb 100%);
+  color:#087da8;box-shadow:0 18px 28px #00152388,inset 0 3px 0 #fff;
+  animation:vagafacil-float 5s ease-in-out infinite;
+}
+.road-car svg{width:112px;height:112px;filter:drop-shadow(0 3px 2px #0a456044)}
+.road-car:before,.road-car:after{bottom:-11px;width:31px;height:31px;background:#102a43;border:6px solid #7896aa;box-shadow:inset 0 0 0 2px #d6e7ef}
+.road-sign{
+  right:6%;top:0;width:76px;height:94px;border:5px solid #f5fbff;
+  border-radius:15px;background:linear-gradient(145deg,#16b6d5,#0878b5);
+  box-shadow:0 12px 25px #001a2c77,0 0 0 7px #ffffff17;
+}
+.road-sign:after{height:80px;top:86px;background:linear-gradient(90deg,#b8cbd5,#eef5f8,#8ba5b5)}
+.road-sign span{font-size:40px}
+.road-sign small{font-size:8px;font-weight:800}
+.road-pin{
+  left:0;top:55px;padding:11px 15px;border:1px solid #dff8ff;
+  border-radius:12px;background:#f8fdff;color:#15506d;font-size:11px;
+  box-shadow:0 12px 28px #001a2c55;
+  animation:vagafacil-float 5s ease-in-out -2.5s infinite;
+}
+.road-pin svg{color:#08a77e}
+@keyframes vagafacil-float{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-8px) rotate(-3deg)}}
+.portal-header{box-shadow:0 5px 22px #092b4410}
+.portal-header .portal-brand-logo{width:48px;height:48px;object-fit:contain}
+.portal-footer-refined{background:#fff;padding-top:21px;padding-bottom:21px}
+@media(max-width:760px){
+  .portal-hero{padding:38px 23px 25px;gap:10px;background:
+    radial-gradient(ellipse at 85% 72%,#0e9ab955 0,transparent 44%),
+    linear-gradient(150deg,#071b30 0%,#0b3d5e 62%,#075c78 100%)}
+  .portal-hero:before{background-size:30px 30px;mask-image:linear-gradient(180deg,transparent,#000)}
+  .portal-hero-copy{max-width:none}
+  .portal-hero .portal-kicker{font-size:9px}
+  .portal-hero h1{font-size:clamp(37px,9vw,49px);letter-spacing:-1.8px;margin:17px 0 12px}
+  .portal-hero-copy>p{font-size:14px;line-height:1.65}
+  .portal-hero-points{gap:8px;margin-top:19px}
+  .portal-hero-points span{font-size:11px;padding:9px 10px}
+  .portal-hero-art{height:174px;transform:none;margin:6px 0 0;max-width:440px;width:100%;justify-self:center}
+  .road-sun{width:135px;height:135px;right:24%;top:2px}
+  .road-line{height:66px;bottom:2px}
+  .road-line:after{top:32px}
+  .road-car{width:122px;height:76px;right:27%;bottom:30px;border-radius:25px 25px 18px 18px}
+  .road-car svg{width:82px;height:82px}
+  .road-car:before,.road-car:after{width:25px;height:25px;bottom:-9px;border-width:5px}
+  .road-sign{width:57px;height:70px;right:4%;top:0;border-width:4px;border-radius:11px}
+  .road-sign span{font-size:30px}
+  .road-sign small{font-size:6px}
+  .road-sign:after{height:58px;top:64px;width:6px}
+  .road-pin{left:1%;top:28px;padding:8px 10px;font-size:9px}
+  .road-pin svg{width:15px;height:15px}
+}
+@media(prefers-reduced-motion:reduce){
+  .road-car,.road-pin{animation:none!important}
+}
