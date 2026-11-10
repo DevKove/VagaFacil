@@ -28,3 +28,8 @@
 .authenticated-card>p{font-size:12px;line-height:1.7;color:#778a9b}
 .auth-pending{margin-top:22px!important;padding-top:18px;border-top:1px solid #e9eff3}
 @media(max-width:520px){.authenticated-card{padding:25px}.authenticated-card h1{font-size:25px}.auth-links{flex-direction:column;align-items:flex-start}}
+
+/* Identidade visual oficial fornecida na pasta IMG */
+.portal-brand-logo{width:48px;height:48px;object-fit:contain;display:block;border-radius:10px}
+.brand-logo{width:42px;height:42px;object-fit:contain;display:block;flex:none;border-radius:9px}
+@media(max-width:520px){.portal-brand-logo{width:42px;height:42px}}
