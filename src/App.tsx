@@ -139,7 +139,7 @@ function LoginScreen({ role, onBack, onAuthenticated, onMfaRequired }: { role: P
       const { data: profile, error: profileError } = await client.from('profiles').select('id,full_name,role,is_active').eq('id', data.user.id).single();
       if (profileError) { await client.auth.signOut(); throw new Error('Perfil não encontrado. Verifique se a migração do banco foi aplicada.'); }
       if (!profile.is_active) { await client.auth.signOut(); throw new Error('Acesso desativado. Procure a administração municipal.'); }
-      if (profile.role !== role && !(role === 'admin' && ['supervisor', 'agent'].includes(profile.role))) { await client.auth.signOut(); throw new Error('Esta conta não tem permissão para acessar este ambiente.'); }
+      if (profile.role !== role && !(role === 'admin' && profile.role === 'supervisor')) { await client.auth.signOut(); throw new Error('Esta conta não tem permissão para acessar este ambiente.'); }
       if (profile.role === 'admin' || profile.role === 'supervisor' || profile.role === 'agent') onMfaRequired(profile);
       else onAuthenticated(profile);
     });
@@ -299,7 +299,7 @@ export default function App() {
       if (new URLSearchParams(window.location.search).get('recovery') === '1') return;
       window.setTimeout(() => {
         void client.from('profiles').select('id,full_name,role,is_active').eq('id', session.user.id).single()
-          .then(({ data, error }) => {
+          .then(async ({ data, error }) => {
             if (!error && data?.is_active) {
               if (['admin', 'supervisor', 'agent'].includes(data.role)) {
                 const { data: assurance } = await client.auth.mfa.getAuthenticatorAssuranceLevel();
