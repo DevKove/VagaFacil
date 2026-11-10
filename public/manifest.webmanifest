@@ -10,10 +10,10 @@
   "lang": "pt-BR",
   "icons": [
     {
-      "src": "./favicon.svg",
+      "src": "./IMG/favicon.ico",
       "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "type": "image/x-icon",
+      "purpose": "any"
     }
   ]
 }
