@@ -293,3 +293,81 @@
 }
 @keyframes sidebarFade{from{opacity:0}to{opacity:1}}
 @media(prefers-reduced-motion:reduce){.workspace-sidebar,.workspace-sidebar-scrim{transition:none;animation:none}}
+
+
+/* Paleta VagaFácil — azul petróleo, ciano e acentos de mobilidade */
+:root{
+  --vf-navy:#102b46;
+  --vf-deep:#0b2038;
+  --vf-blue:#126b9a;
+  --vf-cyan:#16a6c9;
+  --vf-teal:#168f86;
+  --vf-amber:#e6a23b;
+  --vf-ink:#172f43;
+  --vf-muted:#526b7e;
+  --vf-border:#dce6ed;
+  --vf-surface:#ffffff;
+  --vf-canvas:#eef3f7;
+  --vf-gradient-brand:linear-gradient(120deg,#102b46 0%,#145779 52%,#168fa4 100%);
+  --vf-gradient-action:linear-gradient(115deg,#087fae 0%,#12a7bd 55%,#168f86 100%);
+  --vf-gradient-highlight:linear-gradient(135deg,#e9f8fc 0%,#e9f4f1 100%);
+}
+body{background:var(--vf-canvas);color:var(--vf-ink)}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #21a9ca;outline-offset:2px}
+.portal-header,.workspace-header,.topbar{background:linear-gradient(180deg,#fff 0%,#f8fbfd 100%);border-color:#dce7ee}
+.portal-brand-mark,.workspace-brand-mark,.brand-mark{background:linear-gradient(145deg,#65d5e6 0%,#159fc5 48%,#126b9a 100%);color:#06283d;box-shadow:0 7px 18px #087fae35}
+.portal-hero,.sidebar{background:var(--vf-gradient-brand)}
+.portal-hero:after{border-color:#d9f7ff20;box-shadow:0 0 0 55px #d9f7ff0c,0 0 0 110px #d9f7ff08}
+.portal-kicker{color:#b8eaf3}
+.portal-kicker i,.portal-header-note i{background:#39c89a;box-shadow:0 0 0 4px #39c89a25}
+.portal-hero h1 em{background:linear-gradient(90deg,#72e0eb,#b4f0d9);-webkit-background-clip:text;background-clip:text;color:transparent}
+.portal-role-card{border-color:#dce7ee;box-shadow:0 9px 26px #123b5510}
+.portal-role-card.featured{border-color:#1599bd;background:linear-gradient(150deg,#fff 0%,#f1fbfd 60%,#eaf8f4 100%);box-shadow:0 12px 32px #087fae1c}
+.portal-featured-tag{background:linear-gradient(100deg,#d9f5fa,#dff5ed);color:#087a83}
+.portal-role-button.primary,.workspace-primary,.btn-primary{background:var(--vf-gradient-action);border-color:#087fae;box-shadow:0 6px 16px #087fae35;color:#fff}
+.portal-role-button.primary:hover,.workspace-primary:hover,.btn-primary:hover{filter:brightness(1.06);box-shadow:0 8px 20px #087fae42}
+.portal-role-button:not(.primary):hover{background:var(--vf-gradient-highlight);border-color:#80cbd9;color:#086e91}
+.login-page{background:radial-gradient(ellipse at 12% 10%,#dff5fa 0%,transparent 38%),linear-gradient(145deg,#f4f8fb 0%,#eaf2f6 100%)}
+.login-intro h1 em{background:linear-gradient(90deg,#087fae,#159b9d);-webkit-background-clip:text;background-clip:text;color:transparent}
+.login-card,.login-form,.portal-role-card,.workspace-form-card{border-color:var(--vf-border)}
+.workspace-header{background:linear-gradient(105deg,#fff 0%,#f7fbfd 70%,#eff9fa 100%)}
+.workspace-sidebar{background:linear-gradient(180deg,#fff 0%,#fbfdfe 100%);border-color:#d9e6ed}
+.workspace-greeting small{color:#087fae}
+.workspace-sidebar nav button{color:#526b7e}
+.workspace-sidebar nav button:hover{background:linear-gradient(100deg,#eaf7fb,#edf8f4);color:#075f83}
+.workspace-sidebar nav button.active{background:linear-gradient(105deg,#dff3fa 0%,#e2f5f0 100%);color:#075d79;box-shadow:inset 3px 0 #0b9cba}
+.workspace-rule-note,.workspace-rule-callout{background:var(--vf-gradient-highlight);border-color:#cde8e9;color:#087c91}
+.workspace-rule-note strong,.workspace-rule-callout strong{color:#17465a}
+.workspace-metrics article{background:linear-gradient(145deg,#fff 0%,#fbfdfe 75%,#f0f8fa 100%);border-color:#dce8ee}
+.workspace-metrics article:nth-child(2){background:linear-gradient(145deg,#fff 0%,#f5fcf8 100%)}
+.workspace-metrics article:nth-child(3){background:linear-gradient(145deg,#fff 0%,#fff9ef 100%)}
+.workspace-metrics article svg{color:#0787ad}
+.workspace-session-card{background:linear-gradient(145deg,#fff 0%,#f5fbfd 100%);border-color:#cfe5ed}
+.session-timer{color:#087fae}
+.session-live{color:#087d62}
+.session-live i{background:#21b785;box-shadow:0 0 0 4px #21b78524}
+.workspace-vehicle-card{background:linear-gradient(120deg,#fff 0%,#f8fcfd 100%);border-color:#dce8ee}
+.workspace-vehicle-card>span,.workspace-form-icon,.workspace-notices article>span{background:linear-gradient(145deg,#e0f6fb,#e2f4ed);color:#087fae}
+.workspace-table-wrap,.workspace-notices article{border-color:#dce7ed}
+.workspace-table th{background:linear-gradient(90deg,#edf5f8,#f3f8f8);color:#486477}
+.workspace-table td{color:#405c70}
+.workspace-table td strong{color:#173b52}
+.session-status{background:linear-gradient(100deg,#dff7eb,#e7f7f1);color:#08754f}
+.session-status.expired{background:linear-gradient(100deg,#ffebe6,#fff3ec);color:#a83f32}
+.session-status.finished{background:linear-gradient(100deg,#edf2f6,#f5f7f9);color:#536879}
+.workspace-alert.success{background:linear-gradient(110deg,#e1f8ec,#e9f8f3);border-color:#bfe9d2;color:#176b49}
+.workspace-alert.error{background:linear-gradient(110deg,#fff0ec,#fff6f1);border-color:#f0cfc5;color:#963c30}
+.workspace-danger-outline{border-color:#edc9c2;color:#a33e33;background:linear-gradient(110deg,#fff,#fff8f6)}
+.workspace-danger-outline:hover{background:linear-gradient(110deg,#fff0ec,#ffe5de)}
+.workspace-modal{border:1px solid #d7e5ec;box-shadow:0 24px 70px #0c2d4650}
+.workspace-modal-close{background:#eaf2f6;color:#36596e}
+.workspace-primary:focus-visible,.portal-role-button:focus-visible{outline-color:#19a8c5}
+@media(max-width:600px){
+  .workspace-sidebar{background:linear-gradient(180deg,#fff 0%,#f5fafc 100%);border-right-color:#cfe0e8}
+  .workspace-sidebar nav button.active{background:linear-gradient(100deg,#dff3fa,#e4f6ef)}
+  .workspace-sidebar-scrim{background:#071d32b8}
+}
+@media(prefers-reduced-motion:no-preference){
+  .workspace-primary,.portal-role-button,.workspace-sidebar nav button,.workspace-vehicle-card{transition:transform .18s ease,box-shadow .18s ease,background .18s ease}
+  .workspace-primary:hover,.portal-role-button.primary:hover{transform:translateY(-1px)}
+}
