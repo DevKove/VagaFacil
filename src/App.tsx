@@ -211,7 +211,7 @@ export default function App() {
   const signOut = async () => { if (supabase) await supabase.auth.signOut(); setProfile(null); setSelectedRole(null); setShowDemo(false); };
   if (authLoading) return <main className="portal-page"><div className="auth-loading">Verificando sessão segura...</div></main>;
   if (profile) {
-    const role: PortalRole = profile.role === 'admin' ? 'admin' : profile.role === 'agent' ? 'agent' : 'citizen';
+    const role: PortalRole = profile.role === 'admin' || profile.role === 'supervisor' ? 'admin' : profile.role === 'agent' ? 'agent' : 'citizen';
     return <AuthenticatedHome profile={profile} role={role} onSignOut={signOut}/>;
   }
   if (showDemo) return <Dashboard initialArea={selectedRole === 'citizen' ? 'citizen' : selectedRole === 'agent' ? 'agent' : 'admin'} />;
