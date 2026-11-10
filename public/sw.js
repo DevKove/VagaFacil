@@ -1,5 +1,5 @@
 const BASE = new URL('./', self.registration.scope).pathname;
-const CACHE = 'vagafacil-shell-v3';
+const CACHE = 'vagafacil-shell-v4';
 const INDEX = `${BASE}index.html`;
 const SHELL = [BASE, INDEX, `${BASE}favicon.svg`, `${BASE}manifest.webmanifest`];
 
