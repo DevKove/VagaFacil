@@ -1146,3 +1146,64 @@ th{font-size:12px!important;color:#263e54;background:#e4edf5}
   .portal-hero { padding-block: 22px; }
   .portal-footer, .portal-footer-refined { padding-inline: 12px; }
 }
+
+
+/* Mobile: banner em tela cheia, ancorado à direita para recortar o lado do veículo */
+@media (max-width: 760px) {
+  .portal-page {
+    position: relative;
+    min-height: 100svh;
+    height: 100svh;
+    overflow: hidden;
+    background-color: #061a30 !important;
+    background-image: url('../IMG/banner.jpg') !important;
+    background-repeat: no-repeat !important;
+    background-size: auto 100svh !important;
+    background-position: right center !important;
+    background-attachment: scroll !important;
+  }
+
+  .portal-header,
+  .portal-footer,
+  .portal-footer-refined {
+    position: relative;
+    z-index: 2;
+    background: rgba(3, 17, 32, .42) !important;
+    border-color: rgba(255,255,255,.12) !important;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+  }
+
+  .portal-header {
+    flex: 0 0 auto;
+    min-height: 66px;
+    height: auto;
+    padding: 9px 14px;
+  }
+
+  .portal-header-note { display: none; }
+
+  .portal-hero {
+    position: relative;
+    z-index: 1;
+    flex: 1 1 auto;
+    min-height: 0;
+    padding: 0;
+    background: transparent !important;
+  }
+
+  .portal-hero-art,
+  .portal-hero-image { display: none !important; }
+
+  .portal-footer,
+  .portal-footer-refined {
+    flex: 0 0 auto;
+    margin-top: 0;
+    padding: 12px 14px calc(12px + env(safe-area-inset-bottom));
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    text-align: center;
+    font-size: 10px;
+  }
+}
