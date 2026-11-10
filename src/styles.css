@@ -371,3 +371,84 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
   .workspace-primary,.portal-role-button,.workspace-sidebar nav button,.workspace-vehicle-card{transition:transform .18s ease,box-shadow .18s ease,background .18s ease}
   .workspace-primary:hover,.portal-role-button.primary:hover{transform:translateY(-1px)}
 }
+
+
+/* Identidade cromática VagaFácil — paleta intensa e alto contraste */
+:root{
+  --vf-navy:#071d35;
+  --vf-blue:#0759e8;
+  --vf-electric:#087cf5;
+  --vf-cyan:#00c8f0;
+  --vf-teal:#00a99a;
+  --vf-orange:#ff6b1a;
+  --vf-amber:#ffb21c;
+  --vf-lime:#8bdc28;
+  --vf-ink:#102b45;
+  --vf-muted:#526b82;
+  --vf-gradient:linear-gradient(118deg,#0759e8 0%,#087cf5 38%,#00c8f0 72%,#00a99a 100%);
+  --vf-hot-gradient:linear-gradient(115deg,#ff6b1a 0%,#ff9b16 52%,#ffd02a 100%);
+}
+body{color:var(--vf-ink);background:linear-gradient(145deg,#f2f7ff 0%,#f4fbff 48%,#effcf8 100%)}
+.sidebar{background:linear-gradient(165deg,#071d35 0%,#0b3157 52%,#07506d 100%);box-shadow:8px 0 30px #06274720}
+.brand-mark,.portal-brand-mark{background:linear-gradient(145deg,#00d5f2,#087cf5 58%,#0759e8);color:#fff;box-shadow:0 7px 22px #087cf566}
+.nav-item.active{background:linear-gradient(100deg,#087cf555,#00c8f033 72%,#00a99a22);box-shadow:inset 4px 0 #00d9ff,0 5px 16px #001b3524}
+.nav-item.active .nav-icon,.nav-icon{color:#48dfff}
+.area-switch button.selected{background:linear-gradient(110deg,#087cf5,#00a99a);box-shadow:0 3px 12px #00a9ca55}
+.help-card{background:linear-gradient(135deg,#10456d,#08758a);border-color:#20c8ed55}
+.topbar{border-bottom-color:#d9e9f5;box-shadow:0 3px 16px #0b31570a}
+.welcome-row h1,.panel-heading h2,.metric-value{color:#102b45}
+.eyebrow{color:#0878bf}
+.btn-primary,.portal-role-button.primary{background:linear-gradient(110deg,#0759e8 0%,#087cf5 45%,#00a99a 100%);border-color:#087cf5;box-shadow:0 6px 18px #087cf54d}
+.btn-primary:hover,.portal-role-button.primary:hover{filter:saturate(1.2) brightness(1.08);transform:translateY(-1px);box-shadow:0 9px 23px #087cf566}
+.btn-secondary{border-color:#c6d9ea;color:#174c70}
+.btn-secondary:hover{border-color:#087cf5;color:#0759e8;background:#eef7ff}
+.metric-card,.panel,.portal-role-card{border-color:#dbe8f3;box-shadow:0 6px 20px #0c3c6310}
+.metric-card{border-top:3px solid #087cf5}
+.metric-card:nth-child(2){border-top-color:#00a99a}
+.metric-card:nth-child(3){border-top-color:#ff8a1c}
+.metric-card:nth-child(4){border-top-color:#e83e62}
+.metric-icon.blue{background:linear-gradient(135deg,#d9efff,#b9e6ff);color:#0759e8}
+.metric-icon.green{background:linear-gradient(135deg,#d5fff1,#a5f2d9);color:#008b73}
+.metric-icon.orange{background:linear-gradient(135deg,#fff0d6,#ffd28b);color:#d96800}
+.metric-icon.red{background:linear-gradient(135deg,#ffe3e8,#ffb9c6);color:#d92d55}
+.metric-bar i{background:linear-gradient(90deg,#0759e8,#00c8f0)}
+.metric-card:nth-child(2) .metric-bar i{background:linear-gradient(90deg,#00a99a,#8bdc28)}
+.metric-card:nth-child(3) .metric-bar i{background:var(--vf-hot-gradient)}
+.metric-card:nth-child(4) .metric-bar i{background:linear-gradient(90deg,#e83e62,#ff7b45)}
+.text-action{color:#076bdc}
+.text-action:hover{color:#00a99a}
+.status-pill.regular{background:#d8fff0;color:#007c60}
+.status-pill.atenção{background:#fff0d2;color:#a95800}
+.status-pill.vencido{background:#ffe1e8;color:#bd2348}
+.nav-count{background:linear-gradient(120deg,#ff5b36,#ed245c);box-shadow:0 2px 8px #ed245c55}
+.chart-summary .positive{color:#008f70}
+.donut{background:conic-gradient(#00b98b 0 79%,#ffad22 79% 92%,#ed4266 92% 100%)}
+.lg-green{background:#00b98b}.lg-orange{background:#ffad22}.lg-red{background:#ed4266}
+.config-banner{background:linear-gradient(110deg,#fff2d6,#ffe7d8);border-color:#ffc56b;color:#a94c00}
+.config-banner span{color:#89572b}
+.portal-hero{background:linear-gradient(112deg,#071d35 0%,#0759a5 43%,#087cf5 72%,#00a99a 115%)}
+.portal-hero:after{border-color:#ffffff20;box-shadow:0 0 0 55px #00d5ff12,0 0 0 110px #ffffff08}
+.portal-kicker{color:#a8efff}
+.portal-kicker i{background:#8bdc28;box-shadow:0 0 0 4px #8bdc2830}
+.portal-hero h1 em,.login-intro h1 em{color:#39e4ff}
+.portal-role-card.featured{border-color:#087cf5;background:linear-gradient(150deg,#fff 50%,#e6f7ff 100%);box-shadow:0 12px 32px #087cf52b}
+.portal-featured-tag{background:linear-gradient(100deg,#0759e8,#00a99a);color:white}
+.portal-role-icon{background:linear-gradient(135deg,#d8f2ff,#c2e9ff);color:#0759e8}
+.portal-role-card:not(.featured) .portal-role-icon{background:linear-gradient(135deg,#e2f5ff,#d9fff4);color:#087b9e}
+.portal-role-card li svg{color:#00a77e}
+.portal-role-button:hover{border-color:#00a9d5;color:#0759e8;background:#effaff}
+.portal-header{border-bottom-color:#d8e8f4}
+.login-page{background:radial-gradient(ellipse at 12% 15%,#d8f0ff 0%,transparent 38%),radial-gradient(ellipse at 88% 85%,#d8fff1 0%,transparent 36%),linear-gradient(145deg,#f5f8ff,#edf7ff)}
+.portal-back{color:#0759e8}
+.portal-secure svg{color:#00a77e}
+.icon-btn:hover{background:#e7f5ff;color:#0759e8}
+.search-box:focus-within{border-color:#087cf5;box-shadow:0 0 0 3px #087cf51c}
+input:focus-visible,button:focus-visible{outline:3px solid #00bfe8;outline-offset:2px}
+@media(max-width:760px){
+  .sidebar{background:linear-gradient(165deg,#071d35 0%,#0b3157 55%,#07506d 100%)}
+  .welcome-row h1{background:linear-gradient(100deg,#102b45,#0759a5 75%,#008e88);background-clip:text;-webkit-background-clip:text;color:transparent}
+}
+@media(prefers-reduced-motion:no-preference){
+  .btn-primary,.portal-role-button,.nav-item,.metric-card{transition:transform .18s ease,box-shadow .18s ease,filter .18s ease}
+  .metric-card:hover{transform:translateY(-2px);box-shadow:0 11px 26px #0c3c631b}
+}
