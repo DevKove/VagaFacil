@@ -144,14 +144,21 @@ create table public.audit_logs (
   created_at timestamptz not null default now()
 );
 
-create or replace function public.current_app_role()
+-- Função privilegiada isolada em schema não exposto: evita recursão de RLS
+-- ao consultar o perfil usado pelas próprias políticas.
+create schema if not exists private;
+revoke all on schema private from public, anon;
+grant usage on schema private to authenticated;
+create or replace function private.current_app_role()
 returns public.app_role
-language sql stable security invoker
+language sql stable security definer
 set search_path = ''
-as $$
-  select role from public.profiles
-  where id = (select auth.uid()) and is_active = true
-$$;
+as $
+  select p.role from public.profiles p
+  where p.id = (select auth.uid()) and p.is_active = true
+$;
+revoke all on function private.current_app_role() from public, anon;
+grant execute on function private.current_app_role() to authenticated;
 
 create or replace function public.handle_new_user()
 returns trigger
@@ -188,70 +195,75 @@ alter table public.notifications enable row level security;
 alter table public.audit_logs enable row level security;
 
 create policy "profiles read self or management" on public.profiles for select to authenticated
-using (id = (select auth.uid()) or public.current_app_role() in ('admin','supervisor'));
+using (id = (select auth.uid()) or private.current_app_role() in ('admin','supervisor'));
 create policy "profiles update self or management" on public.profiles for update to authenticated
-using (id = (select auth.uid()) or public.current_app_role() in ('admin','supervisor'))
-with check (id = (select auth.uid()) or public.current_app_role() in ('admin','supervisor'));
+using (id = (select auth.uid()) or private.current_app_role() in ('admin','supervisor'))
+with check (id = (select auth.uid()) or private.current_app_role() in ('admin','supervisor'));
 
 create policy "vehicles owner or management read" on public.vehicles for select to authenticated
-using (owner_id = (select auth.uid()) or public.current_app_role() in ('admin','supervisor','agent'));
+using (owner_id = (select auth.uid()) or private.current_app_role() in ('admin','supervisor','agent'));
 create policy "vehicles owner manage" on public.vehicles for all to authenticated
-using (owner_id = (select auth.uid()) or public.current_app_role() in ('admin','supervisor'))
-with check (owner_id = (select auth.uid()) or public.current_app_role() in ('admin','supervisor'));
+using (owner_id = (select auth.uid()) or private.current_app_role() in ('admin','supervisor'))
+with check (owner_id = (select auth.uid()) or private.current_app_role() in ('admin','supervisor'));
 
-create policy "active spaces readable" on public.parking_spaces for select to authenticated using (active or public.current_app_role() in ('admin','supervisor','agent'));
+create policy "active spaces readable" on public.parking_spaces for select to authenticated using (active or private.current_app_role() in ('admin','supervisor','agent'));
 create policy "management spaces write" on public.parking_spaces for all to authenticated
-using (public.current_app_role() in ('admin','supervisor'))
-with check (public.current_app_role() in ('admin','supervisor'));
+using (private.current_app_role() in ('admin','supervisor'))
+with check (private.current_app_role() in ('admin','supervisor'));
 create policy "zones authenticated read" on public.parking_zones for select to authenticated using (true);
 create policy "management zones write" on public.parking_zones for all to authenticated
-using (public.current_app_role() in ('admin','supervisor'))
-with check (public.current_app_role() in ('admin','supervisor'));
-create policy "rules authenticated read" on public.parking_rules for select to authenticated using (enabled or public.current_app_role() in ('admin','supervisor'));
+using (private.current_app_role() in ('admin','supervisor'))
+with check (private.current_app_role() in ('admin','supervisor'));
+create policy "rules authenticated read" on public.parking_rules for select to authenticated using (enabled or private.current_app_role() in ('admin','supervisor'));
 create policy "management rules write" on public.parking_rules for all to authenticated
-using (public.current_app_role() in ('admin','supervisor'))
-with check (public.current_app_role() in ('admin','supervisor'));
+using (private.current_app_role() in ('admin','supervisor'))
+with check (private.current_app_role() in ('admin','supervisor'));
 create policy "holidays authenticated read" on public.holidays for select to authenticated using (true);
 create policy "management holidays write" on public.holidays for all to authenticated
-using (public.current_app_role() in ('admin','supervisor'))
-with check (public.current_app_role() in ('admin','supervisor'));
+using (private.current_app_role() in ('admin','supervisor'))
+with check (private.current_app_role() in ('admin','supervisor'));
 
 create policy "sessions owner or operations read" on public.parking_sessions for select to authenticated
-using (user_id = (select auth.uid()) or public.current_app_role() in ('admin','supervisor','agent'));
+using (user_id = (select auth.uid()) or private.current_app_role() in ('admin','supervisor','agent'));
 create policy "citizen creates own session" on public.parking_sessions for insert to authenticated
 with check (user_id = (select auth.uid()) and exists (select 1 from public.vehicles v where v.id = vehicle_id and v.owner_id = (select auth.uid())));
 create policy "owner ends own session or management" on public.parking_sessions for update to authenticated
-using (user_id = (select auth.uid()) or public.current_app_role() in ('admin','supervisor','agent'))
-with check (user_id = (select auth.uid()) or public.current_app_role() in ('admin','supervisor','agent'));
+using (user_id = (select auth.uid()) or private.current_app_role() in ('admin','supervisor','agent'))
+with check (user_id = (select auth.uid()) or private.current_app_role() in ('admin','supervisor','agent'));
 
 create policy "operations alerts read" on public.alerts for select to authenticated
-using (public.current_app_role() in ('admin','supervisor','agent'));
+using (private.current_app_role() in ('admin','supervisor','agent'));
 create policy "operations alerts update" on public.alerts for update to authenticated
-using (public.current_app_role() in ('admin','supervisor','agent'))
-with check (public.current_app_role() in ('admin','supervisor','agent'));
+using (private.current_app_role() in ('admin','supervisor','agent'))
+with check (private.current_app_role() in ('admin','supervisor','agent'));
 create policy "enforcements operations read" on public.enforcements for select to authenticated
-using (public.current_app_role() in ('admin','supervisor','agent'));
+using (private.current_app_role() in ('admin','supervisor','agent'));
 create policy "agents create enforcement" on public.enforcements for insert to authenticated
-with check (agent_id = (select auth.uid()) and public.current_app_role() in ('admin','supervisor','agent'));
+with check (agent_id = (select auth.uid()) and private.current_app_role() in ('admin','supervisor','agent'));
 create policy "agents update own enforcement" on public.enforcements for update to authenticated
-using (agent_id = (select auth.uid()) or public.current_app_role() in ('admin','supervisor'))
-with check (agent_id = (select auth.uid()) or public.current_app_role() in ('admin','supervisor'));
+using (agent_id = (select auth.uid()) or private.current_app_role() in ('admin','supervisor'))
+with check (agent_id = (select auth.uid()) or private.current_app_role() in ('admin','supervisor'));
 create policy "photos operations read" on public.enforcement_photos for select to authenticated
-using (public.current_app_role() in ('admin','supervisor','agent'));
+using (private.current_app_role() in ('admin','supervisor','agent'));
 create policy "photos operations write" on public.enforcement_photos for all to authenticated
-using (public.current_app_role() in ('admin','supervisor','agent'))
-with check (public.current_app_role() in ('admin','supervisor','agent'));
+using (private.current_app_role() in ('admin','supervisor','agent'))
+with check (private.current_app_role() in ('admin','supervisor','agent'));
 create policy "notifications own read" on public.notifications for select to authenticated
-using (user_id = (select auth.uid()) or public.current_app_role() in ('admin','supervisor'));
+using (user_id = (select auth.uid()) or private.current_app_role() in ('admin','supervisor'));
 create policy "notifications own update" on public.notifications for update to authenticated
 using (user_id = (select auth.uid())) with check (user_id = (select auth.uid()));
 create policy "audit management read" on public.audit_logs for select to authenticated
-using (public.current_app_role() in ('admin','supervisor'));
+using (private.current_app_role() in ('admin','supervisor'));
 create policy "audit authenticated insert" on public.audit_logs for insert to authenticated
 with check (actor_id = (select auth.uid()));
 
 grant usage on schema public to authenticated;
-grant select, insert, update, delete on public.profiles, public.vehicles, public.parking_zones, public.parking_spaces, public.parking_rules, public.holidays, public.parking_sessions, public.alerts, public.enforcements, public.enforcement_photos, public.notifications, public.audit_logs to authenticated;
+grant select, insert, delete on public.profiles to authenticated;
+grant update(full_name, phone) on public.profiles to authenticated;
+grant select, insert, update, delete on public.vehicles, public.parking_zones, public.parking_spaces, public.parking_rules, public.holidays, public.alerts, public.enforcements, public.enforcement_photos, public.notifications, public.audit_logs to authenticated;
+-- Sessões não aceitam INSERT/UPDATE direto do navegador. O fluxo de criação/encerramento
+-- deverá ser implementado por RPC transacional que calcule expiração no servidor.
+grant select on public.parking_sessions to authenticated;
 grant usage, select on all sequences in schema public to authenticated;
 
 -- IMPORTANTE: o papel inicial é cidadão. Promova o primeiro administrador manualmente,
