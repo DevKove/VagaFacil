@@ -153,10 +153,10 @@ create or replace function private.current_app_role()
 returns public.app_role
 language sql stable security definer
 set search_path = ''
-as $
+as $$
   select p.role from public.profiles p
   where p.id = (select auth.uid()) and p.is_active = true
-$;
+$$;
 revoke all on function private.current_app_role() from public, anon;
 grant execute on function private.current_app_role() to authenticated;
 
