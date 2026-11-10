@@ -74,11 +74,12 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
 
   const addVehicle = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!supabase) return;
+    const client = supabase;
+    if (!client) return;
     void perform(async () => {
       const plate = vehicleForm.plate.replace(/[^a-z0-9]/gi, '').toUpperCase();
       if (!platePattern.test(plate)) throw new Error('Informe uma placa válida no padrão ABC1D23 ou ABC1234.');
-      const { error: insertError } = await supabase.from('vehicles').insert({
+      const { error: insertError } = await client.from('vehicles').insert({
         owner_id: profile.id, plate, make: vehicleForm.make.trim() || null, model: vehicleForm.model.trim() || null,
         color: vehicleForm.color.trim() || null, vehicle_type: vehicleForm.vehicle_type,
       });
@@ -89,18 +90,20 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
   };
 
   const removeVehicle = (vehicle: Vehicle) => {
-    if (!supabase || !window.confirm(`Remover o veículo ${vehicle.plate}?`)) return;
+    const client = supabase;
+    if (!client || !window.confirm(`Remover o veículo ${vehicle.plate}?`)) return;
     void perform(async () => {
-      const { error: deleteError } = await supabase.from('vehicles').delete().eq('id', vehicle.id).eq('owner_id', profile.id);
+      const { error: deleteError } = await client.from('vehicles').delete().eq('id', vehicle.id).eq('owner_id', profile.id);
       if (deleteError) throw deleteError;
       setSuccess('Veículo removido.'); await refresh();
     });
   };
 
   const startSession = () => {
-    if (!supabase || !selectedVehicle) return;
+    const client = supabase;
+    if (!client || !selectedVehicle) return;
     void perform(async () => {
-      const { error: rpcError } = await supabase.rpc('start_parking_session', { p_vehicle_id: selectedVehicle, p_space_id: selectedSpace || null });
+      const { error: rpcError } = await client.rpc('start_parking_session', { p_vehicle_id: selectedVehicle, p_space_id: selectedSpace || null });
       if (rpcError) throw rpcError;
       setSuccess('Estacionamento registrado com sucesso. O cronômetro já está em andamento.');
       setTab('overview'); await refresh();
@@ -108,17 +111,19 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
   };
 
   const finishSession = (sessionId: string) => {
-    if (!supabase) return;
+    const client = supabase;
+    if (!client) return;
     void perform(async () => {
-      const { error: rpcError } = await supabase.rpc('finish_parking_session', { p_session_id: sessionId });
+      const { error: rpcError } = await client.rpc('finish_parking_session', { p_session_id: sessionId });
       if (rpcError) throw rpcError;
       setSuccess('Estacionamento encerrado.'); await refresh();
     });
   };
 
   const markRead = async (noticeId: string) => {
-    if (!supabase) return;
-    const { error: updateError } = await supabase.from('notifications').update({ read_at: new Date().toISOString() }).eq('id', noticeId).eq('user_id', profile.id);
+    const client = supabase;
+    if (!client) return;
+    const { error: updateError } = await client.from('notifications').update({ read_at: new Date().toISOString() }).eq('id', noticeId).eq('user_id', profile.id);
     if (!updateError) await refresh();
   };
 
