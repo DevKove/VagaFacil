@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { ArrowUpRight, CheckCircle2, LockKeyhole, MapPin, Clock3, Activity, AlertTriangle, ArrowDownRight, ArrowUpRight, Bell, CarFront, CheckCircle2, ChevronDown, Clock3, MapPin, Menu, Search, ShieldCheck, Users, X } from 'lucide-react';
+import { Activity, AlertTriangle, ArrowDownRight, ArrowUpRight, Bell, CarFront, CheckCircle2, ChevronDown, Clock3, LockKeyhole, MapPin, Menu, Search, ShieldCheck, Users, X } from 'lucide-react';
 import { isSupabaseConfigured } from './lib/supabase';
 
 type Area = 'admin' | 'agent' | 'citizen';
@@ -63,7 +63,7 @@ function Portal({ onSelect }: { onSelect: (role: PortalRole) => void }) {
       </div>
       <p className="portal-help">Ainda não tem cadastro? <span>O acesso do cidadão poderá ser criado na própria plataforma.</span></p>
     </section>
-    <footer className="portal-footer"><span>© 2026 VagaFácil · Plataforma municipal de estacionamento rotativo</span><span>Mobilidade mais simples para todos.</span></footer>
+    <footer className="portal-footer"><span>© 2026 VagaFácil · Plataforma municipal de estacionamento rotativo</span><span>Mobilidade mais simples para todos.</span><button className="portal-demo-link" onClick={() => setShowDemo(true)}>Visualizar painel demonstrativo</button></footer>
   </main>;
 }
 
@@ -97,7 +97,7 @@ export default function App() {
 
 function Dashboard({ initialArea = 'admin' }: { initialArea?: Area }) {
   const [area, setArea] = useState<Area>(initialArea);
-  const [active, setActive] = useState(nav.admin[0]);
+  const [active, setActive] = useState(nav[initialArea][0]);
   const [menuOpen, setMenuOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [noticeOpen, setNoticeOpen] = useState(false);
