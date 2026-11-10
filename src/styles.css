@@ -725,3 +725,23 @@ th{font-size:12px!important;color:#263e54;background:#e4edf5}
  .access-picker h2{font-size:23px}
 }
 @media(max-width:390px){.portal-brand small{display:none}.portal-login-trigger{padding:0 12px}}
+
+
+/* Subníveis da área administrativa e autenticação TOTP */
+.access-picker-suboptions{margin:8px 0 0 22px;padding-left:14px;border-left:3px solid #0b78dc}
+.access-picker-suboptions .access-picker-option{margin-top:8px;background:#f3f8fd}
+.mfa-content{padding:24px 28px 28px}
+.mfa-content>p{margin:0 0 18px;color:#40566b;font-size:15px;line-height:1.55}
+.mfa-qr{display:grid;justify-items:center;gap:10px;margin:0 0 20px;padding:16px;border:1px solid #d4e2ed;border-radius:14px;background:#f7fbff}
+.mfa-qr img{width:190px;height:190px;max-width:100%;object-fit:contain}
+.mfa-qr small{color:#52677b;text-align:center;font-size:12px}
+.mfa-qr label{display:grid;gap:7px;width:100%;font-size:13px;font-weight:700;color:#263e55}
+.mfa-qr code{display:block;overflow-wrap:anywhere;padding:10px;border-radius:8px;background:#e8f0f7;color:#102b45;font-size:13px;user-select:all}
+.mfa-content form{display:grid;gap:10px}
+.mfa-content form label{font-size:14px;font-weight:800;color:#183650}
+.mfa-content form input{width:100%;min-height:54px;padding:10px 14px;border:1px solid #9fb5c8;border-radius:10px;background:#fff;color:#071d35;font-size:24px;font-weight:800;letter-spacing:.35em;text-align:center}
+.mfa-content form button{display:flex;align-items:center;justify-content:center;gap:8px;min-height:50px;margin-top:6px;border:0;border-radius:10px;background:linear-gradient(110deg,#064fc4,#087cf5 58%,#00796f);color:#fff;font-size:15px;font-weight:800;cursor:pointer}
+.mfa-content form button:disabled{opacity:.55;cursor:not-allowed}
+.mfa-account{margin-top:18px;padding-top:14px;border-top:1px solid #dce7ef;color:#64788b;font-size:13px}
+.mfa-account strong{color:#183650}
+@media(max-width:760px){.mfa-content{padding:20px 22px 24px}.access-picker-suboptions{margin-left:10px;padding-left:10px}}
