@@ -236,3 +236,60 @@
 @media(prefers-reduced-motion:no-preference){
   .workspace-sidebar nav{scroll-behavior:smooth}
 }
+
+
+/* Identidade visual institucional e navegação lateral retrátil */
+.citizen-workspace{background:#f3f6f9;color:#172f43;min-height:100vh}
+.workspace-header{height:76px;padding:0 max(3vw,24px);background:#fff;border-bottom:1px solid #e4ebf0;box-shadow:0 2px 12px #17364d08}
+.workspace-brand strong{font:800 18px Manrope;letter-spacing:-.5px}
+.workspace-brand small{font-size:9px;letter-spacing:.2px}
+.workspace-brand-mark{box-shadow:0 5px 14px #168eb522}
+.workspace-body{width:min(1480px,94%);grid-template-columns:258px minmax(0,1fr);gap:28px;margin:30px auto 44px}
+.workspace-sidebar{border:1px solid #e0e8ee;border-radius:16px;padding:20px 15px;box-shadow:0 8px 26px #17364d0a}
+.workspace-greeting{padding:7px 10px 20px}
+.workspace-greeting strong{font-size:20px;letter-spacing:-.5px}
+.workspace-sidebar nav{gap:6px;padding:17px 0}
+.workspace-sidebar nav button{min-height:44px;padding:0 12px;font-size:11px;border-radius:9px;transition:background .18s,color .18s,transform .18s}
+.workspace-sidebar nav button:hover{background:#f2f7fa;color:#167da3}
+.workspace-sidebar nav button.active{background:#e8f5fa;color:#087ca5;font-weight:800}
+.workspace-rule-note{border:1px solid #e3eef3;background:#f4f9fb;padding:14px;border-radius:11px}
+.workspace-content{min-width:0}
+.workspace-page-heading{margin:3px 0 24px}
+.workspace-page-heading h1{font-size:30px;letter-spacing:-1px}
+.workspace-page-heading p{font-size:12px}
+.workspace-metrics{gap:15px;margin-bottom:27px}
+.workspace-metrics article,.workspace-session-card,.workspace-vehicle-card,.workspace-form-card,.workspace-table-wrap,.workspace-notices article{box-shadow:0 5px 18px #183b5208;transition:box-shadow .2s,border-color .2s}
+.workspace-metrics article{border-radius:14px;padding:19px}
+.workspace-metrics article span{font-size:10px;font-weight:600}
+.workspace-metrics article strong{font-size:29px}
+.workspace-section-title{margin:26px 0 14px}
+.workspace-section-title h2{font-size:16px}
+.workspace-section-title p{font-size:10px}
+.workspace-session-card{border-radius:15px;padding:21px}
+.workspace-form-card{border-radius:15px}
+.workspace-table-wrap{border-radius:14px}
+.workspace-menu-toggle{display:none;border:1px solid #e2eaf0;background:#fff;color:#31536a;width:40px;height:40px;border-radius:10px;align-items:center;justify-content:center;flex:none}
+.workspace-sidebar-scrim{display:none}
+@media(max-width:850px){
+  .workspace-body{display:block;width:100%;margin:0 auto 32px;padding:22px max(18px,4vw) 0}
+  .workspace-sidebar{position:static}
+}
+@media(max-width:600px){
+  .workspace-header{height:64px;padding:0 13px;gap:10px;position:sticky;top:0;z-index:30}
+  .workspace-menu-toggle{display:flex}
+  .workspace-brand{margin-right:auto}
+  .workspace-body{display:block;padding:16px 14px 0;margin:0 auto 25px}
+  .workspace-sidebar{position:fixed;z-index:82;inset:0 auto 0 0;width:min(310px,86vw);height:100dvh;max-height:100dvh;overflow-y:auto;overscroll-behavior:contain;border:0;border-right:1px solid #dce6ed;border-radius:0 18px 18px 0;padding:23px 17px calc(22px + env(safe-area-inset-bottom));background:#fff;box-shadow:18px 0 48px #102a4330;transform:translateX(-105%);visibility:hidden;transition:transform .24s ease,visibility .24s}
+  .workspace-sidebar.is-open{transform:translateX(0);visibility:visible}
+  .workspace-greeting{padding:8px 8px 20px}
+  .workspace-greeting strong{font-size:20px}
+  .workspace-sidebar nav{display:grid;overflow:visible;gap:7px;padding:17px 0}
+  .workspace-sidebar nav button{width:100%;min-height:48px;white-space:normal;padding:0 13px;font-size:12px}
+  .workspace-sidebar nav button svg{width:18px;height:18px}
+  .workspace-rule-note{display:flex;margin-top:8px}
+  .workspace-sidebar-scrim{display:block;position:fixed;inset:0;z-index:81;border:0;background:#0c2236a6;backdrop-filter:blur(2px);animation:sidebarFade .18s ease}
+  .workspace-content{width:100%}
+  .workspace-page-heading{margin:3px 0 17px}
+}
+@keyframes sidebarFade{from{opacity:0}to{opacity:1}}
+@media(prefers-reduced-motion:reduce){.workspace-sidebar,.workspace-sidebar-scrim{transition:none;animation:none}}
