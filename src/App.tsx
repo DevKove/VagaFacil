@@ -41,12 +41,6 @@ function Portal({ onSelect }: { onSelect: (role: PortalRole) => void }) {
       <div className="portal-header-actions"><span className="portal-header-note"><i /> Plataforma de estacionamento rotativo</span><button type="button" className="portal-login-trigger" onClick={() => setAccessOpen(true)}><LockKeyhole size={17}/> Entrar</button></div>
     </header>
     <section className="portal-hero">
-      <div className="portal-hero-copy">
-        <span className="portal-kicker"><i /> MOBILIDADE URBANA DIGITAL</span>
-        <h1>Chegou, estacionou.<br/><em>Simples assim.</em></h1>
-        <p>Mais praticidade para quem estaciona. Mais eficiência para quem cuida da mobilidade da cidade.</p>
-        <div className="portal-hero-points"><span><CheckCircle2 size={16}/> Rápido e intuitivo</span><span><Clock3 size={16}/> Controle do tempo</span></div>
-      </div>
       <div className="portal-hero-art" aria-hidden="true">
         <img className="portal-hero-image" src={new URL('../IMG/banner.jpg', import.meta.url).href} alt="" />
       </div>
