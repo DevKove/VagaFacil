@@ -921,17 +921,11 @@ th{font-size:12px!important;color:#263e54;background:#e4edf5}
 }
 
 
-/* Imagem oficial aplicada como fundo de toda a página inicial */
+/* Imagem oficial como único fundo da página inicial, levemente reduzida */
 .portal-page {
   position: relative;
   isolation: isolate;
-  background-color: #071b30;
-  background-image:
-    linear-gradient(115deg, rgba(4, 20, 36, .78), rgba(5, 35, 55, .58) 52%, rgba(4, 48, 66, .42)),
-    url('../IMG/banner.jpg');
-  background-size: cover;
-  background-position: center center;
-  background-repeat: no-repeat;
+  background: #071b30 url('../IMG/banner.jpg') center center / 96% 96% no-repeat;
   background-attachment: fixed;
 }
 .portal-header,
