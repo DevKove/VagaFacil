@@ -95,17 +95,18 @@ function LoginScreen({ role, onBack, onAuthenticated }: { role: PortalRole; onBa
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!supabase) { setError('Serviço de autenticação não configurado. Configure VITE_SUPABASE_URL e VITE_SUPABASE_PUBLISHABLE_KEY.'); return; }
+    const client = supabase;
     void run(async () => {
       if (mode === 'signup') {
         if (password.length < 10) throw new Error('A senha deve ter pelo menos 10 caracteres.');
         if (!name.trim()) throw new Error('Informe seu nome completo.');
-        const { data, error: authError } = await supabase.auth.signUp({
+        const { data, error: authError } = await client.auth.signUp({
           email: email.trim().toLowerCase(), password,
           options: { emailRedirectTo: redirectUrl, data: { full_name: name.trim(), phone: phone.trim() || null } },
         });
         if (authError) throw authError;
         if (data.session) {
-          const { data: profile, error: profileError } = await supabase.from('profiles').select('full_name,role,is_active').eq('id', data.user!.id).single();
+          const { data: profile, error: profileError } = await client.from('profiles').select('full_name,role,is_active').eq('id', data.user!.id).single();
           if (profileError) throw profileError;
           if (profile.role !== 'citizen' || !profile.is_active) throw new Error('Este cadastro não possui autorização para a área do cidadão.');
           onAuthenticated(profile);
@@ -116,7 +117,7 @@ function LoginScreen({ role, onBack, onAuthenticated }: { role: PortalRole; onBa
         return;
       }
       if (mode === 'recover') {
-        const { error: resetError } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), { redirectTo: `${redirectUrl}?recovery=1` });
+        const { error: resetError } = await client.auth.resetPasswordForEmail(email.trim().toLowerCase(), { redirectTo: `${redirectUrl}?recovery=1` });
         if (resetError) throw resetError;
         setMessage('Se o endereço estiver cadastrado, você receberá as instruções para redefinir a senha.');
         return;
@@ -124,19 +125,19 @@ function LoginScreen({ role, onBack, onAuthenticated }: { role: PortalRole; onBa
       if (mode === 'password') {
         if (password.length < 10) throw new Error('A nova senha deve ter pelo menos 10 caracteres.');
         if (password !== confirmation) throw new Error('As senhas não coincidem.');
-        const { error: updateError } = await supabase.auth.updateUser({ password });
+        const { error: updateError } = await client.auth.updateUser({ password });
         if (updateError) throw updateError;
         setMessage('Senha atualizada. Você já pode continuar usando sua conta.');
         window.history.replaceState({}, '', redirectUrl);
         setMode('login');
         return;
       }
-      const { data, error: authError } = await supabase.auth.signInWithPassword({ email: email.trim().toLowerCase(), password });
+      const { data, error: authError } = await client.auth.signInWithPassword({ email: email.trim().toLowerCase(), password });
       if (authError) throw authError;
-      const { data: profile, error: profileError } = await supabase.from('profiles').select('full_name,role,is_active').eq('id', data.user.id).single();
-      if (profileError) { await supabase.auth.signOut(); throw new Error('Perfil não encontrado. Verifique se a migração do banco foi aplicada.'); }
-      if (!profile.is_active) { await supabase.auth.signOut(); throw new Error('Acesso desativado. Procure a administração municipal.'); }
-      if (profile.role !== role && !(role === 'admin' && profile.role === 'supervisor')) { await supabase.auth.signOut(); throw new Error('Esta conta não tem permissão para acessar este ambiente.'); }
+      const { data: profile, error: profileError } = await client.from('profiles').select('full_name,role,is_active').eq('id', data.user.id).single();
+      if (profileError) { await client.auth.signOut(); throw new Error('Perfil não encontrado. Verifique se a migração do banco foi aplicada.'); }
+      if (!profile.is_active) { await client.auth.signOut(); throw new Error('Acesso desativado. Procure a administração municipal.'); }
+      if (profile.role !== role && !(role === 'admin' && profile.role === 'supervisor')) { await client.auth.signOut(); throw new Error('Esta conta não tem permissão para acessar este ambiente.'); }
       onAuthenticated(profile);
     });
   };
@@ -181,24 +182,25 @@ export default function App() {
 
   useEffect(() => {
     if (!supabase) { setAuthLoading(false); return; }
+    const client = supabase;
     let alive = true;
     const loadProfile = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session } } = await client.auth.getSession();
       if (!alive) return;
       if (new URLSearchParams(window.location.search).get('recovery') === '1') { setAuthLoading(false); return; }
       if (!session) { setAuthLoading(false); return; }
-      const { data, error } = await supabase.from('profiles').select('full_name,role,is_active').eq('id', session.user.id).single();
+      const { data, error } = await client.from('profiles').select('full_name,role,is_active').eq('id', session.user.id).single();
       if (!alive) return;
-      if (error || !data?.is_active) { await supabase.auth.signOut(); setProfile(null); }
+      if (error || !data?.is_active) { await client.auth.signOut(); setProfile(null); }
       else setProfile(data);
       setAuthLoading(false);
     };
     void loadProfile();
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: listener } = client.auth.onAuthStateChange((_event, session) => {
       if (!session) { setProfile(null); setAuthLoading(false); return; }
       if (new URLSearchParams(window.location.search).get('recovery') === '1') return;
       window.setTimeout(() => {
-        void supabase.from('profiles').select('full_name,role,is_active').eq('id', session.user.id).single()
+        void client.from('profiles').select('full_name,role,is_active').eq('id', session.user.id).single()
           .then(({ data, error }) => {
             if (!error && data?.is_active) setProfile(data);
             setAuthLoading(false);
