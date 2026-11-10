@@ -974,3 +974,84 @@ th{font-size:12px!important;color:#263e54;background:#e4edf5}
   .portal-page { background-attachment: scroll; background-position: center; }
   .portal-hero { min-height: calc(100vh - 145px); }
 }
+
+
+/* Ajustes mobile do portal: banner integral, cabeçalho compacto e rodapé adaptável */
+@media (max-width: 760px) {
+  .portal-page {
+    min-height: 100svh;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background-color: #061a30 !important;
+    background-size: 100% auto !important;
+    background-position: center 66px !important;
+    background-repeat: no-repeat !important;
+    background-attachment: scroll !important;
+  }
+
+  .portal-header {
+    position: relative;
+    z-index: 2;
+    min-height: 66px;
+    height: auto;
+    padding: 9px 16px;
+    gap: 12px;
+    background: rgba(4, 20, 37, .94);
+    border-bottom: 1px solid rgba(255,255,255,.14);
+  }
+
+  .portal-brand { gap: 9px; min-width: 0; }
+  .portal-header .portal-brand-logo { width: 39px; height: 39px; }
+  .portal-brand strong { font-size: 17px; }
+  .portal-brand small { display: none; }
+
+  .portal-header-actions { flex: 0 0 auto; gap: 0; }
+  .portal-login-trigger {
+    min-height: 40px;
+    padding: 0 15px;
+    border-radius: 10px;
+    font-size: 13px;
+    box-shadow: 0 5px 14px rgba(0,0,0,.24);
+  }
+
+  .portal-hero {
+    flex: 1 0 auto;
+    min-height: min(76svh, 680px);
+    padding: 0;
+    display: block;
+    background: transparent !important;
+  }
+
+  .portal-footer,
+  .portal-footer-refined {
+    position: relative;
+    z-index: 2;
+    margin-top: auto;
+    padding: 14px 16px calc(14px + env(safe-area-inset-bottom));
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    text-align: center;
+    background: rgba(4, 20, 37, .94);
+    border-top: 1px solid rgba(255,255,255,.14);
+    font-size: 11px;
+  }
+
+  .portal-footer-actions {
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px 18px;
+  }
+
+  .portal-footer-refined .institutional-access { margin: 0 auto; }
+}
+
+@media (max-width: 390px) {
+  .portal-header { padding-inline: 12px; }
+  .portal-brand strong { font-size: 16px; }
+  .portal-header .portal-brand-logo { width: 35px; height: 35px; }
+  .portal-login-trigger { min-height: 38px; padding-inline: 12px; font-size: 12px; }
+  .portal-footer, .portal-footer-refined { padding-inline: 12px; font-size: 10px; }
+}
