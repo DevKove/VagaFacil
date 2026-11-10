@@ -5,114 +5,160 @@
 # VagaFácil
 ### Estacionar ficou mais fácil.
 
-**Uma plataforma de estacionamento rotativo municipal que conecta cidadãos, agentes de trânsito e gestores em uma experiência digital integrada.**
+**Plataforma web de estacionamento rotativo gratuito, com portal do cidadão, operação de fiscalização e administração municipal.**
 
 [![Validar projeto](https://github.com/DevKove/VagaFacil/actions/workflows/validate.yml/badge.svg)](https://github.com/DevKove/VagaFacil/actions/workflows/validate.yml)
 ![React](https://img.shields.io/badge/React-19-149eca?logo=react&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6?logo=typescript&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-6-646cff?logo=vite&logoColor=white)
 ![Supabase](https://img.shields.io/badge/Supabase-Backend-3ecf8e?logo=supabase&logoColor=white)
-![PWA](https://img.shields.io/badge/PWA-Preparado-5a4fcf)
+![PWA](https://img.shields.io/badge/PWA-Manifest%20e%20Service%20Worker-5a4fcf)
 
-[Visão geral](#-visão-geral) · [Ambientes](#-três-ambientes-integrados) · [Arquitetura](#-arquitetura) · [Instalação](#-instalação) · [Banco de dados](#-banco-de-dados) · [Segurança](#-segurança)
+[Aplicação](https://devkove.github.io/VagaFacil/) · [Repositório](https://github.com/DevKove/VagaFacil) · [Validação](https://github.com/DevKove/VagaFacil/actions/workflows/validate.yml) · [Implantação](https://github.com/DevKove/VagaFacil/actions/workflows/deploy.yml)
 
 </div>
 
 ---
 
-## 🚦 Visão geral
+## Visão geral
 
-O **VagaFácil** está sendo desenvolvido para modernizar a operação do estacionamento rotativo municipal. A proposta é reunir em uma única plataforma os recursos usados por quem estaciona, por quem realiza a fiscalização em campo e pela equipe responsável pela gestão do serviço.
+O **VagaFácil** é um sistema de estacionamento rotativo municipal gratuito. A aplicação reúne os serviços do motorista, as ferramentas de fiscalização e os recursos de gestão em uma plataforma web responsiva, conectada ao Supabase.
 
-O projeto utiliza uma aplicação web responsiva, com estrutura preparada para instalação como **PWA**, e uma infraestrutura centralizada no **Supabase**.
+O projeto está em desenvolvimento contínuo. Algumas rotinas já estão integradas ao banco de dados, enquanto outros recursos ainda exigem implementação, testes e homologação municipal. Este README descreve o estado do código, sem tratar funcionalidades planejadas como concluídas.
 
-> **Princípio operacional:** o sistema registra e sinaliza situações de estacionamento. Um alerta de vencimento não representa, por si só, uma infração ou aplicação automática de multa. A fiscalização depende da verificação e dos procedimentos previstos pelo município.
+> **Importante:** o sistema é uma ferramenta de apoio ao controle do estacionamento. O vencimento de uma sessão ou a geração de um alerta não constitui, isoladamente, autuação ou aplicação automática de penalidade. A fiscalização deve seguir a legislação e os procedimentos do município.
 
-## ✨ Três ambientes integrados
+## Ambientes e funcionalidades
 
-| 🚗 Cidadão | 🦺 Agente de trânsito | 🏛️ Administração |
-|---|---|---|
-| Área destinada ao motorista. | Área operacional de fiscalização. | Gestão e acompanhamento municipal. |
-| Cadastro e consulta de veículos. | Alertas e acompanhamento de sessões. | Visão geral da operação. |
-| Registro e histórico de estacionamento. | Consulta de informações para verificação em campo. | Gestão de zonas, vagas, regras e usuários. |
-| Consulta de notificações. | Registro de ocorrências e evidências. | Indicadores e relatórios gerenciais. |
+### 🚗 Portal do cidadão
 
-Os módulos acima representam o escopo funcional planejado. Consulte a seção [estado atual](#-estado-atual-do-projeto) para distinguir o que já existe no código do que ainda está em implementação.
+- Cadastro de conta por e-mail e senha.
+- Recuperação e atualização de senha.
+- Cadastro e remoção de veículos vinculados à conta.
+- Registro de chegada em vaga, com seleção opcional da vaga cadastrada.
+- Cronômetro de permanência e consulta de sessões ativas.
+- Encerramento de estacionamento pelo próprio usuário.
+- Histórico de registros e notificações.
+- Atualização dos dados de estacionamento por Supabase Realtime.
+- Categorias convencional, idoso e pessoa com deficiência, sujeitas à credencial válida e às regras legais aplicáveis.
 
-## 🧭 Experiência da plataforma
+### 🦺 Área do agente de trânsito
 
-A interface inicial apresenta uma central de controle com:
+- Painel operacional com sessões e situações que exigem atenção.
+- Consulta e pesquisa de estacionamentos.
+- Fila de alertas e possibilidade de assumir atendimento.
+- Registro do resultado da verificação em campo.
+- Observações e envio de evidências fotográficas.
+- Histórico de fiscalizações.
 
-- Indicadores de sessões e situações que exigem atenção.
-- Visão gráfica da movimentação.
-- Distribuição de sessões por situação.
-- Lista pesquisável de estacionamentos recentes.
-- Navegação entre os três ambientes de trabalho.
-- Layout adaptável para computadores, tablets e celulares.
+### 🏛️ Área administrativa
 
-**Atenção:** os números e registros apresentados na interface inicial são demonstrativos. Eles não representam dados reais de uma cidade nem estão conectados a consultas operacionais neste estágio.
+- Painel de indicadores operacionais.
+- Cadastro e manutenção de zonas e vagas.
+- Configuração de regras e tempos de permanência.
+- Gestão de contas, perfis e ativação de usuários.
+- Consulta de sessões e alertas.
+- Mapa com as coordenadas cadastradas para as vagas.
+- Relatório de estacionamentos com exportação CSV.
+- Trilha de auditoria das operações registradas pelo banco.
 
-## 🏗️ Arquitetura
+A disponibilidade de cada operação depende das permissões da conta, das políticas RLS e da configuração do projeto Supabase.
 
-A aplicação foi organizada para manter a interface separada dos serviços de dados e concentrar autenticação, persistência e controle de acesso no backend.
+## Regras de estacionamento
+
+O portal do cidadão apresenta os parâmetros iniciais abaixo:
+
+| Regra | Período |
+|---|---|
+| Segunda a sexta-feira | 9h às 18h |
+| Sábado | 9h às 13h |
+| Uso convencional | Até 1 hora |
+| Categorias especiais | Até 2 horas, mediante credencial válida |
+
+Os parâmetros são configuráveis pelas regras armazenadas no banco. Antes de utilizar o sistema em uma cidade, a administração municipal deve conferir e homologar horários, limites, tolerâncias, feriados, sinalização e demais condições previstas na regulamentação local.
+
+## Segurança
+
+- Autenticação gerenciada pelo Supabase Auth.
+- Perfis e papéis consultados no banco de dados.
+- Verificação de conta ativa e autorização de acesso por ambiente.
+- Autenticação multifator TOTP para perfis operacionais e administrativos.
+- Políticas Row Level Security (RLS) nas tabelas expostas.
+- Operações de início e encerramento de estacionamento executadas por funções SQL (RPC).
+- Evidências armazenadas em bucket privado, com acesso por links assinados.
+- Registro de eventos de auditoria no banco.
+- Chave publicável no frontend; credenciais administrativas não devem ser expostas.
+
+O fluxo MFA utiliza o emissor **VagaFácil** para novos cadastros de autenticador. Uma entrada TOTP já cadastrada em um aplicativo autenticador não tem seu emissor alterado automaticamente.
+
+## Arquitetura e tecnologias
+
+| Tecnologia | Uso |
+|---|---|
+| React 19 | Interface e componentes |
+| TypeScript 5 | Tipagem estática |
+| Vite 6 | Desenvolvimento e build |
+| Supabase Auth | Autenticação e MFA |
+| Supabase PostgreSQL | Persistência e regras de acesso |
+| Supabase Realtime | Atualização de sessões |
+| Supabase Storage | Armazenamento privado de evidências |
+| Lucide React | Ícones |
+| PWA / Service Worker | Manifesto e cache da aplicação |
+| GitHub Actions | Validação e publicação |
 
 ```mermaid
 flowchart TB
-    U[Usuários da plataforma]
-    subgraph APP["Aplicação VagaFácil · React + TypeScript"]
-      C[Ambiente Cidadão]
-      A[Ambiente Agente]
-      G[Ambiente Administração]
-      UI[Interface responsiva · PWA]
-      C --> UI
-      A --> UI
-      G --> UI
-    end
-    subgraph SB["Supabase"]
-      AUTH[Auth]
-      DB[(PostgreSQL + RLS)]
-      RT[Realtime]
-      ST[Storage]
-    end
-    U --> APP
-    UI --> AUTH
-    UI --> DB
-    UI --> RT
-    UI --> ST
+  U[Usuários]
+  subgraph WEB["VagaFácil · React + TypeScript"]
+    C[Portal do cidadão]
+    O[Área operacional]
+    A[Administração]
+  end
+  subgraph SB["Supabase"]
+    AUTH[Auth + MFA]
+    DB[(PostgreSQL + RLS)]
+    RPC[Funções SQL / RPC]
+    RT[Realtime]
+    ST[Storage privado]
+  end
+  U --> WEB
+  C --> AUTH
+  O --> AUTH
+  A --> AUTH
+  WEB --> DB
+  WEB --> RPC
+  WEB --> RT
+  WEB --> ST
 ```
 
-### Tecnologias
-
-| Tecnologia | Responsabilidade |
-|---|---|
-| [React](https://react.dev/) | Construção da interface por componentes. |
-| [TypeScript](https://www.typescriptlang.org/) | Tipagem estática e manutenção segura. |
-| [Vite](https://vite.dev/) | Desenvolvimento e empacotamento da aplicação. |
-| [Supabase](https://supabase.com/) | Autenticação, PostgreSQL, políticas RLS, Realtime e Storage. |
-| [Lucide](https://lucide.dev/) | Ícones da interface. |
-| PWA / Service Worker | Instalação e cache da estrutura básica da aplicação. |
-
-### Organização do repositório
+## Estrutura do projeto
 
 ```text
 VagaFacil/
 ├── .github/
 │   └── workflows/
-│       └── validate.yml       # Validação automatizada
+│       ├── validate.yml
+│       └── deploy.yml
 ├── public/
+│   ├── IMG/
+│   │   └── logo-vagafacil.svg
 │   ├── favicon.svg
-│   ├── manifest.webmanifest   # Metadados da PWA
-│   ├── readme-cover.svg       # Ilustração deste README
-│   └── sw.js                  # Service Worker
+│   ├── manifest.webmanifest
+│   ├── readme-cover.svg
+│   └── sw.js
 ├── src/
+│   ├── features/
+│   │   ├── citizen/
+│   │   │   └── CitizenWorkspace.tsx
+│   │   └── operations/
+│   │       └── OperationsWorkspace.tsx
 │   ├── lib/
-│   │   └── supabase.ts        # Cliente Supabase
-│   ├── App.tsx                # Interface principal
-│   ├── main.tsx               # Inicialização
-│   ├── styles.css             # Estilos responsivos
-│   └── vite-env.d.ts
+│   │   └── supabase.ts
+│   ├── App.tsx
+│   ├── main.tsx
+│   └── styles.css
 ├── supabase/
-│   └── migrations/            # Estrutura inicial do banco
+│   └── migrations/
 ├── .env.example
 ├── index.html
 ├── package.json
@@ -120,165 +166,146 @@ VagaFacil/
 └── vite.config.ts
 ```
 
-## 🚀 Instalação
-
-### Pré-requisitos
+## Pré-requisitos
 
 - Node.js 22 ou superior.
 - npm.
-- Projeto Supabase para habilitar os serviços de backend.
+- Projeto Supabase configurado.
 
-### 1. Obtenha o código
+## Instalação local
+
+### 1. Clonar o repositório
 
 ```bash
 git clone https://github.com/DevKove/VagaFacil.git
 cd VagaFacil
 ```
 
-### 2. Instale as dependências
+### 2. Instalar dependências
 
 ```bash
 npm install
 ```
 
-### 3. Configure o ambiente
+### 3. Configurar variáveis de ambiente
 
-Crie seu arquivo local a partir do modelo:
+Copie o modelo:
 
 ```bash
 cp .env.example .env.local
 ```
 
-No Windows PowerShell, se necessário:
+No Windows PowerShell:
 
 ```powershell
 Copy-Item .env.example .env.local
 ```
 
-Preencha o arquivo `.env.local`:
+Configure o arquivo `.env.local`:
 
 ```env
 VITE_SUPABASE_URL=https://SEU_PROJETO.supabase.co
 VITE_SUPABASE_PUBLISHABLE_KEY=SUA_CHAVE_PUBLICA
 ```
 
-Use somente a chave publicável/anon apropriada para o cliente. **Nunca coloque a chave `service_role`, segredos administrativos ou senhas no frontend, no Git ou em variáveis `VITE_*`.**
+Utilize a chave publicável (ou anon, em projetos legados) apropriada para o cliente. **Nunca** coloque `service_role`, tokens privados, senhas ou segredos em variáveis `VITE_*`, no frontend ou no repositório.
 
-### 4. Inicie o ambiente local
+### 4. Executar em desenvolvimento
 
 ```bash
 npm run dev
 ```
 
-O Vite exibirá no terminal o endereço local para abrir no navegador.
+O Vite informará o endereço local no terminal.
 
-### 5. Gere a versão de produção
+### 5. Validar e gerar build
 
 ```bash
+npm run lint
 npm run build
 npm run preview
 ```
 
-## 🗄️ Banco de dados
+## Banco de dados e migrations
 
-A estrutura inicial do banco está em:
+As migrations versionadas ficam em `supabase/migrations/` e devem ser aplicadas em ordem cronológica:
 
-`supabase/migrations/202611100001_initial_schema.sql`
+| Migration | Finalidade |
+|---|---|
+| `202611100001_initial_schema.sql` | Estrutura inicial, tabelas e políticas-base |
+| `202611100002_foreign_key_indexes.sql` | Índices para chaves estrangeiras |
+| `202611100003_parking_session_rpcs.sql` | Funções SQL para iniciar e encerrar sessões |
+| `202611100004_special_parking_categories.sql` | Categorias especiais e regras relacionadas |
+| `202611100005_management_permissions.sql` | Permissões de gestão |
+| `202611100006_operations_evidence_audit.sql` | Evidências operacionais e auditoria |
+| `202611100007_audit_log_read_only.sql` | Restrição de escrita direta na trilha de auditoria |
 
-Ela define a base para:
-
-- Perfis e papéis de acesso.
-- Veículos.
-- Zonas e vagas de estacionamento.
-- Regras e feriados.
-- Sessões de estacionamento.
-- Alertas e fiscalizações.
-- Fotografias/evidências.
-- Notificações e registros de auditoria.
-
-### Aplicação da migration
+### Aplicação
 
 1. Crie ou selecione o projeto Supabase de destino.
-2. Abra o SQL Editor no painel do projeto.
-3. Revise a migration e os parâmetros regulamentares.
-4. Execute o SQL em ambiente de desenvolvimento/homologação.
-5. Valide as tabelas, índices, permissões e políticas RLS antes de disponibilizar qualquer fluxo.
+2. Revise os arquivos SQL da pasta `supabase/migrations/`.
+3. Aplique as migrations em ordem, preferencialmente com Supabase CLI e controle de versão do banco.
+4. Configure autenticação, URLs de redirecionamento e políticas de confirmação de e-mail no painel Supabase.
+5. Confira buckets, políticas de Storage, funções SQL e políticas RLS.
+6. Crie e valide as contas administrativas e operacionais por um procedimento seguro.
+7. Execute testes com contas de cada perfil antes da homologação.
 
-A migration é uma **estrutura inicial**, não uma implantação completa do backend. Os fluxos transacionais de início e encerramento de sessões, cálculo confiável de expiração, geração de alertas e rotinas operacionais no servidor ainda precisam ser implementados e testados.
+Não execute migrations isoladas fora de ordem em um banco já utilizado. Faça backup e valide as alterações primeiro em ambiente de desenvolvimento ou homologação.
 
-## 🔐 Segurança e privacidade
+## Autenticação e primeiro acesso
 
-Segurança deve ser aplicada no banco e no servidor, não apenas escondendo botões na interface.
+- O cadastro público disponível na interface é destinado ao cidadão.
+- Contas de agente, supervisor e administrador devem ser provisionadas e autorizadas pela administração, com papéis atribuídos no backend.
+- Contas operacionais e administrativas passam pela verificação TOTP antes de acessar seus ambientes.
+- A criação de uma conta no Auth, por si só, não concede permissão administrativa.
 
-- Políticas de **Row Level Security (RLS)** nas tabelas expostas.
-- Papéis de usuário controlados pelo backend.
-- Chaves administrativas mantidas exclusivamente em ambiente seguro no servidor.
-- Validação de propriedade do veículo e das operações.
-- Auditoria das ações administrativas e operacionais.
-- Dados pessoais limitados ao necessário para a finalidade do serviço.
+## PWA e publicação
 
-**Antes de produção:** revisar todas as políticas RLS, testar tentativas de acesso entre usuários e papéis, implementar operações privilegiadas por funções seguras no servidor e definir retenção, acesso e descarte de dados conforme a legislação aplicável e as normas municipais.
+A aplicação possui manifesto e Service Worker e está configurada para publicação no GitHub Pages em:
 
-## 📱 PWA e dispositivos
+**https://devkove.github.io/VagaFacil/**
 
-A aplicação contém manifesto e Service Worker iniciais. Isso prepara a instalação e o cache da estrutura básica, mas não equivale a uma experiência offline completa.
+O caminho-base do Vite está definido como `/VagaFacil/`. Para desenvolvimento local, use `npm run dev`; para validar a versão compilada, use `npm run preview`.
 
-A operação offline de registros, pagamentos, sincronização posterior e fiscalização não deve ser considerada disponível até que esses fluxos tenham sido projetados e testados especificamente.
+A presença do manifesto e do Service Worker não significa que todas as operações estejam disponíveis offline. Registros, autenticação, sincronização e fiscalização dependem de conexão e dos serviços configurados.
 
-## 🧪 Qualidade e validação
+## CI/CD
 
-O workflow do GitHub Actions executa:
+O GitHub Actions possui dois fluxos:
 
-```bash
-npm install
-npm run build
-npm run lint
-```
+- **Validate VagaFácil:** instala dependências e executa `npm run build` e `npm run lint`.
+- **Deploy VagaFácil to GitHub Pages:** compila e publica a aplicação no GitHub Pages após os eventos configurados no workflow.
 
-A aprovação desse workflow valida compilação e lint. Ela **não substitui** testes de integração com Supabase, testes de autorização/RLS, testes de navegador, auditoria de segurança ou homologação operacional.
+A aprovação da validação confirma compilação e lint. Ela não substitui testes de integração, testes de autorização/RLS, testes de navegador, auditoria de segurança ou homologação funcional.
 
-## 📌 Estado atual do projeto
+Acompanhe os resultados em [GitHub Actions](https://github.com/DevKove/VagaFacil/actions).
 
-**Etapa: fundação inicial em desenvolvimento.**
+## Estado do projeto
 
-| Componente | Situação |
-|---|---|
-| Estrutura React, TypeScript e Vite | ✅ Criada |
-| Identidade visual e dashboard inicial | ✅ Criados |
-| Navegação entre ambientes | ✅ Estrutura inicial |
-| Configuração do cliente Supabase | ✅ Criada; credenciais pendentes |
-| Migration inicial e políticas RLS | 🟡 Criadas; requerem revisão e testes |
-| Manifesto e Service Worker | 🟡 Estrutura inicial |
-| Autenticação e gestão de contas | ⏳ A implementar |
-| Operações reais de estacionamento | ⏳ A implementar |
-| Fiscalização e alertas em tempo real | ⏳ A implementar |
-| Mapa, relatórios e notificações reais | ⏳ A implementar |
-| Testes completos e homologação | ⏳ Pendentes |
-| Implantação em produção | ⏳ Não realizada |
+O sistema já possui fluxos conectados ao Supabase para cidadão, operação e administração, incluindo autenticação, MFA para perfis operacionais/administrativos, gestão de veículos, sessões, zonas, vagas, alertas, fiscalizações, evidências, auditoria e exportação CSV.
 
-Não utilize esta versão para operação real, cobrança, autuação ou tomada de decisão administrativa até a conclusão da implementação, dos testes e da homologação pelo município.
+Ainda são necessários testes integrados e validação operacional abrangente. Pontos que não devem ser considerados concluídos sem implementação e homologação específicas:
 
-## 🗺️ Próximas etapas
+- Cobertura completa de testes automatizados e jornadas E2E para todos os perfis.
+- Auditoria independente das políticas RLS, funções SQL e fluxos de autorização.
+- Validação de regras municipais, feriados, tolerâncias e exceções.
+- Homologação de instalação PWA e comportamento em diferentes dispositivos.
+- Verificação de recuperação de falhas durante operações com múltiplas etapas, como registro e upload de evidências.
+- Testes de carga, monitoramento e procedimentos de backup e recuperação.
 
-1. Configurar o projeto Supabase e aplicar a migration revisada.
-2. Implementar autenticação, cadastro e recuperação de acesso.
-3. Construir os fluxos reais do cidadão e o controle de sessões no servidor.
-4. Implementar alertas, fiscalização, evidências e mapa operacional.
-5. Concluir a administração de zonas, vagas, regras, usuários e relatórios.
-6. Automatizar testes funcionais, de segurança e responsividade.
-7. Realizar homologação e preparar a publicação.
+**Não utilize o sistema como única fonte para autuação, cobrança ou decisão administrativa até que a implantação esteja formalmente homologada pelo município.**
 
-## 🤝 Contribuição
+## Contribuição
 
 1. Crie uma branch para sua alteração.
 2. Mantenha tipagem estrita e componentes coesos.
 3. Não envie arquivos `.env`, credenciais ou dados pessoais.
-4. Execute `npm run build` e `npm run lint`.
-5. Abra um Pull Request com contexto, alterações e evidências de teste.
+4. Execute `npm run lint` e `npm run build`.
+5. Descreva no Pull Request o objetivo, as alterações e as evidências de teste.
 
-## 📄 Licença
+## Licença
 
-A licença do projeto ainda não foi definida. Até que um arquivo de licença seja incluído no repositório, não presuma autorização para redistribuir ou utilizar o código fora das permissões aplicáveis.
+Ainda não há um arquivo de licença no repositório. Até que uma licença seja definida e publicada, não presuma autorização para redistribuir ou utilizar o código além das permissões aplicáveis.
 
 ---
 
@@ -286,6 +313,6 @@ A licença do projeto ainda não foi definida. Até que um arquivo de licença s
 
 **VagaFácil** · Tecnologia a serviço da mobilidade urbana.
 
-Desenvolvido para apoiar uma gestão de estacionamento rotativo mais organizada, transparente e eficiente.
+Mobilidade mais simples, fiscalização mais organizada e gestão mais transparente.
 
 </div>
