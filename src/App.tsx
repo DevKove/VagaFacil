@@ -138,7 +138,7 @@ function LoginScreen({ role, onBack, onAuthenticated }: { role: PortalRole; onBa
       }
       const { data, error: authError } = await client.auth.signInWithPassword({ email: email.trim().toLowerCase(), password });
       if (authError) throw authError;
-      const { data: profile, error: profileError } = await client.from('profiles').select('full_name,role,is_active').eq('id', data.user.id).single();
+      const { data: profile, error: profileError } = await client.from('profiles').select('id,full_name,role,is_active').eq('id', data.user.id).single();
       if (profileError) { await client.auth.signOut(); throw new Error('Perfil não encontrado. Verifique se a migração do banco foi aplicada.'); }
       if (!profile.is_active) { await client.auth.signOut(); throw new Error('Acesso desativado. Procure a administração municipal.'); }
       if (profile.role !== role && !(role === 'admin' && profile.role === 'supervisor')) { await client.auth.signOut(); throw new Error('Esta conta não tem permissão para acessar este ambiente.'); }
@@ -194,7 +194,7 @@ export default function App() {
       if (!alive) return;
       if (new URLSearchParams(window.location.search).get('recovery') === '1') { setAuthLoading(false); return; }
       if (!session) { setAuthLoading(false); return; }
-      const { data, error } = await client.from('profiles').select('full_name,role,is_active').eq('id', session.user.id).single();
+      const { data, error } = await client.from('profiles').select('id,full_name,role,is_active').eq('id', session.user.id).single();
       if (!alive) return;
       if (error || !data?.is_active) { await client.auth.signOut(); setProfile(null); }
       else setProfile(data);
@@ -205,7 +205,7 @@ export default function App() {
       if (!session) { setProfile(null); setAuthLoading(false); return; }
       if (new URLSearchParams(window.location.search).get('recovery') === '1') return;
       window.setTimeout(() => {
-        void client.from('profiles').select('full_name,role,is_active').eq('id', session.user.id).single()
+        void client.from('profiles').select('id,full_name,role,is_active').eq('id', session.user.id).single()
           .then(({ data, error }) => {
             if (!error && data?.is_active) setProfile(data);
             setAuthLoading(false);
