@@ -1251,3 +1251,46 @@ th{font-size:12px!important;color:#263e54;background:#e4edf5}
     font-size: 10px;
   }
 }
+
+
+/* Banner vertical exclusivo para mobile: desktop continua usando banner.jpg */
+@media (max-width: 760px) {
+  .portal-hero-art {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100svh !important;
+    z-index: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .portal-hero-backdrop {
+    content: url('../IMG/banner%20mobile.jpg');
+    inset: -12px !important;
+    width: calc(100% + 24px) !important;
+    height: calc(100% + 24px) !important;
+    object-fit: cover !important;
+    object-position: center center !important;
+    filter: blur(10px) brightness(.48) saturate(1.12) !important;
+  }
+
+  .portal-hero-picture {
+    position: absolute !important;
+    inset: 0 !important;
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  .portal-hero-picture .portal-hero-image {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    object-fit: cover !important;
+    object-position: center center !important;
+    border-radius: 0 !important;
+    filter: none !important;
+  }
+}
