@@ -188,9 +188,9 @@ function AdminMfaScreen({ profile, onVerified, onCancel }: { profile: UserProfil
         if (factorsError) throw factorsError;
         const verified = data.totp.find(factor => factor.status === 'verified');
         if (verified) {
-          const challenge = await supabase.auth.mfa.challenge({ factorId: verified.id });
-          if (challenge.error) throw challenge.error;
-          if (active) { setFactorId(verified.id); setChallengeId(challenge.data.id); setSetup(false); }
+          // O desafio deve ser criado no momento de cada tentativa de verificação.
+          // Desafios antigos/reutilizados podem expirar ou já ter sido consumidos.
+          if (active) { setFactorId(verified.id); setChallengeId(''); setSetup(false); }
         } else {
           // Um cadastro TOTP pendente não devolve novamente o QR Code/segredo.
           // Remova apenas fatores pendentes criados por este fluxo antes de gerar outro.
@@ -224,13 +224,14 @@ function AdminMfaScreen({ profile, onVerified, onCancel }: { profile: UserProfil
     void (async () => {
       setBusy(true); setError('');
       try {
-        let currentChallengeId = challengeId;
-        if (setup || !currentChallengeId) {
-          const challenge = await supabase.auth.mfa.challenge({ factorId });
-          if (challenge.error) throw challenge.error;
-          currentChallengeId = challenge.data.id;
-        }
-        const result = await supabase.auth.mfa.verify({ factorId, challengeId: currentChallengeId, code });
+        // Sempre solicitar um desafio novo imediatamente antes de validar o TOTP.
+        const challenge = await supabase.auth.mfa.challenge({ factorId });
+        if (challenge.error) throw challenge.error;
+        const result = await supabase.auth.mfa.verify({
+          factorId,
+          challengeId: challenge.data.id,
+          code,
+        });
         if (result.error) throw result.error;
         const assurance = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
         if (assurance.error) throw assurance.error;
