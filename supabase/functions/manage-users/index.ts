@@ -177,10 +177,10 @@ Deno.serve(async (req: Request) => {
         if (error) throw error;
       }
       await audit("user_updated", body.id, { fields: [...Object.keys(patch), ...Object.keys(authPatch)] });
-      return json({ success: true });
+      return json({ success: true }, origin);
     }
 
-    return json({ error: "Ação inválida." }, 400);
+    return json({ error: "Ação inválida." }, 400, origin);
   } catch (error) {
     const message = error instanceof Error ? error.message : "Falha ao gerenciar usuário.";
     return json({ error: message }, 400, origin);
