@@ -1494,3 +1494,25 @@ th{font-size:12px!important;color:#263e54;background:#e4edf5}
 .workspace-audio-toggle.is-muted{border-color:#b8c4d0;background:#f1f4f7;color:#586777}
 .workspace-audio-toggle.is-muted:hover{background:#e3e9ef}
 @media(max-width:640px){.workspace-expiry-warning{min-height:72px;padding:12px;gap:10px}.workspace-alert-pulse{width:40px;height:40px}.workspace-alert-copy{flex:1 1 calc(100% - 55px)}.workspace-alert-copy>strong{font-size:12px}.workspace-alert-title{font-size:16px}.workspace-alert-copy>span{font-size:14px}.workspace-expiry-warning .workspace-alert-dismiss{margin-left:auto}}
+
+
+/* Instalação do aplicativo VagaFácil (PWA) */
+.portal-install-trigger{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  min-height:42px;padding:0 15px;border:1px solid #0b78bd;border-radius:10px;
+  background:linear-gradient(110deg,#0878c9,#0759a8);color:#fff;
+  font-size:13px;font-weight:850;white-space:nowrap;cursor:pointer;
+  box-shadow:0 5px 14px rgba(8,120,201,.2);transition:transform .18s ease,box-shadow .18s ease;
+}
+.portal-install-trigger:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(8,120,201,.28)}
+.portal-installed-badge{display:inline-flex;align-items:center;min-height:38px;padding:0 11px;border-radius:9px;background:#e7f7ed;color:#167348;font-size:12px;font-weight:800}
+@media(max-width:760px){
+  .portal-header-actions{gap:8px}
+  .portal-header-note{display:none}
+  .portal-install-trigger{min-height:38px;padding:0 10px;font-size:11px}
+}
+@media(max-width:420px){
+  .portal-install-trigger{gap:5px;padding:0 8px}
+  .portal-install-trigger span{font-size:10px}
+  .portal-login-trigger{padding-inline:10px}
+}
