@@ -1862,7 +1862,7 @@ th{background:#eaf3f7;color:#547287}td{border-bottom-color:#e2edf2;color:#496579
 /* Molduras realmente gradientes: borda em camadas, não apenas faixa decorativa */
 :root{
   --vf-frame-gradient:linear-gradient(125deg,#087da5 0%,#35c5e5 42%,#168fc0 72%,#f19c4f 100%);
-  --vf-frame-face:linear-gradient(145deg,#ffffff 0%,#f5fbfe 58%,#eaf5fa 100%);
+  --vf-frame-face:linear-gradient(145deg,#f2f9fc 0%,#e9f4f9 58%,#e2f0f6 100%);
   --vf-frame-elevation:0 13px 30px rgba(4,29,48,.17),0 3px 8px rgba(4,29,48,.08),inset 0 1px 0 rgba(255,255,255,.96);
 }
 .workspace-session-card,
@@ -1953,3 +1953,17 @@ th{background:#eaf3f7;color:#547287}td{border-bottom-color:#e2edf2;color:#496579
   .workspace-session-card,.workspace-form-card,.workspace-vehicle-card,
   .ops-panel,.ops-metrics article{transition:none}
 }
+
+
+/* Superfícies das janelas: tonalidade azul muito clara, mantendo alto contraste */
+.workspace-modal,
+.workspace-permission-dialog,
+.ops-modal{
+  background:linear-gradient(145deg,#f4fafc 0%,#eaf5f9 55%,#e4f1f6 100%) !important;
+  color:#102f43;
+  border:1px solid rgba(22,143,192,.3) !important;
+  box-shadow:0 24px 65px rgba(4,29,48,.28),inset 0 1px 0 rgba(255,255,255,.95) !important;
+}
+.workspace-modal label,
+.workspace-permission-dialog p,
+.ops-modal label{color:#18394d}
