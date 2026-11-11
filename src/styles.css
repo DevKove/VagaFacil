@@ -2190,17 +2190,18 @@ th{background:#eaf3f7;color:#547287}td{border-bottom-color:#e2edf2;color:#496579
 @media(max-width:600px){.ops-report-filters{padding:15px!important}.ops-report-filter-grid{grid-template-columns:1fr;gap:12px;margin-top:15px}.ops-report-plate{grid-column:auto}.ops-report-metrics{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}.ops-report-result-heading{align-items:stretch}.ops-report-result-heading>.ops-primary{width:100%;justify-content:center}.ops-report-results .ops-table-wrap{overflow-x:auto}.ops-report-results table{min-width:760px}}
 
 
-/* Correção de espaçamento entre indicadores e título do resultado */
-/* Empilhamento e fluxo explícitos: indicadores acima, resultado abaixo */
-.ops-report-results{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:12px!important;min-width:0;width:100%;position:relative!important;isolation:isolate}
-.ops-report-results>.ops-report-metrics{position:relative!important;display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;flex:0 0 auto!important;align-self:stretch!important;isolation:isolate;width:100%;margin:0!important;z-index:1!important;order:1}
-.ops-report-results>.ops-panel{position:relative!important;display:block!important;flex:0 0 auto!important;align-self:stretch!important;clear:both;width:100%;min-width:0;margin:0!important;z-index:2!important;order:2;transform:none!important}
+/* Relatórios: separar fisicamente os indicadores do painel de resultados */
+.ops-report-layout{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:18px!important;width:100%;min-width:0}
+.ops-report-results{display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:auto auto!important;align-content:start!important;align-items:start!important;gap:12px!important;width:100%;min-width:0;position:static!important;transform:none!important;overflow:visible!important}
+.ops-report-results>.ops-report-metrics{grid-column:1!important;grid-row:1!important;position:static!important;display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;align-self:stretch!important;width:100%!important;min-width:0;margin:0!important;float:none!important;transform:none!important;z-index:auto!important}
+.ops-report-results>.ops-panel{grid-column:1!important;grid-row:2!important;position:static!important;display:block!important;align-self:stretch!important;width:100%!important;min-width:0;margin:0!important;float:none!important;clear:both!important;transform:none!important;z-index:auto!important}
 .ops-report-results>.ops-panel:hover{transform:none!important}
-.ops-report-results>.ops-panel>.ops-report-result-heading{position:relative!important;display:flex!important;align-items:center!important;justify-content:space-between!important;min-height:58px;margin:0 0 18px!important;padding:0 0 14px!important;border-bottom:1px solid #e4edf2;z-index:3}
+.ops-report-results>.ops-panel>.ops-report-result-heading{position:static!important;display:flex!important;align-items:center!important;justify-content:space-between!important;min-height:0;margin:0 0 16px!important;padding:0 0 14px!important;border-bottom:1px solid #e4edf2}
 .ops-report-results>.ops-panel>.ops-report-result-heading>div{min-width:0;flex:1}
-.ops-report-results>.ops-panel>.ops-report-result-heading h2{line-height:1.35;margin:0 0 6px!important;position:relative;z-index:4}
+.ops-report-results>.ops-panel>.ops-report-result-heading h2{line-height:1.35;margin:0 0 6px!important;position:static!important}
 .ops-report-results>.ops-panel>.ops-report-result-heading p{line-height:1.5}
-.ops-report-metrics article{position:relative;min-height:112px}
+.ops-report-metrics article{position:static!important;min-height:112px;transform:none!important}
+@media(max-width:900px){.ops-report-results>.ops-report-metrics{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
 @media(max-width:600px){
  .ops-report-results{gap:10px!important}
  .ops-report-results>.ops-panel>.ops-report-result-heading{gap:12px;min-height:0;padding-bottom:13px!important}
