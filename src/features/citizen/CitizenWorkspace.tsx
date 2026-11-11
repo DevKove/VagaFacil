@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Activity, Bell, CarFront, CheckCircle2, Clock3, History, MapPin, Menu, Plus, Power, Trash2, X } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
@@ -64,6 +64,7 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [expiryWarning, setExpiryWarning] = useState<Array<{ sessionId: string; plate: string; body: string }>>([]);
+  const seenNotificationIds = useRef<Set<string>>(new Set());
   const [vehicleForm, setVehicleForm] = useState({ plate: '', make: '', model: '', color: '', vehicle_type: 'Passeio' });
   const [selectedVehicle, setSelectedVehicle] = useState('');
   const [selectedSpace, setSelectedSpace] = useState('');
@@ -88,6 +89,7 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
     setSessions((sessionResult.data ?? []) as unknown as ParkingSession[]);
     setSpaces((spaceResult.data ?? []) as unknown as ParkingSpace[]);
     setNotices(noticeResult.data ?? []);
+    seenNotificationIds.current = new Set((noticeResult.data ?? []).map(item => item.id));
     setSelectedVehicle(current => current || vehicleResult.data?.[0]?.id || '');
   }, [profile.id]);
 
@@ -120,6 +122,8 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
       .on('postgres_changes', { event: '*', schema: 'public', table: 'parking_sessions', filter: `user_id=eq.${profile.id}` }, () => { void refresh(); })
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${profile.id}` }, payload => {
         const notice = payload.new as Notice;
+        if (seenNotificationIds.current.has(notice.id)) return;
+        seenNotificationIds.current.add(notice.id);
         setNotices(current => [notice, ...current.filter(item => item.id !== notice.id)].slice(0, 30));
         if (notice.kind === 'admin_manual_alert') {
           setExpiryWarning(current => [...current.filter(item => item.sessionId !== notice.id), { sessionId: notice.id, plate: 'AVISO DA ADMINISTRAÇÃO', body: notice.body }]);
@@ -130,7 +134,28 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
         }
       })
       .subscribe();
-    return () => { alive = false; window.clearInterval(timer); if (client && channel) void client.removeChannel(channel); };
+    const notificationPoll = window.setInterval(async () => {
+      if (!client) return;
+      const { data, error: notificationError } = await client.from('notifications')
+        .select('id,title,body,kind,read_at,created_at')
+        .eq('user_id', profile.id)
+        .order('created_at', { ascending: false })
+        .limit(30);
+      if (!alive || notificationError || !data) return;
+      const incoming = data.filter(item => !seenNotificationIds.current.has(item.id));
+      for (const notice of incoming) {
+        seenNotificationIds.current.add(notice.id);
+        if (notice.kind === 'admin_manual_alert') {
+          setExpiryWarning(current => [...current.filter(item => item.sessionId !== notice.id), { sessionId: notice.id, plate: 'AVISO DA ADMINISTRAÇÃO', body: notice.body }]);
+          playAlertSound();
+          if ('Notification' in window && Notification.permission === 'granted') {
+            try { new Notification(notice.title, { body: notice.body, tag: notice.id }); } catch { /* notificação do sistema indisponível */ }
+          }
+        }
+      }
+      if (incoming.length) setNotices(data as Notice[]);
+    }, 5000);
+    return () => { alive = false; window.clearInterval(timer); window.clearInterval(notificationPoll); if (client && channel) void client.removeChannel(channel); };
   }, [profile.id, refresh]);
 
   const activeSessions = useMemo(() => sessions.filter(item => item.status === 'active' && new Date(item.expires_at).getTime() > now), [sessions, now]);
