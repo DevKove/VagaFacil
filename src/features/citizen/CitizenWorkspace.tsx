@@ -98,6 +98,9 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
   const [now, setNow] = useState(Date.now());
   const [loading, setLoading] = useState(true);
   const [audioReady, setAudioReady] = useState(false);
+  const [notificationPromptOpen, setNotificationPromptOpen] = useState(true);
+  const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>(() => 'Notification' in window ? Notification.permission : 'denied');
+  const [permissionBusy, setPermissionBusy] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -151,6 +154,18 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
     const ready = await unlockAlertAudio();
     setAudioReady(ready);
     if (ready) playAlertTone(alertAudioContext!);
+  };
+
+  const enableNotificationsAndSound = () => {
+    setPermissionBusy(true);
+    const audioActivation = unlockAlertAudio();
+    const notificationActivation = 'Notification' in window ? Notification.requestPermission() : Promise.resolve('denied' as NotificationPermission);
+    void Promise.all([audioActivation, notificationActivation]).then(([ready, permission]) => {
+      setAudioReady(ready);
+      setNotificationPermission(permission);
+      if (ready) playAlertTone(alertAudioContext!);
+      setNotificationPromptOpen(false);
+    }).catch(() => setNotificationPromptOpen(false)).finally(() => setPermissionBusy(false));
   };
 
   useEffect(() => {
@@ -343,6 +358,7 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
       <a className="portal-brand" href={import.meta.env.BASE_URL}><span className="workspace-brand-mark"><CarFront size={23}/></span><span><strong>VagaFácil</strong><small>Área do cidadão</small></span></a>
       <div className="workspace-user"><button className={`workspace-audio-toggle${audioReady ? ' is-ready' : ''}`} type="button" onClick={() => { void activateAlertAudio(); }} title={audioReady ? 'Alertas sonoros ativados' : 'Ativar alertas sonoros'}><Volume2 size={16}/><span>{audioReady ? 'Som ativado' : 'Ativar som'}</span></button><span className="workspace-avatar">{(profile.full_name || 'C').slice(0,1).toUpperCase()}</span><span><strong>{profile.full_name || 'Cidadão'}</strong><small>Conta ativa</small></span><button className="workspace-signout" onClick={onSignOut}><Power size={16}/> Sair</button></div>
     </header>
+    {notificationPromptOpen && <div className="workspace-permission-backdrop" role="presentation"><section className="workspace-permission-dialog" role="dialog" aria-modal="true" aria-labelledby="workspace-permission-title"><span className="workspace-permission-icon"><Bell size={27}/></span><span className="portal-kicker">CENTRAL DE AVISOS · VAGAFÁCIL</span><h2 id="workspace-permission-title">Ative seus avisos</h2><p>Para não perder nenhum prazo, permita que o VagaFácil envie notificações de texto e reproduza alertas sonoros.</p><div className="workspace-permission-features"><div><Bell size={19}/><span><strong>Notificações de texto</strong><small>Avisos na tela e no sistema, mesmo quando outra aba estiver em uso.</small></span></div><div><Volume2 size={19}/><span><strong>Alertas sonoros</strong><small>Toques curtos para avisar sobre vencimentos e comunicados da administração.</small></span></div></div>{notificationPermission === 'denied' && 'Notification' in window && <p className="workspace-permission-hint">As notificações estão bloqueadas nas configurações do navegador. Você ainda poderá receber avisos dentro do VagaFácil.</p>}<button className="workspace-permission-enable" type="button" disabled={permissionBusy} onClick={enableNotificationsAndSound}>{permissionBusy ? 'Ativando...' : 'Permitir notificações e som'}</button><button className="workspace-permission-later" type="button" onClick={() => setNotificationPromptOpen(false)}>Agora não</button></section></div>}
     <div className="workspace-body">
       {sidebarOpen && <button className="workspace-sidebar-scrim" aria-label="Fechar menu" onClick={() => setSidebarOpen(false)} />}
       <aside className={`workspace-sidebar${sidebarOpen ? " is-open" : ""}`}><div className="workspace-greeting"><small>PORTAL DO CIDADÃO</small><strong>Olá, {profile.full_name?.split(' ')[0] || 'tudo bem'}!</strong><span>Gerencie seus estacionamentos.</span></div><nav>{navItems.map(item => { const Icon = item.icon; return <button key={item.id} className={tab === item.id ? 'active' : ''} onClick={() => { setTab(item.id); setError(''); setSuccess(''); setSidebarOpen(false); }}><Icon size={17}/>{item.label}{item.id === 'notifications' && unread > 0 && <b>{unread}</b>}</button>; })}</nav><div className="workspace-rule-note"><Clock3 size={16}/><span>Rotativo gratuito<br/><strong>Registro livre</strong><small>Todos os dias · qualquer horário<br/>1h comum · 2h especial</small></span></div></aside>
