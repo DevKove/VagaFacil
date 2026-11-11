@@ -191,13 +191,13 @@ function AdminMfaScreen({ profile, onVerified, onCancel }: { profile: UserProfil
           // Um cadastro TOTP pendente não devolve novamente o QR Code/segredo.
           // Remova apenas fatores pendentes criados por este fluxo antes de gerar outro.
           const pending = data.totp.filter(factor =>
-            factor.status !== 'verified' && factor.friendly_name === 'VagaFácil - Área administrativa'
+            factor.status !== 'verified' && /vagafácil|vagafacil|localhost/i.test(factor.friendly_name || '')
           );
           for (const factor of pending) {
             const { error: unenrollError } = await supabase.auth.mfa.unenroll({ factorId: factor.id });
             if (unenrollError) throw new Error(`Não foi possível reiniciar a configuração do autenticador: ${unenrollError.message}`);
           }
-          const enrollment = await supabase.auth.mfa.enroll({ factorType: 'totp', friendlyName: 'VagaFácil - Área administrativa', issuer: 'VagaFácil' });
+          const enrollment = await supabase.auth.mfa.enroll({ factorType: 'totp', friendlyName: 'VagaFácil', issuer: 'VagaFácil' });
           if (enrollment.error) throw enrollment.error;
           if (active) {
             setFactorId(enrollment.data.id);
