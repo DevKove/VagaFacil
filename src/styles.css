@@ -2216,3 +2216,25 @@ th{background:#eaf3f7;color:#547287}td{border-bottom-color:#e2edf2;color:#496579
   color: #c62828 !important;
   font-weight: 800 !important;
 }
+
+
+/* Estacionamentos monitorados: rolagem horizontal da tabela */
+.ops-sessions-table-wrap {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto !important;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #64748b #e2e8f0;
+}
+.ops-sessions-table-wrap table {
+  min-width: 1100px;
+  width: max-content;
+}
+.ops-sessions-table-wrap::-webkit-scrollbar { height: 10px; }
+.ops-sessions-table-wrap::-webkit-scrollbar-track { background: #e2e8f0; border-radius: 8px; }
+.ops-sessions-table-wrap::-webkit-scrollbar-thumb { background: #64748b; border-radius: 8px; }
+.ops-sessions-table-wrap::-webkit-scrollbar-thumb:hover { background: #334155; }
