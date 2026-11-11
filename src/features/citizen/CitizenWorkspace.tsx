@@ -15,6 +15,7 @@ const platePattern = /^[A-Z]{3}[0-9][A-Z0-9][0-9]{2}$/;
 const fmtDate = (value: string) => new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(value));
 const remaining = (expiresAt: string, now: number) => Math.max(0, Math.floor((new Date(expiresAt).getTime() - now) / 1000));
 const timerLabel = (seconds: number) => `${String(Math.floor(seconds / 3600)).padStart(2, '0')}:${String(Math.floor((seconds % 3600) / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
+let alertAudioContext: AudioContext | null = null;
 const getErrorMessage = (error: unknown, fallback = 'Não foi possível concluir a operação.') => {
   if (error instanceof Error && error.message) return error.message;
   if (error && typeof error === 'object') {
@@ -68,6 +69,24 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
   }, [profile.id]);
 
   useEffect(() => {
+    const unlockAudio = () => {
+      try {
+        const AudioContextClass = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+        if (AudioContextClass) {
+          alertAudioContext ??= new AudioContextClass();
+          void alertAudioContext.resume();
+        }
+      } catch { /* áudio indisponível neste navegador */ }
+    };
+    window.addEventListener('pointerdown', unlockAudio, { once: true });
+    window.addEventListener('keydown', unlockAudio, { once: true });
+    return () => {
+      window.removeEventListener('pointerdown', unlockAudio);
+      window.removeEventListener('keydown', unlockAudio);
+    };
+  }, []);
+
+  useEffect(() => {
     let alive = true;
     setLoading(true);
     void refresh().catch(err => { if (alive) setError(getErrorMessage(err, 'Falha ao carregar seus dados.')); })
@@ -104,11 +123,10 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
       setError('');
       setExpiryWarning(current => [...current.filter(item => item.sessionId !== session.id), { sessionId: session.id, plate: session.plate_snapshot, body }]);
 
-      // Alerta sonoro curto, executado quando o navegador permitir áudio.
+      // Toca um alerta curto usando o contexto liberado no primeiro gesto do usuário.
       try {
-        const AudioContextClass = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-        if (AudioContextClass) {
-          const audio = new AudioContextClass();
+        const audio = alertAudioContext;
+        if (audio) {
           void audio.resume().then(() => {
             [880, 660, 880].forEach((frequency, index) => {
               const oscillator = audio.createOscillator();
@@ -124,10 +142,9 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
               oscillator.start(startAt);
               oscillator.stop(startAt + 0.17);
             });
-            window.setTimeout(() => void audio.close(), 1000);
           }).catch(() => undefined);
         }
-      } catch { /* áudio pode estar bloqueado pelas permissões do navegador */ }
+      } catch { /* áudio indisponível neste navegador */ }
 
       if ('Notification' in window && Notification.permission === 'granted') {
         try { new Notification(title, { body, tag: storageKey }); } catch { /* notificação do sistema indisponível */ }
