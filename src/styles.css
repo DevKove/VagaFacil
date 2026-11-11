@@ -2135,3 +2135,38 @@ th{background:#eaf3f7;color:#547287}td{border-bottom-color:#e2edf2;color:#496579
     line-height: 1.5;
   }
 }
+
+
+/* Moldura institucional para o bloco de identificação da página */
+.ops-page-heading > div:first-child {
+  width: fit-content;
+  max-width: min(100%, 920px);
+  padding: 20px 24px 21px;
+  border: 2px solid transparent;
+  border-radius: 16px;
+  background:
+    linear-gradient(145deg, #ffffff 0%, #f1f8fc 58%, #e7f3f8 100%) padding-box,
+    linear-gradient(120deg, #07506d 0%, #20b8d2 48%, #f0a04c 100%) border-box;
+  box-shadow:
+    0 12px 28px rgba(4, 29, 48, .14),
+    0 3px 8px rgba(4, 29, 48, .07),
+    inset 0 1px 0 rgba(255,255,255,.98);
+}
+.ops-page-heading > div:first-child .ops-eyebrow {
+  margin-bottom: 2px;
+}
+.ops-page-heading > div:first-child h1 {
+  margin-bottom: 0;
+}
+.ops-page-heading > div:first-child p {
+  margin-bottom: 0;
+}
+@media (max-width: 760px) {
+  .ops-page-heading > div:first-child {
+    width: 100%;
+    max-width: 100%;
+    padding: 16px 15px 17px;
+    border-radius: 13px;
+    box-shadow: 0 8px 19px rgba(4, 29, 48, .13), inset 0 1px 0 rgba(255,255,255,.98);
+  }
+}
