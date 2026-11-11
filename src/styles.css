@@ -1709,3 +1709,152 @@ th{background:#eaf3f7;color:#547287}td{border-bottom-color:#e2edf2;color:#496579
   .workspace-sidebar .workspace-greeting strong { font-size: 17px !important; }
   .workspace-sidebar .workspace-greeting span { font-size: 10px !important; }
 }
+
+/* Molduras das funcionalidades: acabamento institucional com profundidade e relevo */
+:root{
+  --vf-frame-border:rgba(22,143,192,.24);
+  --vf-frame-shadow:0 12px 28px rgba(4,29,48,.13),0 3px 8px rgba(4,29,48,.07),inset 0 1px 0 rgba(255,255,255,.95);
+  --vf-frame-shadow-hover:0 18px 38px rgba(4,29,48,.19),0 6px 14px rgba(4,29,48,.10),inset 0 1px 0 rgba(255,255,255,.98);
+}
+/* Cartões, formulários e painéis das áreas do cidadão e da operação */
+.workspace-form-card,
+.workspace-session-card,
+.workspace-vehicle-card,
+.workspace-panel,
+.workspace-card,
+.ops-panel,
+.ops-metric-card,
+.ops-metrics article,
+.metric-card,
+.panel,
+.portal-role-card{
+  position:relative;
+  isolation:isolate;
+  border:1px solid var(--vf-frame-border) !important;
+  border-radius:15px !important;
+  background:linear-gradient(145deg,rgba(255,255,255,.99) 0%,rgba(242,249,253,.98) 58%,rgba(232,244,250,.97) 100%) !important;
+  box-shadow:var(--vf-frame-shadow) !important;
+  transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease;
+}
+.workspace-form-card::before,
+.workspace-session-card::before,
+.workspace-vehicle-card::before,
+.workspace-panel::before,
+.workspace-card::before,
+.ops-panel::before,
+.ops-metric-card::before,
+.ops-metrics article::before,
+.metric-card::before,
+.panel::before,
+.portal-role-card::before{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  inset:0 0 auto;
+  height:4px;
+  border-radius:15px 15px 0 0;
+  background:linear-gradient(90deg,#087da5 0%,#38c4e5 48%,#f2a34e 100%);
+  opacity:.9;
+}
+.workspace-form-card:hover,
+.workspace-session-card:hover,
+.workspace-vehicle-card:hover,
+.workspace-panel:hover,
+.workspace-card:hover,
+.ops-panel:hover,
+.ops-metric-card:hover,
+.ops-metrics article:hover,
+.metric-card:hover,
+.panel:hover,
+.portal-role-card:hover{
+  border-color:rgba(22,143,192,.42) !important;
+  box-shadow:var(--vf-frame-shadow-hover) !important;
+}
+.workspace-form-card,
+.workspace-session-card,
+.workspace-vehicle-card,
+.workspace-panel,
+.workspace-card,
+.ops-panel{backdrop-filter:blur(12px)}
+/* Seções internas e cabeçalhos dos módulos */
+.workspace-section,
+.ops-section,
+.ops-module-card{
+  border-radius:14px;
+}
+.workspace-form-card h2,
+.workspace-form-card h3,
+.workspace-session-card h2,
+.workspace-vehicle-card h2,
+.ops-panel-heading h2,
+.ops-panel-heading h3{
+  color:#0a3048;
+  text-shadow:0 1px 0 rgba(255,255,255,.8);
+}
+/* Campos com profundidade discreta e foco evidente */
+.workspace-form-card input,
+.workspace-form-card select,
+.workspace-form-card textarea,
+.ops-panel input,
+.ops-panel select,
+.ops-panel textarea,
+.ops-content input,
+.ops-content select,
+.ops-content textarea{
+  border-color:#c5dce7;
+  border-radius:9px;
+  background:linear-gradient(180deg,#fff 0%,#f7fbfd 100%);
+  box-shadow:inset 0 1px 3px rgba(7,28,46,.055),0 1px 0 rgba(255,255,255,.9);
+  transition:border-color .18s ease,box-shadow .18s ease;
+}
+.workspace-form-card input:focus,
+.workspace-form-card select:focus,
+.workspace-form-card textarea:focus,
+.ops-panel input:focus,
+.ops-panel select:focus,
+.ops-panel textarea:focus,
+.ops-content input:focus,
+.ops-content select:focus,
+.ops-content textarea:focus{
+  outline:0;
+  border-color:#168fc0;
+  box-shadow:0 0 0 3px rgba(22,143,192,.15),inset 0 1px 2px rgba(7,28,46,.04);
+}
+/* Tabelas e áreas de consulta preservam leitura e rolagem */
+.workspace-table-card,
+.ops-table-wrap,
+.ops-table-container{
+  border:1px solid #cbdde7;
+  border-radius:13px;
+  overflow:hidden;
+  background:linear-gradient(145deg,#fff,#f3f9fc);
+  box-shadow:0 9px 24px rgba(4,29,48,.11),inset 0 1px 0 #fff;
+}
+@media(max-width:760px){
+  .workspace-form-card,
+  .workspace-session-card,
+  .workspace-vehicle-card,
+  .workspace-panel,
+  .workspace-card,
+  .ops-panel,
+  .ops-metric-card,
+  .ops-metrics article,
+  .metric-card,
+  .panel,
+  .portal-role-card{
+    border-radius:12px !important;
+    box-shadow:0 7px 18px rgba(4,29,48,.13),inset 0 1px 0 rgba(255,255,255,.95) !important;
+  }
+}
+@media(hover:none){
+  .workspace-form-card:hover,.workspace-session-card:hover,.workspace-vehicle-card:hover,
+  .workspace-panel:hover,.workspace-card:hover,.ops-panel:hover,.ops-metric-card:hover,
+  .ops-metrics article:hover,.metric-card:hover,.panel:hover,.portal-role-card:hover{
+    transform:none;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .workspace-form-card,.workspace-session-card,.workspace-vehicle-card,.workspace-panel,
+  .workspace-card,.ops-panel,.ops-metric-card,.ops-metrics article,.metric-card,.panel,
+  .portal-role-card{transition:none}
+}
