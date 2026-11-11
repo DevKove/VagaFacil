@@ -2192,7 +2192,7 @@ th{background:#eaf3f7;color:#547287}td{border-bottom-color:#e2edf2;color:#496579
 
 /* Relatórios: separar fisicamente os indicadores do painel de resultados */
 .ops-report-layout{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:18px!important;width:100%;min-width:0}
-.ops-report-results{display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:auto auto!important;align-content:start!important;align-items:start!important;gap:12px!important;width:100%;min-width:0;position:static!important;transform:none!important;overflow:visible!important}
+.ops-report-results{display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:auto auto!important;align-content:start!important;align-items:start!important;row-gap:34px!important;column-gap:12px!important;width:100%;min-width:0;position:static!important;transform:none!important;overflow:visible!important}
 .ops-report-results>.ops-report-metrics{grid-column:1!important;grid-row:1!important;position:static!important;display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;align-self:stretch!important;width:100%!important;min-width:0;margin:0!important;float:none!important;transform:none!important;z-index:auto!important}
 .ops-report-results>.ops-panel{grid-column:1!important;grid-row:2!important;position:static!important;display:block!important;align-self:stretch!important;width:100%!important;min-width:0;margin:0!important;float:none!important;clear:both!important;transform:none!important;z-index:auto!important}
 .ops-report-results>.ops-panel:hover{transform:none!important}
@@ -2203,7 +2203,7 @@ th{background:#eaf3f7;color:#547287}td{border-bottom-color:#e2edf2;color:#496579
 .ops-report-metrics article{position:static!important;min-height:112px;transform:none!important}
 @media(max-width:900px){.ops-report-results>.ops-report-metrics{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
 @media(max-width:600px){
- .ops-report-results{gap:10px!important}
+ .ops-report-results{row-gap:24px!important;column-gap:10px!important}
  .ops-report-results>.ops-panel>.ops-report-result-heading{gap:12px;min-height:0;padding-bottom:13px!important}
  .ops-report-metrics article{min-height:98px;padding:14px!important}
  .ops-report-metrics article strong{font-size:27px}
