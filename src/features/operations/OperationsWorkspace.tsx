@@ -160,8 +160,8 @@ export default function OperationsWorkspace({ profile, area, onSignOut }: { prof
     void run(async () => {
       const { error } = await supabase!.from('notifications').insert({
         user_id: session.user_id,
-        title: 'Alerta da administração',
-        body: `A administração do VagaFácil solicita sua atenção em relação ao estacionamento do veículo ${session.plate_snapshot}. Verifique as informações do seu registro.`,
+        title: 'Atenção ao estacionamento',
+        body: `Veículo ${session.plate_snapshot}: verifique as informações do seu registro de estacionamento.`,
         kind: 'admin_manual_alert',
       });
       if (error) throw error;
