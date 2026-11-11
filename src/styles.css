@@ -1481,3 +1481,16 @@ th{font-size:12px!important;color:#263e54;background:#e4edf5}
 .workspace-permission-later{margin-top:12px;padding:8px 14px;border:0;background:transparent;color:#62778b;font-size:13px;font-weight:700;cursor:pointer}
 @media(max-width:520px){.workspace-permission-dialog{padding:23px 18px;border-radius:16px}.workspace-permission-dialog h2{font-size:24px}.workspace-permission-features>div{padding:11px}}
 @media(prefers-reduced-motion:reduce){.workspace-permission-dialog{animation:none}}
+
+
+/* Alerta objetivo e controle persistente de áudio */
+.workspace-expiry-warning{min-height:82px;padding:15px 19px;gap:14px}
+.workspace-alert-pulse{width:46px;height:46px}
+.workspace-alert-copy{gap:5px}
+.workspace-alert-copy>strong{font-size:13px;letter-spacing:.8px;color:#ffe1a6}
+.workspace-alert-title{font-size:17px;line-height:1.2;letter-spacing:.2px}
+.workspace-alert-copy>span{font-size:15px;line-height:1.35;font-weight:600;color:#fff}
+.workspace-expiry-warning .workspace-alert-dismiss{margin-left:auto}
+.workspace-audio-toggle.is-muted{border-color:#b8c4d0;background:#f1f4f7;color:#586777}
+.workspace-audio-toggle.is-muted:hover{background:#e3e9ef}
+@media(max-width:640px){.workspace-expiry-warning{min-height:72px;padding:12px;gap:10px}.workspace-alert-pulse{width:40px;height:40px}.workspace-alert-copy{flex:1 1 calc(100% - 55px)}.workspace-alert-copy>strong{font-size:12px}.workspace-alert-title{font-size:16px}.workspace-alert-copy>span{font-size:14px}.workspace-expiry-warning .workspace-alert-dismiss{margin-left:auto}}
