@@ -1680,3 +1680,32 @@ th{background:#eaf3f7;color:#547287}td{border-bottom-color:#e2edf2;color:#496579
 .sidebar .profile {
   border-top-color: rgba(201, 231, 242, .35) !important;
 }
+
+
+/* Cabeçalho do menu do cidadão: texto claro sobre fundo escuro */
+.workspace-sidebar .workspace-greeting {
+  border-bottom-color: rgba(210, 239, 249, .28) !important;
+}
+.workspace-sidebar .workspace-greeting small {
+  color: #75e4ff !important;
+  font-size: 10px !important;
+  font-weight: 800 !important;
+  letter-spacing: 1.15px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, .35);
+}
+.workspace-sidebar .workspace-greeting strong {
+  color: #ffffff !important;
+  font-size: 20px !important;
+  font-weight: 800 !important;
+  text-shadow: 0 2px 5px rgba(0, 0, 0, .32);
+}
+.workspace-sidebar .workspace-greeting span {
+  color: #e0f2f8 !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+}
+@media (max-width: 600px) {
+  .workspace-sidebar .workspace-greeting small { font-size: 9px !important; }
+  .workspace-sidebar .workspace-greeting strong { font-size: 17px !important; }
+  .workspace-sidebar .workspace-greeting span { font-size: 10px !important; }
+}
