@@ -16,6 +16,38 @@ const fmtDate = (value: string) => new Intl.DateTimeFormat('pt-BR', { dateStyle:
 const remaining = (expiresAt: string, now: number) => Math.max(0, Math.floor((new Date(expiresAt).getTime() - now) / 1000));
 const timerLabel = (seconds: number) => `${String(Math.floor(seconds / 3600)).padStart(2, '0')}:${String(Math.floor((seconds % 3600) / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
 let alertAudioContext: AudioContext | null = null;
+let pendingAlertSounds = 0;
+
+function playAlertTone(audio: AudioContext) {
+  [880, 660, 880].forEach((frequency, index) => {
+    const oscillator = audio.createOscillator();
+    const gain = audio.createGain();
+    const startAt = audio.currentTime + index * 0.22;
+    oscillator.frequency.value = frequency;
+    oscillator.type = 'sine';
+    gain.gain.setValueAtTime(0.0001, startAt);
+    gain.gain.exponentialRampToValueAtTime(0.16, startAt + 0.025);
+    gain.gain.exponentialRampToValueAtTime(0.0001, startAt + 0.16);
+    oscillator.connect(gain);
+    gain.connect(audio.destination);
+    oscillator.start(startAt);
+    oscillator.stop(startAt + 0.17);
+  });
+}
+
+function unlockAlertAudio() {
+  try {
+    const AudioContextClass = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    if (!AudioContextClass) return;
+    alertAudioContext ??= new AudioContextClass();
+    void alertAudioContext.resume().then(() => {
+      const queued = pendingAlertSounds;
+      pendingAlertSounds = 0;
+      for (let index = 0; index < queued; index += 1) playAlertTone(alertAudioContext!);
+    }).catch(() => undefined);
+  } catch { /* áudio indisponível neste navegador */ }
+}
+
 const getErrorMessage = (error: unknown, fallback = 'Não foi possível concluir a operação.') => {
   if (error instanceof Error && error.message) return error.message;
   if (error && typeof error === 'object') {
@@ -29,26 +61,13 @@ const getErrorMessage = (error: unknown, fallback = 'Não foi possível concluir
 };
 
 function playAlertSound() {
-  try {
-    const audio = alertAudioContext;
-    if (!audio) return;
-    void audio.resume().then(() => {
-      [880, 660, 880].forEach((frequency, index) => {
-        const oscillator = audio.createOscillator();
-        const gain = audio.createGain();
-        const startAt = audio.currentTime + index * 0.22;
-        oscillator.frequency.value = frequency;
-        oscillator.type = 'sine';
-        gain.gain.setValueAtTime(0.0001, startAt);
-        gain.gain.exponentialRampToValueAtTime(0.16, startAt + 0.025);
-        gain.gain.exponentialRampToValueAtTime(0.0001, startAt + 0.16);
-        oscillator.connect(gain);
-        gain.connect(audio.destination);
-        oscillator.start(startAt);
-        oscillator.stop(startAt + 0.17);
-      });
-    }).catch(() => undefined);
-  } catch { /* áudio indisponível neste navegador */ }
+  const audio = alertAudioContext;
+  if (!audio || audio.state !== 'running') {
+    pendingAlertSounds += 1;
+    unlockAlertAudio();
+    return;
+  }
+  try { playAlertTone(audio); } catch { /* áudio indisponível neste navegador */ }
 }
 
 export default function CitizenWorkspace({ profile, onSignOut }: { profile: Profile; onSignOut: () => void }) {
@@ -88,23 +107,19 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
     setVehicles(vehicleResult.data ?? []);
     setSessions((sessionResult.data ?? []) as unknown as ParkingSession[]);
     setSpaces((spaceResult.data ?? []) as unknown as ParkingSpace[]);
-    setNotices(noticeResult.data ?? []);
-    seenNotificationIds.current = new Set((noticeResult.data ?? []).map(item => item.id));
+    const loadedNotices = (noticeResult.data ?? []) as Notice[];
+    setNotices(loadedNotices);
+    setExpiryWarning(loadedNotices
+      .filter(item => item.kind === 'admin_manual_alert' && !item.read_at)
+      .map(item => ({ sessionId: item.id, plate: 'AVISO DA ADMINISTRAÇÃO', body: item.body })));
+    seenNotificationIds.current = new Set(loadedNotices.map(item => item.id));
     setSelectedVehicle(current => current || vehicleResult.data?.[0]?.id || '');
   }, [profile.id]);
 
   useEffect(() => {
-    const unlockAudio = () => {
-      try {
-        const AudioContextClass = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-        if (AudioContextClass) {
-          alertAudioContext ??= new AudioContextClass();
-          void alertAudioContext.resume();
-        }
-      } catch { /* áudio indisponível neste navegador */ }
-    };
-    window.addEventListener('pointerdown', unlockAudio, { once: true });
-    window.addEventListener('keydown', unlockAudio, { once: true });
+    const unlockAudio = () => unlockAlertAudio();
+    window.addEventListener('pointerdown', unlockAudio);
+    window.addEventListener('keydown', unlockAudio);
     return () => {
       window.removeEventListener('pointerdown', unlockAudio);
       window.removeEventListener('keydown', unlockAudio);
@@ -308,7 +323,7 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
         <div className="workspace-page-heading"><div><span className="portal-kicker">VAGAFÁCIL · SERVIÇOS DIGITAIS</span><h1>{navItems.find(item => item.id === tab)?.label}</h1><p>Seus dados e registros em um só lugar.</p></div>{tab === 'vehicles' && <button className="workspace-primary" onClick={() => setShowVehicleForm(true)}><Plus size={17}/> Adicionar veículo</button>}</div>
         {error && <div className="workspace-alert error" role="alert">{error}</div>}
         {success && <div className="workspace-alert success" role="status">{success}</div>}
-        {expiryWarning.map(warning => <div className="workspace-expiry-warning" role="alert" key={warning.sessionId}><Bell size={19}/><div><strong>ATENÇÃO: PERÍODO PRÓXIMO DO FIM</strong><span><b>{warning.plate}</b> — {warning.body}</span></div><button type="button" onClick={() => setExpiryWarning(current => current.filter(item => item.sessionId !== warning.sessionId))} aria-label="Fechar aviso"><X size={17}/></button></div>)}
+        {expiryWarning.map(warning => <div className="workspace-expiry-warning" role="alert" key={warning.sessionId}><Bell size={19}/><div><strong>ATENÇÃO: PERÍODO PRÓXIMO DO FIM</strong><span><b>{warning.plate}</b> — {warning.body}</span></div><button type="button" onClick={() => { setExpiryWarning(current => current.filter(item => item.sessionId !== warning.sessionId)); if (warning.sessionId && notices.some(item => item.id === warning.sessionId && item.kind === 'admin_manual_alert')) void markRead(warning.sessionId); }} aria-label="Fechar aviso"><X size={17}/></button></div>)}
         {loading ? <div className="workspace-empty">Carregando seus dados...</div> : <>
           {tab === 'overview' && <>
             <div className="workspace-section-title"><div><h2>Estacionamentos em andamento</h2><p>O tempo é atualizado automaticamente.</p></div><button onClick={() => setTab('register')}>Novo registro <Plus size={15}/></button></div>
