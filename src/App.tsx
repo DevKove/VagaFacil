@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
-import { Activity, AlertTriangle, ArrowDownRight, ArrowUpRight, Bell, CarFront, CheckCircle2, ChevronDown, Clock3, LockKeyhole, MapPin, Menu, Search, ShieldCheck, Users, X } from 'lucide-react';
+import { Activity, AlertTriangle, ArrowDownRight, ArrowUpRight, Bell, CarFront, CheckCircle2, ChevronDown, Clock3, Download, LockKeyhole, MapPin, Menu, Search, ShieldCheck, Users, X } from 'lucide-react';
 import { isSupabaseConfigured, supabase } from './lib/supabase';
 import CitizenWorkspace from './features/citizen/CitizenWorkspace';
 import OperationsWorkspace from './features/operations/OperationsWorkspace';
@@ -26,6 +26,54 @@ const sessions = [
 
 type PortalRole = 'citizen' | 'agent' | 'admin';
 
+type InstallPromptEvent = Event & {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>;
+};
+
+function usePwaInstall() {
+  const [installPrompt, setInstallPrompt] = useState<InstallPromptEvent | null>(null);
+  const [installed, setInstalled] = useState(
+    window.matchMedia('(display-mode: standalone)').matches ||
+    Boolean((navigator as Navigator & { standalone?: boolean }).standalone)
+  );
+
+  useEffect(() => {
+    const onBeforeInstall = (event: Event) => {
+      event.preventDefault();
+      setInstallPrompt(event as InstallPromptEvent);
+    };
+    const onInstalled = () => {
+      setInstalled(true);
+      setInstallPrompt(null);
+    };
+    window.addEventListener('beforeinstallprompt', onBeforeInstall);
+    window.addEventListener('appinstalled', onInstalled);
+    return () => {
+      window.removeEventListener('beforeinstallprompt', onBeforeInstall);
+      window.removeEventListener('appinstalled', onInstalled);
+    };
+  }, []);
+
+  const install = async () => {
+    if (installPrompt) {
+      await installPrompt.prompt();
+      const choice = await installPrompt.userChoice;
+      if (choice.outcome === 'accepted') setInstallPrompt(null);
+      return;
+    }
+    const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+    if (isIos && !isStandalone) {
+      window.alert('Para instalar o VagaFácil no iPhone/iPad:\\n1. Toque em Compartilhar no Safari.\\n2. Selecione “Adicionar à Tela de Início”.\\n3. Confirme em “Adicionar”.');
+    } else if (!installed) {
+      window.alert('Para instalar o VagaFácil, abra o menu do navegador e selecione “Instalar VagaFácil” ou “Adicionar à tela inicial”.');
+    }
+  };
+
+  return { canInstall: Boolean(installPrompt) || !installed, installed, install };
+}
+
 const portalRoles: { id: PortalRole; title: string; description: string; action: string; icon: typeof CarFront; featured?: boolean; details: string[] }[] = [
   { id: 'citizen', title: 'Sou cidadão', description: 'Estacione com praticidade. Registre sua vaga, acompanhe o tempo e consulte seu histórico.', action: 'Acessar área do cidadão', icon: CarFront, featured: true, details: ['Registrar estacionamento', 'Acompanhar tempo restante', 'Gerenciar veículos'] },
   { id: 'agent', title: 'Agente de trânsito', description: 'Acesso às ferramentas de fiscalização e consulta em campo.', action: 'Acesso do agente', icon: ShieldCheck, details: ['Consultar placas e sessões', 'Ver alertas operacionais', 'Registrar ocorrências'] },
@@ -34,11 +82,11 @@ const portalRoles: { id: PortalRole; title: string; description: string; action:
 
 function Portal({ onSelect }: { onSelect: (role: PortalRole) => void }) {
   const [accessOpen, setAccessOpen] = useState(false);
-  const [adminOptionsOpen, setAdminOptionsOpen] = useState(false);
+  const [adminOptionsOpen, setAdminOptionsOpen] = useState(false);\n  const { canInstall, installed, install } = usePwaInstall();
   return <main className="portal-page">
     <header className="portal-header">
       <a className="portal-brand" href="#" aria-label="VagaFácil início"><img className="portal-brand-logo" src={`${import.meta.env.BASE_URL}IMG/logo-vagafacil.svg`} alt="VagaFácil" /><span><strong>VagaFácil</strong><small>Estacionar ficou mais fácil.</small></span></a>
-      <div className="portal-header-actions"><span className="portal-header-note"><i /> Plataforma de estacionamento rotativo</span><button type="button" className="portal-login-trigger" onClick={() => setAccessOpen(true)}><LockKeyhole size={17}/> Entrar</button></div>
+      <div className="portal-header-actions"><span className="portal-header-note"><i /> Plataforma de estacionamento rotativo</span>{canInstall && <button type="button" className="portal-install-trigger" onClick={() => void install()}><Download size={17}/><span>Instalar aplicativo</span></button>}{installed && <span className="portal-installed-badge">Aplicativo instalado</span>}<button type="button" className="portal-login-trigger" onClick={() => setAccessOpen(true)}><LockKeyhole size={17}/> Entrar</button></div>
     </header>
     <section className="portal-hero">
       <div className="portal-hero-art" aria-hidden="true">
