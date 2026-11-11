@@ -1303,3 +1303,9 @@ th{font-size:12px!important;color:#263e54;background:#e4edf5}
 .ops-modal .ops-checkbox{display:flex;align-items:center;gap:9px}
 .ops-modal .ops-checkbox input{width:auto}
 @media(max-width:640px){.ops-user-heading-actions{align-items:flex-end;flex-direction:column}.ops-user-actions{flex-wrap:wrap}.ops-user-heading-actions .ops-primary{white-space:nowrap}}
+
+.ops-location-link{display:inline-flex;align-items:center;gap:8px;color:var(--ops-accent,#176b54);text-decoration:none;min-width:190px}
+.ops-location-link>span{display:flex;flex-direction:column;gap:3px}
+.ops-location-link strong{font-size:12px;font-variant-numeric:tabular-nums}
+.ops-location-link small,.ops-muted-location{font-size:11px;color:var(--muted,#64748b)}
+.ops-location-link:hover{text-decoration:underline}
