@@ -1,7 +1,16 @@
 const BASE = new URL('./', self.registration.scope).pathname;
-const CACHE = 'vagafacil-shell-v9';
+const CACHE = 'vagafacil-shell-v10';
 const INDEX = `${BASE}index.html`;
-const SHELL = [BASE, INDEX, `${BASE}manifest.webmanifest`, `${BASE}IMG/favicon.ico`, `${BASE}IMG/logo.png`];
+const SHELL = [
+  BASE,
+  INDEX,
+  `${BASE}manifest.webmanifest`,
+  `${BASE}IMG/favicon.ico`,
+  `${BASE}IMG/logo.png`,
+  `${BASE}icons/icon-192.svg`,
+  `${BASE}icons/icon-512.svg`,
+  `${BASE}icons/icon-maskable.svg`,
+];
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(SHELL)));
@@ -33,7 +42,7 @@ self.addEventListener('fetch', event => {
   }
 
   event.respondWith(caches.match(request).then(cached => cached || fetch(request).then(response => {
-    if (response.ok && (url.pathname.startsWith(`${BASE}assets/`) || /\.(svg|png|jpe?g|webp|ico|woff2?)$/i.test(url.pathname))) {
+    if (response.ok && (url.pathname.startsWith(`${BASE}assets/`) || /\\.(svg|png|jpe?g|webp|ico|woff2?)$/i.test(url.pathname))) {
       caches.open(CACHE).then(cache => cache.put(request, response.clone()));
     }
     return response;

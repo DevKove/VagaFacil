@@ -1,1 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="112" fill="#102a43"/><circle cx="256" cy="235" r="155" fill="#fff"/><path d="M192 348V122h113c67 0 105 38 105 97s-38 97-105 97h-54v32h-59zm59-92h51c33 0 49-13 49-37s-16-37-49-37h-51v74z" fill="#0878c9"/><path d="M256 405v49m-33-24h66" stroke="#f7a928" stroke-width="19" stroke-linecap="round"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x2="0" y2="1"><stop stop-color="#146bdc"/><stop offset="1" stop-color="#0741a5"/></linearGradient>
+    <clipPath id="round"><rect width="512" height="512" rx="104"/></clipPath>
+  </defs>
+  <rect width="512" height="512" fill="url(#bg)"/>
+  <g clip-path="url(#round)">
+    <svg x="0" y="0" width="512" height="512" viewBox="128 128 768 768" preserveAspectRatio="xMidYMid meet">
+      <image x="0" y="0" width="1024" height="1024" xlink:href="../IMG/logo.png"/>
+    </svg>
+  </g>
+</svg>
