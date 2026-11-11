@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
-import { Activity, Bell, CarFront, CheckCircle2, Clock3, History, MapPin, Menu, Plus, Power, Trash2, Volume2, X } from 'lucide-react';
+import { Activity, Bell, CarFront, CheckCircle2, Clock3, History, MapPin, Menu, Plus, Power, Trash2, Volume2, VolumeX, X } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { VehiclePlate } from '../../components/VehiclePlate';
 
@@ -78,13 +78,10 @@ const getErrorMessage = (error: unknown, fallback = 'Não foi possível concluir
   return fallback;
 };
 
-function playAlertSound() {
+function playAlertSound(enabled = true) {
+  if (!enabled) { pendingAlertSound = false; return; }
   const audio = alertAudioContext;
-  if (!audio || audio.state !== 'running') {
-    // Mantém um único toque pendente até o cidadão liberar o áudio no navegador.
-    pendingAlertSound = true;
-    return;
-  }
+  if (!audio || audio.state !== 'running') { pendingAlertSound = true; return; }
   try { playAlertTone(audio); } catch { /* áudio indisponível neste navegador */ }
 }
 
@@ -97,7 +94,8 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
   const [notices, setNotices] = useState<Notice[]>([]);
   const [now, setNow] = useState(Date.now());
   const [loading, setLoading] = useState(true);
-  const [audioReady, setAudioReady] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(() => window.localStorage.getItem(`vagafacil:sound-enabled:${profile.id}`) !== 'false');
+  const soundEnabledRef = useRef(soundEnabled);
   const [notificationPromptOpen, setNotificationPromptOpen] = useState(true);
   const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>(() => 'Notification' in window ? Notification.permission : 'denied');
   const [permissionBusy, setPermissionBusy] = useState(false);
@@ -133,14 +131,19 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
     setNotices(loadedNotices);
     const pendingAdminAlerts = loadedNotices.filter(item => item.kind === 'admin_manual_alert' && !item.read_at);
     setExpiryWarning(pendingAdminAlerts.map(item => ({ sessionId: item.id, plate: 'AVISO DA ADMINISTRAÇÃO', body: item.body })));
-    if (pendingAdminAlerts.length) playAlertSound();
+    if (pendingAdminAlerts.length) playAlertSound(soundEnabledRef.current);
     seenNotificationIds.current = new Set(loadedNotices.map(item => item.id));
     setSelectedVehicle(current => current || vehicleResult.data?.[0]?.id || '');
   }, [profile.id]);
 
   useEffect(() => {
+    soundEnabledRef.current = soundEnabled;
+    if (!soundEnabled) pendingAlertSound = false;
+  }, [soundEnabled]);
+
+  useEffect(() => {
     const unlockAudio = () => {
-      void unlockAlertAudio().then(ready => { if (ready) setAudioReady(true); });
+      if (soundEnabledRef.current) void unlockAlertAudio();
     };
     window.addEventListener('pointerdown', unlockAudio);
     window.addEventListener('keydown', unlockAudio);
@@ -150,20 +153,21 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
     };
   }, []);
 
-  const activateAlertAudio = async () => {
-    const ready = await unlockAlertAudio();
-    setAudioReady(ready);
-    if (ready) playAlertTone(alertAudioContext!);
+  const toggleAlertSound = () => {
+    const next = !soundEnabledRef.current;
+    soundEnabledRef.current = next;
+    setSoundEnabled(next);
+    window.localStorage.setItem(`vagafacil:sound-enabled:${profile.id}`, String(next));
+    if (next) void unlockAlertAudio();
+    else pendingAlertSound = false;
   };
 
   const enableNotificationsAndSound = () => {
     setPermissionBusy(true);
-    const audioActivation = unlockAlertAudio();
+    const audioActivation = soundEnabledRef.current ? unlockAlertAudio() : Promise.resolve(false);
     const notificationActivation = 'Notification' in window ? Notification.requestPermission() : Promise.resolve('denied' as NotificationPermission);
     void Promise.all([audioActivation, notificationActivation]).then(([ready, permission]) => {
-      setAudioReady(ready);
       setNotificationPermission(permission);
-      if (ready) playAlertTone(alertAudioContext!);
       setNotificationPromptOpen(false);
     }).catch(() => setNotificationPromptOpen(false)).finally(() => setPermissionBusy(false));
   };
@@ -184,7 +188,7 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
         setNotices(current => [notice, ...current.filter(item => item.id !== notice.id)].slice(0, 30));
         if (notice.kind === 'admin_manual_alert') {
           setExpiryWarning(current => [...current.filter(item => item.sessionId !== notice.id), { sessionId: notice.id, plate: 'AVISO DA ADMINISTRAÇÃO', body: notice.body }]);
-          playAlertSound();
+          playAlertSound(soundEnabledRef.current);
           if ('Notification' in window && Notification.permission === 'granted') {
             try { new Notification(notice.title, { body: notice.body, tag: notice.id }); } catch { /* notificação do sistema indisponível */ }
           }
@@ -204,7 +208,7 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
         seenNotificationIds.current.add(notice.id);
         if (notice.kind === 'admin_manual_alert') {
           setExpiryWarning(current => [...current.filter(item => item.sessionId !== notice.id), { sessionId: notice.id, plate: 'AVISO DA ADMINISTRAÇÃO', body: notice.body }]);
-          playAlertSound();
+          playAlertSound(soundEnabledRef.current);
           if ('Notification' in window && Notification.permission === 'granted') {
             try { new Notification(notice.title, { body: notice.body, tag: notice.id }); } catch { /* notificação do sistema indisponível */ }
           }
@@ -230,9 +234,9 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
       const storageKey = `vagafacil:expiry-warning:${profile.id}:${session.id}`;
       if (window.localStorage.getItem(storageKey)) continue;
 
-      const minutes = Math.max(1, Math.ceil(remaining(session.expires_at, now) / 60));
-      const title = 'Estacionamento próximo do vencimento';
-      const body = `O período de permanência do veículo ${session.plate_snapshot} termina em aproximadamente ${minutes} minuto(s). Organize-se para retirar o veículo dentro do prazo.`;
+      const title = 'Estacionamento próximo do encerramento';
+      const body = 'Período regular próximo do encerramento.';
+      const notificationBody = `Veículo ${session.plate_snapshot}: período regular próximo do encerramento.`;
 
       window.localStorage.setItem(storageKey, '1');
       setSuccess('');
@@ -240,10 +244,10 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
       setExpiryWarning(current => [...current.filter(item => item.sessionId !== session.id), { sessionId: session.id, plate: session.plate_snapshot, body }]);
 
       // Toca o alerta curto usando o contexto liberado no primeiro gesto do usuário.
-      playAlertSound();
+      playAlertSound(soundEnabledRef.current);
 
       if ('Notification' in window && Notification.permission === 'granted') {
-        try { new Notification(title, { body, tag: storageKey }); } catch { /* notificação do sistema indisponível */ }
+        try { new Notification(title, { body: notificationBody, tag: storageKey }); } catch { /* notificação do sistema indisponível */ }
       }
 
       if (supabase) {
@@ -356,9 +360,9 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
     <header className="workspace-header">
       <button className="workspace-menu-toggle" type="button" aria-label={sidebarOpen ? "Fechar menu" : "Abrir menu"} aria-expanded={sidebarOpen} onClick={() => setSidebarOpen(open => !open)}><Menu size={20}/></button>
       <a className="portal-brand" href={import.meta.env.BASE_URL}><span className="workspace-brand-mark"><CarFront size={23}/></span><span><strong>VagaFácil</strong><small>Área do cidadão</small></span></a>
-      <div className="workspace-user"><button className={`workspace-audio-toggle${audioReady ? ' is-ready' : ''}`} type="button" onClick={() => { void activateAlertAudio(); }} title={audioReady ? 'Alertas sonoros ativados' : 'Ativar alertas sonoros'}><Volume2 size={16}/><span>{audioReady ? 'Som ativado' : 'Ativar som'}</span></button><span className="workspace-avatar">{(profile.full_name || 'C').slice(0,1).toUpperCase()}</span><span><strong>{profile.full_name || 'Cidadão'}</strong><small>Conta ativa</small></span><button className="workspace-signout" onClick={onSignOut}><Power size={16}/> Sair</button></div>
+      <div className="workspace-user"><button className={`workspace-audio-toggle${soundEnabled ? ' is-ready' : ' is-muted'}`} type="button" onClick={toggleAlertSound} aria-pressed={soundEnabled} title={soundEnabled ? 'Desativar alertas sonoros' : 'Ativar alertas sonoros'}>{soundEnabled ? <Volume2 size={16}/> : <VolumeX size={16}/>}<span>{soundEnabled ? 'Som ativado' : 'Som desativado'}</span></button><span className="workspace-avatar">{(profile.full_name || 'C').slice(0,1).toUpperCase()}</span><span><strong>{profile.full_name || 'Cidadão'}</strong><small>Conta ativa</small></span><button className="workspace-signout" onClick={onSignOut}><Power size={16}/> Sair</button></div>
     </header>
-    {notificationPromptOpen && <div className="workspace-permission-backdrop" role="presentation"><section className="workspace-permission-dialog" role="dialog" aria-modal="true" aria-labelledby="workspace-permission-title"><span className="workspace-permission-icon"><Bell size={27}/></span><span className="portal-kicker">CENTRAL DE AVISOS · VAGAFÁCIL</span><h2 id="workspace-permission-title">Ative seus avisos</h2><p>Para não perder nenhum prazo, permita que o VagaFácil envie notificações de texto e reproduza alertas sonoros.</p><div className="workspace-permission-features"><div><Bell size={19}/><span><strong>Notificações de texto</strong><small>Avisos na tela e no sistema, mesmo quando outra aba estiver em uso.</small></span></div><div><Volume2 size={19}/><span><strong>Alertas sonoros</strong><small>Toques curtos para avisar sobre vencimentos e comunicados da administração.</small></span></div></div>{notificationPermission === 'denied' && 'Notification' in window && <p className="workspace-permission-hint">As notificações estão bloqueadas nas configurações do navegador. Você ainda poderá receber avisos dentro do VagaFácil.</p>}<button className="workspace-permission-enable" type="button" disabled={permissionBusy} onClick={enableNotificationsAndSound}>{permissionBusy ? 'Ativando...' : 'Permitir notificações e som'}</button><button className="workspace-permission-later" type="button" onClick={() => setNotificationPromptOpen(false)}>Agora não</button></section></div>}
+    {notificationPromptOpen && <div className="workspace-permission-backdrop" role="presentation"><section className="workspace-permission-dialog" role="dialog" aria-modal="true" aria-labelledby="workspace-permission-title"><span className="workspace-permission-icon"><Bell size={27}/></span><span className="portal-kicker">CENTRAL DE AVISOS · VAGAFÁCIL</span><h2 id="workspace-permission-title">Ative seus avisos</h2><p>Para receber avisos importantes sobre seu estacionamento, permita as notificações do VagaFácil. O som dos alertas fica ativado por padrão.</p><div className="workspace-permission-features"><div><Bell size={19}/><span><strong>Notificações de texto</strong><small>Avisos na tela e no sistema, mesmo quando outra aba estiver em uso.</small></span></div></div>{notificationPermission === 'denied' && 'Notification' in window && <p className="workspace-permission-hint">As notificações estão bloqueadas nas configurações do navegador. Você ainda poderá receber avisos dentro do VagaFácil.</p>}<button className="workspace-permission-enable" type="button" disabled={permissionBusy} onClick={enableNotificationsAndSound}>{permissionBusy ? 'Ativando...' : 'Permitir notificações'}</button><button className="workspace-permission-later" type="button" onClick={() => setNotificationPromptOpen(false)}>Agora não</button></section></div>}
     <div className="workspace-body">
       {sidebarOpen && <button className="workspace-sidebar-scrim" aria-label="Fechar menu" onClick={() => setSidebarOpen(false)} />}
       <aside className={`workspace-sidebar${sidebarOpen ? " is-open" : ""}`}><div className="workspace-greeting"><small>PORTAL DO CIDADÃO</small><strong>Olá, {profile.full_name?.split(' ')[0] || 'tudo bem'}!</strong><span>Gerencie seus estacionamentos.</span></div><nav>{navItems.map(item => { const Icon = item.icon; return <button key={item.id} className={tab === item.id ? 'active' : ''} onClick={() => { setTab(item.id); setError(''); setSuccess(''); setSidebarOpen(false); }}><Icon size={17}/>{item.label}{item.id === 'notifications' && unread > 0 && <b>{unread}</b>}</button>; })}</nav><div className="workspace-rule-note"><Clock3 size={16}/><span>Rotativo gratuito<br/><strong>Registro livre</strong><small>Todos os dias · qualquer horário<br/>1h comum · 2h especial</small></span></div></aside>
@@ -366,7 +370,7 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
         <div className="workspace-page-heading"><div><span className="portal-kicker">VAGAFÁCIL · SERVIÇOS DIGITAIS</span><h1>{navItems.find(item => item.id === tab)?.label}</h1><p>Seus dados e registros em um só lugar.</p></div>{tab === 'vehicles' && <button className="workspace-primary" onClick={() => setShowVehicleForm(true)}><Plus size={17}/> Adicionar veículo</button>}</div>
         {error && <div className="workspace-alert error" role="alert">{error}</div>}
         {success && <div className="workspace-alert success" role="status">{success}</div>}
-        {expiryWarning.map(warning => <div className="workspace-expiry-warning" role="alert" key={warning.sessionId}><span className="workspace-alert-pulse"><Bell size={25}/></span><div className="workspace-alert-copy"><strong>⚠ ALERTA IMPORTANTE · VAGAFÁCIL</strong><b className="workspace-alert-title">{warning.plate}</b><span>{warning.body}</span><small>ATENÇÃO NECESSÁRIA — VERIFIQUE ESTA NOTIFICAÇÃO</small></div><button className="workspace-alert-sound" type="button" onClick={() => { void activateAlertAudio(); }} aria-label="Reproduzir alerta sonoro"><Volume2 size={19}/><span>Testar som</span></button><button className="workspace-alert-dismiss" type="button" onClick={() => { setExpiryWarning(current => current.filter(item => item.sessionId !== warning.sessionId)); if (warning.sessionId && notices.some(item => item.id === warning.sessionId && item.kind === 'admin_manual_alert')) void markRead(warning.sessionId); }} aria-label="Marcar aviso como lido e fechar"><X size={19}/></button></div>)}
+        {expiryWarning.map(warning => <div className="workspace-expiry-warning" role="alert" key={warning.sessionId}><span className="workspace-alert-pulse"><Bell size={25}/></span><div className="workspace-alert-copy"><strong>⚠ ATENÇÃO</strong><b className="workspace-alert-title">{warning.plate}</b><span>{warning.body}</span></div><button className="workspace-alert-dismiss" type="button" onClick={() => { setExpiryWarning(current => current.filter(item => item.sessionId !== warning.sessionId)); if (warning.sessionId && notices.some(item => item.id === warning.sessionId && item.kind === 'admin_manual_alert')) void markRead(warning.sessionId); }} aria-label="Marcar aviso como lido e fechar"><X size={19}/></button></div>)}
         {loading ? <div className="workspace-empty">Carregando seus dados...</div> : <>
           {tab === 'overview' && <>
             <div className="workspace-section-title"><div><h2>Estacionamentos em andamento</h2><p>O tempo é atualizado automaticamente.</p></div><button onClick={() => setTab('register')}>Novo registro <Plus size={15}/></button></div>
