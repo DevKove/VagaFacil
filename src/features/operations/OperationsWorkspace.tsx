@@ -20,6 +20,20 @@ const dateTime = (value: string) => new Intl.DateTimeFormat('pt-BR', { dateStyle
 const statusText = (status: string) => ({ active: 'Em andamento', expired: 'Vencido', finished: 'Encerrado', open: 'Aberto', claimed: 'Em atendimento', resolved: 'Resolvido', dismissed: 'Descartado' }[status] || status);
 const roleText = (role: string) => ({ admin: 'Administrador', supervisor: 'Supervisor', agent: 'Agente', citizen: 'Cidadão' }[role] || role);
 
+async function invokeUserManagement(payload: Record<string, unknown>) {
+  if (!supabase) throw new Error('Serviço de autenticação indisponível.');
+  const { data, error } = await supabase.functions.invoke('manage-users', { body: payload });
+  if (error) {
+    const response = (error as { context?: unknown }).context;
+    if (response instanceof Response) {
+      const body = await response.clone().json().catch(() => null) as { error?: string } | null;
+      if (body?.error) throw new Error(body.error);
+    }
+    throw error;
+  }
+  return data;
+}
+
 export default function OperationsWorkspace({ profile, area, onSignOut }: { profile: Profile; area: 'agent' | 'admin'; onSignOut: () => void }) {
   const [section, setSection] = useState('overview');
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -80,16 +94,15 @@ export default function OperationsWorkspace({ profile, area, onSignOut }: { prof
       if (area === 'admin') {
         const [zoneRes, userRes, ruleRes, auditRes] = await Promise.all([
           supabase.from('parking_zones').select('id,name,description,active').order('name'),
-          supabase.functions.invoke('manage-users', { body: { action: 'list' } }),
+          invokeUserManagement({ action: 'list' }),
           supabase.from('parking_rules').select('id,name,enabled,start_time,end_time,saturday_start,saturday_end,conventional_minutes,special_minutes,grace_minutes').order('created_at', { ascending: false }),
           supabase.from('audit_logs').select('id,actor_id,action,entity_type,entity_id,created_at').order('created_at', { ascending: false }).limit(300),
         ]);
         if (zoneRes.error) throw zoneRes.error;
-        if (userRes.error) throw userRes.error;
         if (ruleRes.error) throw ruleRes.error;
         if (auditRes.error) throw auditRes.error;
         setZones(zoneRes.data || []);
-        setUsers((userRes.data?.users || []) as Profile[]);
+        setUsers((userRes?.users || []) as Profile[]);
         setRules(ruleRes.data || []);
         setAuditLogs((auditRes.data || []) as AuditLog[]);
       }
@@ -118,8 +131,7 @@ export default function OperationsWorkspace({ profile, area, onSignOut }: { prof
       const body = editingUser
         ? { action: 'update', id: editingUser.id, full_name: userForm.full_name, role: userForm.role, is_active: userForm.is_active, ...(userForm.email.trim().toLowerCase() !== (editingUser.email || '').toLowerCase() ? { email: userForm.email.trim() } : {}), ...(userForm.password ? { password: userForm.password } : {}) }
         : { action: 'create', full_name: userForm.full_name, email: userForm.email, password: userForm.password, role: userForm.role, is_active: userForm.is_active };
-      const { error } = await supabase!.functions.invoke('manage-users', { body });
-      if (error) throw error;
+      await invokeUserManagement(body);
       setUserModalOpen(false);
       setEditingUser(null);
     });
@@ -127,8 +139,7 @@ export default function OperationsWorkspace({ profile, area, onSignOut }: { prof
   const deleteUser = (user: Profile) => {
     if (!supabase || user.id === profile.id || !window.confirm(`Excluir permanentemente a conta de ${user.full_name}? Esta ação não pode ser desfeita.`)) return;
     void run(async () => {
-      const { error } = await supabase!.functions.invoke('manage-users', { body: { action: 'delete', id: user.id } });
-      if (error) throw error;
+      await invokeUserManagement({ action: 'delete', id: user.id });
     });
   };
   const saveRule = (event: FormEvent) => { event.preventDefault(); if (!supabase || !editingRule) return; void run(async () => { const { id, name, enabled, start_time, end_time, saturday_start, saturday_end, conventional_minutes, special_minutes, grace_minutes } = editingRule; const { error } = await supabase!.from('parking_rules').update({ name, enabled, start_time, end_time, saturday_start, saturday_end, conventional_minutes, special_minutes, grace_minutes }).eq('id', id); if (error) throw error; setEditingRule(null); }); };
