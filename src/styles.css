@@ -1340,3 +1340,96 @@ th{font-size:12px!important;color:#263e54;background:#e4edf5}
 .workspace-expiry-warning button{margin-left:auto;flex:none;border:0;background:transparent;color:#95651c;padding:5px;display:grid;place-items:center}
 @keyframes expiry-warning-in{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
 @media(max-width:520px){.workspace-expiry-warning{align-items:flex-start;padding:11px}.workspace-expiry-warning strong{font-size:9px}.workspace-expiry-warning span{font-size:10px}}
+
+
+/* Alerta cidadão em destaque: faixa de alto contraste, movimento e ação sonora */
+.workspace-expiry-warning{
+  position:relative;
+  isolation:isolate;
+  align-items:center;
+  gap:16px;
+  min-height:112px;
+  margin:0 0 22px;
+  padding:20px 22px;
+  overflow:hidden;
+  border:2px solid #ffb02e;
+  border-left:9px solid #ff4b28;
+  border-radius:15px;
+  background:linear-gradient(112deg,#57130f 0%,#9b2415 48%,#d64a12 100%);
+  color:#fff;
+  box-shadow:0 12px 30px rgba(116,24,12,.3),inset 0 1px 0 rgba(255,255,255,.18);
+  animation:workspace-alert-enter .55s cubic-bezier(.2,.85,.25,1) both,workspace-alert-glow 2.2s ease-in-out .55s infinite;
+}
+.workspace-expiry-warning::before{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  inset:0;
+  background:linear-gradient(105deg,transparent 20%,rgba(255,255,255,.16) 48%,transparent 72%);
+  transform:translateX(-110%);
+  animation:workspace-alert-sweep 3.2s ease-in-out .7s infinite;
+}
+.workspace-alert-pulse{
+  position:relative;
+  flex:none;
+  width:58px;
+  height:58px;
+  display:grid;
+  place-items:center;
+  border:2px solid rgba(255,255,255,.75);
+  border-radius:50%;
+  color:#fff;
+  background:rgba(255,255,255,.13);
+  box-shadow:0 0 0 0 rgba(255,255,255,.45);
+  animation:workspace-alert-pulse 1.5s ease-out infinite;
+}
+.workspace-alert-copy{display:grid;gap:6px;min-width:0;flex:1}
+.workspace-alert-copy>strong{font-size:12px;letter-spacing:1.15px;color:#ffe1a6}
+.workspace-alert-title{font-size:19px;line-height:1.15;color:#fff;letter-spacing:.35px}
+.workspace-alert-copy>span{font-size:14px;line-height:1.5;color:#fff}
+.workspace-alert-copy>small{font-size:10px;font-weight:900;letter-spacing:1.15px;color:#ffd18a}
+.workspace-expiry-warning .workspace-alert-sound,
+.workspace-expiry-warning .workspace-alert-dismiss{
+  position:relative;
+  z-index:1;
+  flex:none;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  min-height:42px;
+  padding:0 13px;
+  border:1px solid rgba(255,255,255,.65);
+  border-radius:9px;
+  background:#fff;
+  color:#84200f;
+  font-size:12px;
+  font-weight:900;
+  cursor:pointer;
+}
+.workspace-expiry-warning .workspace-alert-dismiss{
+  min-width:40px;
+  padding:0;
+  background:rgba(44,8,4,.25);
+  color:#fff;
+}
+.workspace-expiry-warning .workspace-alert-sound:hover{background:#ffe8c5}
+.workspace-expiry-warning .workspace-alert-dismiss:hover{background:rgba(44,8,4,.5)}
+@keyframes workspace-alert-enter{from{opacity:0;transform:translateY(-18px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes workspace-alert-glow{0%,100%{box-shadow:0 12px 30px rgba(116,24,12,.3),0 0 0 0 rgba(255,112,45,0)}50%{box-shadow:0 14px 34px rgba(116,24,12,.4),0 0 0 5px rgba(255,112,45,.15)}}
+@keyframes workspace-alert-sweep{0%,55%{transform:translateX(-110%)}85%,100%{transform:translateX(110%)}}
+@keyframes workspace-alert-pulse{0%{box-shadow:0 0 0 0 rgba(255,255,255,.42)}70%,100%{box-shadow:0 0 0 15px rgba(255,255,255,0)}}
+@media(max-width:640px){
+  .workspace-expiry-warning{align-items:flex-start;flex-wrap:wrap;gap:11px;padding:15px;border-left-width:7px}
+  .workspace-alert-pulse{width:43px;height:43px}
+  .workspace-alert-copy{flex-basis:calc(100% - 58px)}
+  .workspace-alert-copy>strong{font-size:10px;letter-spacing:.7px}
+  .workspace-alert-title{font-size:16px}
+  .workspace-alert-copy>span{font-size:12px}
+  .workspace-alert-copy>small{font-size:9px}
+  .workspace-expiry-warning .workspace-alert-sound{margin-left:54px;min-height:38px}
+  .workspace-expiry-warning .workspace-alert-dismiss{margin-left:auto;min-height:38px}
+}
+@media(prefers-reduced-motion:reduce){
+  .workspace-expiry-warning,.workspace-alert-pulse,.workspace-expiry-warning::before{animation:none!important}
+}
