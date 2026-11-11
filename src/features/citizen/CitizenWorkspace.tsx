@@ -90,9 +90,9 @@ async function showPersistentNotification(title: string, body: string, tag: stri
   try {
     const registration = await navigator.serviceWorker?.ready;
     if (registration) {
-      await registration.showNotification(title, { body, tag, renotify: true, requireInteraction: true, icon: `${import.meta.env.BASE_URL}favicon.svg`, badge: `${import.meta.env.BASE_URL}favicon.svg` });
+      await registration.showNotification(title, { body, tag, requireInteraction: true, icon: `${import.meta.env.BASE_URL}favicon.svg`, badge: `${import.meta.env.BASE_URL}favicon.svg` });
     } else {
-      new Notification(title, { body, tag, renotify: true, requireInteraction: true });
+      new Notification(title, { body, tag, requireInteraction: true });
     }
   } catch { /* notificações do sistema indisponíveis */ }
 }
