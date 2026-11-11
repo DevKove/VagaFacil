@@ -14,6 +14,17 @@ const platePattern = /^[A-Z]{3}[0-9][A-Z0-9][0-9]{2}$/;
 const fmtDate = (value: string) => new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(value));
 const remaining = (expiresAt: string, now: number) => Math.max(0, Math.floor((new Date(expiresAt).getTime() - now) / 1000));
 const timerLabel = (seconds: number) => `${String(Math.floor(seconds / 3600)).padStart(2, '0')}:${String(Math.floor((seconds % 3600) / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
+const getErrorMessage = (error: unknown, fallback = 'Não foi possível concluir a operação.') => {
+  if (error instanceof Error && error.message) return error.message;
+  if (error && typeof error === 'object') {
+    const value = error as { message?: unknown; details?: unknown; hint?: unknown; code?: unknown };
+    const parts = [value.message, value.details, value.hint]
+      .filter((part): part is string => typeof part === 'string' && part.trim().length > 0);
+    const code = typeof value.code === 'string' ? ` [${value.code}]` : '';
+    if (parts.length) return `${parts.join(' — ')}${code}`;
+  }
+  return fallback;
+};
 
 export default function CitizenWorkspace({ profile, onSignOut }: { profile: Profile; onSignOut: () => void }) {
   const [tab, setTab] = useState<'overview' | 'register' | 'vehicles' | 'history' | 'notifications'>('overview');
@@ -57,7 +68,7 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
   useEffect(() => {
     let alive = true;
     setLoading(true);
-    void refresh().catch(err => { if (alive) setError(err instanceof Error ? err.message : 'Falha ao carregar seus dados.'); })
+    void refresh().catch(err => { if (alive) setError(getErrorMessage(err, 'Falha ao carregar seus dados.')); })
       .finally(() => { if (alive) setLoading(false); });
     const timer = window.setInterval(() => setNow(Date.now()), 1000);
     const client = supabase;
@@ -72,7 +83,7 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
 
   const perform = async (action: () => Promise<void>) => {
     setBusy(true); setError(''); setSuccess('');
-    try { await action(); } catch (err) { setError(err instanceof Error ? err.message : 'Não foi possível concluir a operação.'); }
+    try { await action(); } catch (err) { setError(getErrorMessage(err)); }
     finally { setBusy(false); }
   };
 
