@@ -1309,3 +1309,23 @@ th{font-size:12px!important;color:#263e54;background:#e4edf5}
 .ops-location-link strong{font-size:12px;font-variant-numeric:tabular-nums}
 .ops-location-link small,.ops-muted-location{font-size:11px;color:var(--muted,#64748b)}
 .ops-location-link:hover{text-decoration:underline}
+
+
+/* Placas físicas nacionais: padrão antigo e Mercosul */
+.vehicle-plate{--plate-ink:#101820;position:relative;display:inline-flex;flex-direction:column;justify-content:space-between;width:150px;min-width:150px;height:42px;padding:3px 6px 2px;border:2px solid #202a32;border-radius:4px;background:linear-gradient(180deg,#fff 0%,#f2f3f3 100%);box-shadow:0 2px 4px #102a4326,inset 0 0 0 1px #ffffff;vertical-align:middle;overflow:hidden;color:var(--plate-ink);font-family:Arial,Helvetica,sans-serif;line-height:1}
+.vehicle-plate-header{height:9px;display:flex;align-items:center;justify-content:space-between;gap:4px;font-size:6px;font-weight:800;letter-spacing:.8px}
+.vehicle-plate-country{margin:auto;letter-spacing:1.1px}
+.vehicle-plate-code{font-size:6px;letter-spacing:.3px}
+.vehicle-plate-seal{font-size:7px}
+.vehicle-plate>strong{display:block;text-align:center;font-size:22px;line-height:1;font-weight:900;letter-spacing:2px;font-family:Arial,Helvetica,sans-serif}
+.vehicle-plate.mercosul{border-color:#172b3d;padding-top:0}
+.vehicle-plate.mercosul .vehicle-plate-header{height:11px;margin:0 -6px;padding:0 6px;background:linear-gradient(90deg,#174f91,#2467a7);color:#fff}
+.vehicle-plate-flag{font-size:8px;line-height:1}
+.vehicle-plate.mercosul>strong{font-size:21px;letter-spacing:2.4px}
+.vehicle-plate.compact{width:126px;min-width:126px;height:36px;padding:2px 5px}
+.vehicle-plate.compact .vehicle-plate-header{height:8px;font-size:5px}
+.vehicle-plate.compact>strong{font-size:19px;letter-spacing:1.6px}
+.vehicle-plate.compact.mercosul .vehicle-plate-header{height:9px;margin:0 -5px;padding:0 5px}
+.vehicle-plate.compact.mercosul>strong{font-size:18px;letter-spacing:2px}
+.ops-enforcement-vehicle{display:flex;align-items:center;gap:9px}
+@media(max-width:520px){.vehicle-plate{width:142px;min-width:142px}.vehicle-plate.compact{width:116px;min-width:116px}.vehicle-plate.compact>strong{font-size:17px}.vehicle-plate.compact.mercosul>strong{font-size:16px}}
