@@ -16,40 +16,56 @@ const fmtDate = (value: string) => new Intl.DateTimeFormat('pt-BR', { dateStyle:
 const remaining = (expiresAt: string, now: number) => Math.max(0, Math.floor((new Date(expiresAt).getTime() - now) / 1000));
 const timerLabel = (seconds: number) => `${String(Math.floor(seconds / 3600)).padStart(2, '0')}:${String(Math.floor((seconds % 3600) / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
 let alertAudioContext: AudioContext | null = null;
-let pendingAlertSounds = 0;
+let pendingAlertSound = false;
 
 function playAlertTone(audio: AudioContext) {
-  // Padrão sonoro mais forte e perceptível, sem depender de arquivo externo.
-  [1046, 784, 1046, 784, 1046].forEach((frequency, index) => {
-    const oscillator = audio.createOscillator();
-    const gain = audio.createGain();
-    const startAt = audio.currentTime + index * 0.32;
-    oscillator.frequency.value = frequency;
-    oscillator.type = 'square';
-    gain.gain.setValueAtTime(0.0001, startAt);
-    gain.gain.exponentialRampToValueAtTime(0.42, startAt + 0.035);
-    gain.gain.setValueAtTime(0.42, startAt + 0.19);
-    gain.gain.exponentialRampToValueAtTime(0.0001, startAt + 0.27);
-    oscillator.connect(gain);
-    gain.connect(audio.destination);
-    oscillator.start(startAt);
-    oscillator.stop(startAt + 0.28);
+  // Toque curto e melódico, com timbre de sino/piano (fundamental + harmônicos suaves).
+  const notes = [
+    { frequency: 1046.5, at: 0, duration: 0.42 },
+    { frequency: 1318.5, at: 0.16, duration: 0.48 },
+    { frequency: 1568, at: 0.34, duration: 0.62 },
+  ];
+  notes.forEach(({ frequency, at, duration }) => {
+    const startAt = audio.currentTime + at;
+    const fundamental = audio.createOscillator();
+    const harmonic = audio.createOscillator();
+    const envelope = audio.createGain();
+    const harmonicGain = audio.createGain();
+    fundamental.type = 'sine';
+    harmonic.type = 'sine';
+    fundamental.frequency.setValueAtTime(frequency, startAt);
+    harmonic.frequency.setValueAtTime(frequency * 2.01, startAt);
+    envelope.gain.setValueAtTime(0.0001, startAt);
+    envelope.gain.exponentialRampToValueAtTime(0.22, startAt + 0.012);
+    envelope.gain.exponentialRampToValueAtTime(0.0001, startAt + duration);
+    harmonicGain.gain.setValueAtTime(0.0001, startAt);
+    harmonicGain.gain.exponentialRampToValueAtTime(0.035, startAt + 0.012);
+    harmonicGain.gain.exponentialRampToValueAtTime(0.0001, startAt + duration * 0.58);
+    fundamental.connect(envelope);
+    harmonic.connect(harmonicGain);
+    harmonicGain.connect(envelope);
+    envelope.connect(audio.destination);
+    fundamental.start(startAt);
+    harmonic.start(startAt);
+    fundamental.stop(startAt + duration + 0.02);
+    harmonic.stop(startAt + duration * 0.6);
   });
 }
 
-function unlockAlertAudio() {
+async function unlockAlertAudio(): Promise<boolean> {
   try {
     const AudioContextClass = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-    if (!AudioContextClass) return;
+    if (!AudioContextClass) return false;
     alertAudioContext ??= new AudioContextClass();
-    void alertAudioContext.resume().then(() => {
-      const queued = pendingAlertSounds;
-      pendingAlertSounds = 0;
-      for (let index = 0; index < queued; index += 1) playAlertTone(alertAudioContext!);
-    }).catch(() => undefined);
-  } catch { /* áudio indisponível neste navegador */ }
+    if (alertAudioContext.state !== 'running') await alertAudioContext.resume();
+    if (alertAudioContext.state !== 'running') return false;
+    if (pendingAlertSound) {
+      pendingAlertSound = false;
+      playAlertTone(alertAudioContext);
+    }
+    return true;
+  } catch { return false; }
 }
-
 const getErrorMessage = (error: unknown, fallback = 'Não foi possível concluir a operação.') => {
   if (error instanceof Error && error.message) return error.message;
   if (error && typeof error === 'object') {
@@ -65,8 +81,8 @@ const getErrorMessage = (error: unknown, fallback = 'Não foi possível concluir
 function playAlertSound() {
   const audio = alertAudioContext;
   if (!audio || audio.state !== 'running') {
-    pendingAlertSounds += 1;
-    unlockAlertAudio();
+    // Mantém um único toque pendente até o cidadão liberar o áudio no navegador.
+    pendingAlertSound = true;
     return;
   }
   try { playAlertTone(audio); } catch { /* áudio indisponível neste navegador */ }
@@ -81,6 +97,7 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
   const [notices, setNotices] = useState<Notice[]>([]);
   const [now, setNow] = useState(Date.now());
   const [loading, setLoading] = useState(true);
+  const [audioReady, setAudioReady] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -119,7 +136,9 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
   }, [profile.id]);
 
   useEffect(() => {
-    const unlockAudio = () => unlockAlertAudio();
+    const unlockAudio = () => {
+      void unlockAlertAudio().then(ready => { if (ready) setAudioReady(true); });
+    };
     window.addEventListener('pointerdown', unlockAudio);
     window.addEventListener('keydown', unlockAudio);
     return () => {
@@ -127,6 +146,12 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
       window.removeEventListener('keydown', unlockAudio);
     };
   }, []);
+
+  const activateAlertAudio = async () => {
+    const ready = await unlockAlertAudio();
+    setAudioReady(ready);
+    if (ready) playAlertTone(alertAudioContext!);
+  };
 
   useEffect(() => {
     let alive = true;
@@ -316,7 +341,7 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
     <header className="workspace-header">
       <button className="workspace-menu-toggle" type="button" aria-label={sidebarOpen ? "Fechar menu" : "Abrir menu"} aria-expanded={sidebarOpen} onClick={() => setSidebarOpen(open => !open)}><Menu size={20}/></button>
       <a className="portal-brand" href={import.meta.env.BASE_URL}><span className="workspace-brand-mark"><CarFront size={23}/></span><span><strong>VagaFácil</strong><small>Área do cidadão</small></span></a>
-      <div className="workspace-user"><span className="workspace-avatar">{(profile.full_name || 'C').slice(0,1).toUpperCase()}</span><span><strong>{profile.full_name || 'Cidadão'}</strong><small>Conta ativa</small></span><button className="workspace-signout" onClick={onSignOut}><Power size={16}/> Sair</button></div>
+      <div className="workspace-user"><button className={`workspace-audio-toggle${audioReady ? ' is-ready' : ''}`} type="button" onClick={() => { void activateAlertAudio(); }} title={audioReady ? 'Alertas sonoros ativados' : 'Ativar alertas sonoros'}><Volume2 size={16}/><span>{audioReady ? 'Som ativado' : 'Ativar som'}</span></button><span className="workspace-avatar">{(profile.full_name || 'C').slice(0,1).toUpperCase()}</span><span><strong>{profile.full_name || 'Cidadão'}</strong><small>Conta ativa</small></span><button className="workspace-signout" onClick={onSignOut}><Power size={16}/> Sair</button></div>
     </header>
     <div className="workspace-body">
       {sidebarOpen && <button className="workspace-sidebar-scrim" aria-label="Fechar menu" onClick={() => setSidebarOpen(false)} />}
@@ -325,7 +350,7 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
         <div className="workspace-page-heading"><div><span className="portal-kicker">VAGAFÁCIL · SERVIÇOS DIGITAIS</span><h1>{navItems.find(item => item.id === tab)?.label}</h1><p>Seus dados e registros em um só lugar.</p></div>{tab === 'vehicles' && <button className="workspace-primary" onClick={() => setShowVehicleForm(true)}><Plus size={17}/> Adicionar veículo</button>}</div>
         {error && <div className="workspace-alert error" role="alert">{error}</div>}
         {success && <div className="workspace-alert success" role="status">{success}</div>}
-        {expiryWarning.map(warning => <div className="workspace-expiry-warning" role="alert" key={warning.sessionId}><span className="workspace-alert-pulse"><Bell size={25}/></span><div className="workspace-alert-copy"><strong>⚠ ALERTA IMPORTANTE · VAGAFÁCIL</strong><b className="workspace-alert-title">{warning.plate}</b><span>{warning.body}</span><small>ATENÇÃO NECESSÁRIA — VERIFIQUE ESTA NOTIFICAÇÃO</small></div><button className="workspace-alert-sound" type="button" onClick={() => { unlockAlertAudio(); playAlertSound(); }} aria-label="Reproduzir alerta sonoro"><Volume2 size={19}/><span>Testar som</span></button><button className="workspace-alert-dismiss" type="button" onClick={() => { setExpiryWarning(current => current.filter(item => item.sessionId !== warning.sessionId)); if (warning.sessionId && notices.some(item => item.id === warning.sessionId && item.kind === 'admin_manual_alert')) void markRead(warning.sessionId); }} aria-label="Marcar aviso como lido e fechar"><X size={19}/></button></div>)}
+        {expiryWarning.map(warning => <div className="workspace-expiry-warning" role="alert" key={warning.sessionId}><span className="workspace-alert-pulse"><Bell size={25}/></span><div className="workspace-alert-copy"><strong>⚠ ALERTA IMPORTANTE · VAGAFÁCIL</strong><b className="workspace-alert-title">{warning.plate}</b><span>{warning.body}</span><small>ATENÇÃO NECESSÁRIA — VERIFIQUE ESTA NOTIFICAÇÃO</small></div><button className="workspace-alert-sound" type="button" onClick={() => { void activateAlertAudio(); }} aria-label="Reproduzir alerta sonoro"><Volume2 size={19}/><span>Testar som</span></button><button className="workspace-alert-dismiss" type="button" onClick={() => { setExpiryWarning(current => current.filter(item => item.sessionId !== warning.sessionId)); if (warning.sessionId && notices.some(item => item.id === warning.sessionId && item.kind === 'admin_manual_alert')) void markRead(warning.sessionId); }} aria-label="Marcar aviso como lido e fechar"><X size={19}/></button></div>)}
         {loading ? <div className="workspace-empty">Carregando seus dados...</div> : <>
           {tab === 'overview' && <>
             <div className="workspace-section-title"><div><h2>Estacionamentos em andamento</h2><p>O tempo é atualizado automaticamente.</p></div><button onClick={() => setTab('register')}>Novo registro <Plus size={15}/></button></div>
