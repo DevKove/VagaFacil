@@ -82,7 +82,8 @@ const portalRoles: { id: PortalRole; title: string; description: string; action:
 
 function Portal({ onSelect }: { onSelect: (role: PortalRole) => void }) {
   const [accessOpen, setAccessOpen] = useState(false);
-  const [adminOptionsOpen, setAdminOptionsOpen] = useState(false);\n  const { canInstall, installed, install } = usePwaInstall();
+  const [adminOptionsOpen, setAdminOptionsOpen] = useState(false);
+  const { canInstall, installed, install } = usePwaInstall();
   return <main className="portal-page">
     <header className="portal-header">
       <a className="portal-brand" href="#" aria-label="VagaFácil início"><img className="portal-brand-logo" src={`${import.meta.env.BASE_URL}IMG/logo-vagafacil.svg`} alt="VagaFácil" /><span><strong>VagaFácil</strong><small>Estacionar ficou mais fácil.</small></span></a>
