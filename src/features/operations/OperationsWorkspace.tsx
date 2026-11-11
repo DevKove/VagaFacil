@@ -120,7 +120,17 @@ export default function OperationsWorkspace({ profile, area, onSignOut }: { prof
   const expiredSessions = sessions.filter(s => s.status === 'expired' || (s.status === 'active' && new Date(s.expires_at).getTime() <= Date.now()));
   const openAlerts = alerts.filter(a => a.status === 'open').length;
 
-  const run = async (action: () => Promise<void>) => { setBusy(true); setError(''); try { await action(); await load(); } catch (e) { setError(e instanceof Error ? e.message : 'Não foi possível concluir a operação.'); } finally { setBusy(false); } };
+  const run = async (action: () => Promise<void>) => {
+    setBusy(true); setError('');
+    try { await action(); await load(); }
+    catch (e) {
+      if (e && typeof e === 'object') {
+        const value = e as { message?: unknown; details?: unknown; hint?: unknown; code?: unknown };
+        const message = [value.message, value.details, value.hint].filter((part): part is string => typeof part === 'string' && part.trim().length > 0).join(' — ');
+        setError(message ? `${message}${typeof value.code === 'string' ? ` [${value.code}]` : ''}` : 'Não foi possível concluir a operação.');
+      } else setError('Não foi possível concluir a operação.');
+    } finally { setBusy(false); }
+  };
   const addZone = (event: FormEvent) => { event.preventDefault(); if (!supabase) return; void run(async () => { const { error } = await supabase!.from('parking_zones').insert({ name: zoneForm.name.trim(), description: zoneForm.description.trim() || null }); if (error) throw error; setZoneForm({ name: '', description: '' }); }); };
   const addSpace = (event: FormEvent) => { event.preventDefault(); if (!supabase) return; void run(async () => { const { error } = await supabase!.from('parking_spaces').insert({ code: spaceForm.code.trim().toUpperCase(), zone_id: spaceForm.zone_id || null, category: spaceForm.category, latitude: spaceForm.latitude === '' ? null : Number(spaceForm.latitude), longitude: spaceForm.longitude === '' ? null : Number(spaceForm.longitude) }); if (error) throw error; setSpaceForm({ code: '', zone_id: '', category: 'conventional', latitude: '', longitude: '' }); }); };
   const openCreateUser = () => { setEditingUser(null); setUserForm({ full_name: '', email: '', password: '', role: 'citizen', is_active: true }); setUserModalOpen(true); };
