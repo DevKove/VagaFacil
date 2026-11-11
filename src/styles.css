@@ -2208,3 +2208,11 @@ th{background:#eaf3f7;color:#547287}td{border-bottom-color:#e2edf2;color:#496579
  .ops-report-metrics article{min-height:98px;padding:14px!important}
  .ops-report-metrics article strong{font-size:27px}
 }
+
+
+/* Destaque visual dos horários de vencimento */
+.session-expiry-time,
+.ops-expiry-time {
+  color: #c62828 !important;
+  font-weight: 800 !important;
+}
