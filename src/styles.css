@@ -2170,3 +2170,21 @@ th{background:#eaf3f7;color:#547287}td{border-bottom-color:#e2edf2;color:#496579
     box-shadow: 0 8px 19px rgba(4, 29, 48, .13), inset 0 1px 0 rgba(255,255,255,.98);
   }
 }
+
+
+/* Relatórios: filtros organizados, indicadores e tabela responsivos */
+.ops-report-layout{display:grid;gap:20px;align-items:start}
+.ops-report-filters{padding:22px!important}
+.ops-report-filter-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-top:20px}
+.ops-report-filter-grid label{display:flex;flex-direction:column;gap:8px;color:#153b52;font-size:13px;font-weight:800;min-width:0}
+.ops-report-filter-grid input,.ops-report-filter-grid select{width:100%;min-width:0;min-height:44px;padding:10px 12px;border:1px solid #b9d2df;border-radius:9px;background:#fff;color:#102f43;font:inherit;font-size:14px}
+.ops-report-filter-grid input:focus,.ops-report-filter-grid select:focus{outline:3px solid #168fc026;border-color:#168fc0}
+.ops-report-plate{grid-column:span 2}
+.ops-report-results{display:grid;gap:16px;min-width:0}
+.ops-report-metrics{grid-template-columns:repeat(4,minmax(0,1fr))!important;margin:0!important}
+.ops-report-metrics article{min-width:0}
+.ops-report-result-heading{align-items:center;gap:14px;flex-wrap:wrap}
+.ops-report-result-heading>div{min-width:0;flex:1}
+.ops-report-cell-sub{display:block;margin-top:4px;color:#587487;font-size:11px}
+@media(max-width:900px){.ops-report-filter-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.ops-report-plate{grid-column:span 2}.ops-report-metrics{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+@media(max-width:600px){.ops-report-filters{padding:15px!important}.ops-report-filter-grid{grid-template-columns:1fr;gap:12px;margin-top:15px}.ops-report-plate{grid-column:auto}.ops-report-metrics{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}.ops-report-result-heading{align-items:stretch}.ops-report-result-heading>.ops-primary{width:100%;justify-content:center}.ops-report-results .ops-table-wrap{overflow-x:auto}.ops-report-results table{min-width:760px}}
