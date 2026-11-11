@@ -141,7 +141,8 @@ export default function OperationsWorkspace({ profile, area, onSignOut }: { prof
     return (!start || started >= start) && (!end || started <= end)
       && (reportFilters.status === 'all' || normalizedStatus === reportFilters.status)
       && (!reportFilters.zone || zoneName === reportFilters.zone)
-      && (!reportFilters.plate || session.plate_snapshot.toLowerCase().includes(reportFilters.plate.trim().toLowerCase()));
+      && (!reportFilters.plate || session.plate_snapshot.toLowerCase().includes(reportFilters.plate.trim().toLowerCase()))
+      && matchesSectionFilter([session.plate_snapshot, zoneName, session.status]);
   }), [sessions, reportFilters]);
   const reportMetrics = useMemo(() => ({
     total: reportSessions.length,
