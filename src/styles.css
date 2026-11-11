@@ -2218,23 +2218,43 @@ th{background:#eaf3f7;color:#547287}td{border-bottom-color:#e2edf2;color:#496579
 }
 
 
-/* Estacionamentos monitorados: rolagem horizontal da tabela */
+/* Estacionamentos monitorados: rolagem horizontal e vertical destacada */
 .ops-sessions-table-wrap {
   display: block;
   width: 100%;
   max-width: 100%;
   min-width: 0;
-  overflow-x: auto !important;
-  overflow-y: hidden;
+  height: min(560px, 65vh);
+  min-height: 260px;
+  overflow: auto !important;
+  overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin;
-  scrollbar-color: #64748b #e2e8f0;
+  scrollbar-width: auto;
+  scrollbar-color: #334155 #cbd5e1;
+  scrollbar-gutter: stable;
 }
 .ops-sessions-table-wrap table {
   min-width: 1100px;
   width: max-content;
 }
-.ops-sessions-table-wrap::-webkit-scrollbar { height: 10px; }
-.ops-sessions-table-wrap::-webkit-scrollbar-track { background: #e2e8f0; border-radius: 8px; }
-.ops-sessions-table-wrap::-webkit-scrollbar-thumb { background: #64748b; border-radius: 8px; }
-.ops-sessions-table-wrap::-webkit-scrollbar-thumb:hover { background: #334155; }
+.ops-sessions-table-wrap::-webkit-scrollbar {
+  width: 16px;
+  height: 16px;
+}
+.ops-sessions-table-wrap::-webkit-scrollbar-track {
+  background: #cbd5e1;
+  border: 1px solid #94a3b8;
+  border-radius: 10px;
+}
+.ops-sessions-table-wrap::-webkit-scrollbar-thumb {
+  background: #334155;
+  border: 3px solid #cbd5e1;
+  border-radius: 10px;
+  min-height: 42px;
+}
+.ops-sessions-table-wrap::-webkit-scrollbar-thumb:hover {
+  background: #0f172a;
+}
+.ops-sessions-table-wrap::-webkit-scrollbar-corner {
+  background: #cbd5e1;
+}
