@@ -56,29 +56,17 @@ function usePwaInstall() {
   }, []);
 
   const install = async () => {
-    if (installPrompt) {
+    if (!installPrompt || installed) return;
+    try {
       await installPrompt.prompt();
       const choice = await installPrompt.userChoice;
-      if (choice.outcome === 'accepted') setInstallPrompt(null);
-      return;
-    }
-    const agent = navigator.userAgent;
-    const isIos = /iphone|ipad|ipod/i.test(agent);
-    const isFirefox = /firefox/i.test(agent);
-    const isSafariMac = /safari/i.test(agent) && !/chrome|chromium|android/i.test(agent);
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
-    if (isIos && !isStandalone) {
-      window.alert('Para instalar o VagaFácil no iPhone/iPad:\\n1. Abra esta página no Safari.\\n2. Toque em Compartilhar.\\n3. Selecione “Adicionar à Tela de Início” e confirme.');
-    } else if (isSafariMac && !isStandalone) {
-      window.alert('No Safari do Mac, abra o menu Arquivo e escolha “Adicionar ao Dock”.');
-    } else if (isFirefox && !isStandalone) {
-      window.alert('Para instalar o VagaFácil como aplicativo no computador, abra este endereço no Google Chrome ou Microsoft Edge e escolha “Instalar VagaFácil” no menu do navegador. O Firefox para computador não oferece instalação PWA nativa.');
-    } else if (!installed) {
-      window.alert('Abra o menu do navegador e selecione “Instalar VagaFácil” ou “Adicionar à tela inicial”.');
+      if (choice.outcome === 'accepted') setInstalled(true);
+    } finally {
+      setInstallPrompt(null);
     }
   };
 
-  return { canInstall: Boolean(installPrompt) || !installed, installed, install };
+  return { canInstall: Boolean(installPrompt) && !installed, installed, install };
 }
 
 const portalRoles: { id: PortalRole; title: string; description: string; action: string; icon: typeof CarFront; featured?: boolean; details: string[] }[] = [
