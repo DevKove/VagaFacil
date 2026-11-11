@@ -1329,3 +1329,14 @@ th{font-size:12px!important;color:#263e54;background:#e4edf5}
 .vehicle-plate.compact.mercosul>strong{font-size:18px;letter-spacing:2px}
 .ops-enforcement-vehicle{display:flex;align-items:center;gap:9px}
 @media(max-width:520px){.vehicle-plate{width:142px;min-width:142px}.vehicle-plate.compact{width:116px;min-width:116px}.vehicle-plate.compact>strong{font-size:17px}.vehicle-plate.compact.mercosul>strong{font-size:16px}}
+
+
+.workspace-expiry-warning{display:flex;align-items:center;gap:12px;padding:13px 15px;margin:0 0 15px;border:1px solid #efbd55;border-left:5px solid #e49a20;border-radius:10px;background:linear-gradient(110deg,#fff6df,#fffaf0);color:#89530b;box-shadow:0 5px 16px #a66b1712;animation:expiry-warning-in .25s ease-out}
+.workspace-expiry-warning>svg{flex:none;color:#d58a16}
+.workspace-expiry-warning>div{display:grid;gap:4px;min-width:0}
+.workspace-expiry-warning strong{font-size:10px;letter-spacing:.55px}
+.workspace-expiry-warning span{font-size:11px;line-height:1.5;color:#765a2c}
+.workspace-expiry-warning span b{color:#563b12}
+.workspace-expiry-warning button{margin-left:auto;flex:none;border:0;background:transparent;color:#95651c;padding:5px;display:grid;place-items:center}
+@keyframes expiry-warning-in{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:520px){.workspace-expiry-warning{align-items:flex-start;padding:11px}.workspace-expiry-warning strong{font-size:9px}.workspace-expiry-warning span{font-size:10px}}
