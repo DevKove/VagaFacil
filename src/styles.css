@@ -1433,3 +1433,29 @@ th{font-size:12px!important;color:#263e54;background:#e4edf5}
 @media(prefers-reduced-motion:reduce){
   .workspace-expiry-warning,.workspace-alert-pulse,.workspace-expiry-warning::before{animation:none!important}
 }
+
+
+/* Ativação explícita do áudio: necessária em navegadores que bloqueiam autoplay. */
+.workspace-audio-toggle{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  min-height:36px;
+  padding:0 11px;
+  border:1px solid #f0b44e;
+  border-radius:9px;
+  background:#fff8e8;
+  color:#8a4b08;
+  font-size:12px;
+  font-weight:800;
+  white-space:nowrap;
+  cursor:pointer;
+  transition:background .18s ease,box-shadow .18s ease,color .18s ease;
+}
+.workspace-audio-toggle:hover{background:#ffedc2;box-shadow:0 3px 12px rgba(138,75,8,.14)}
+.workspace-audio-toggle.is-ready{border-color:#168653;background:#e9f8ef;color:#116b42}
+@media(max-width:640px){
+  .workspace-audio-toggle{min-height:34px;padding:0 8px;font-size:11px}
+  .workspace-audio-toggle span{max-width:66px;overflow:hidden;text-overflow:ellipsis}
+}
