@@ -108,7 +108,13 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
   const [loading, setLoading] = useState(true);
   const [soundEnabled, setSoundEnabled] = useState(() => window.localStorage.getItem(`vagafacil:sound-enabled:${profile.id}`) !== 'false');
   const soundEnabledRef = useRef(soundEnabled);
-  const [notificationPromptOpen, setNotificationPromptOpen] = useState(true);
+  // O aceite é persistido por conta neste navegador; não reapresentar a cada recarga.
+  const notificationConsentKey = `vagafacil:notification-consent:v1:${profile.id}`;
+  const [notificationPromptOpen, setNotificationPromptOpen] = useState(() => {
+    const alreadyAccepted = window.localStorage.getItem(notificationConsentKey) === '1';
+    const browserAlreadyGranted = 'Notification' in window && Notification.permission === 'granted';
+    return !alreadyAccepted && !browserAlreadyGranted;
+  });
   const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>(() => 'Notification' in window ? Notification.permission : 'denied');
   const [permissionBusy, setPermissionBusy] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -180,8 +186,15 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
     const notificationActivation = 'Notification' in window ? Notification.requestPermission() : Promise.resolve('denied' as NotificationPermission);
     void Promise.all([audioActivation, notificationActivation]).then(([, permission]) => {
       setNotificationPermission(permission);
+      // A confirmação do usuário é lembrada mesmo se o navegador bloquear notificações;
+      // nesse caso, a permissão pode ser alterada nas configurações do próprio navegador.
+      window.localStorage.setItem(notificationConsentKey, '1');
       setNotificationPromptOpen(false);
-    }).catch(() => setNotificationPromptOpen(false)).finally(() => setPermissionBusy(false));
+    }).catch(() => {
+      // Evita insistência após a tentativa explícita; o estado do navegador continua soberano.
+      window.localStorage.setItem(notificationConsentKey, '1');
+      setNotificationPromptOpen(false);
+    }).finally(() => setPermissionBusy(false));
   };
 
   useEffect(() => {
