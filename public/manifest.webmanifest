@@ -1,28 +1,14 @@
 {
-  "id": "./",
-  "name": "VagaFácil — Estacionamento Rotativo",
-  "short_name": "VagaFácil",
-  "description": "Aplicativo oficial para registrar e acompanhar estacionamentos rotativos.",
-  "start_url": "./",
-  "scope": "./",
-  "display": "standalone",
-  "orientation": "any",
-  "background_color": "#0741a5",
-  "theme_color": "#0754c4",
-  "lang": "pt-BR",
-  "categories": ["travel", "navigation", "utilities"],
-  "icons": [
-    { "src": "./icons/icon-192.svg", "sizes": "192x192", "type": "image/svg+xml", "purpose": "any" },
-    { "src": "./icons/icon-512.svg", "sizes": "512x512", "type": "image/svg+xml", "purpose": "any" },
-    { "src": "./icons/icon-maskable.svg", "sizes": "512x512", "type": "image/svg+xml", "purpose": "maskable" },
-    { "src": "./IMG/favicon.ico", "sizes": "any", "type": "image/x-icon", "purpose": "any" }
+  "id":"./","name":"VagaFácil — Estacionamento Rotativo","short_name":"VagaFácil",
+  "description":"Aplicativo oficial para registrar e acompanhar estacionamentos rotativos.",
+  "start_url":"./","scope":"./","display":"standalone","orientation":"any",
+  "background_color":"#0643a8","theme_color":"#0754c4","lang":"pt-BR",
+  "categories":["travel","navigation","utilities"],
+  "icons":[
+    {"src":"./icons/icon-192.svg","sizes":"192x192","type":"image/svg+xml","purpose":"any"},
+    {"src":"./icons/icon-512.svg","sizes":"512x512","type":"image/svg+xml","purpose":"any"},
+    {"src":"./icons/icon-maskable.svg","sizes":"512x512","type":"image/svg+xml","purpose":"maskable"},
+    {"src":"./IMG/favicon.ico","sizes":"any","type":"image/x-icon","purpose":"any"}
   ],
-  "shortcuts": [
-    {
-      "name": "Registrar estacionamento",
-      "short_name": "Estacionar",
-      "url": "./?action=parking",
-      "icons": [{ "src": "./icons/icon-192.svg", "sizes": "192x192", "type": "image/svg+xml" }]
-    }
-  ]
+  "shortcuts":[{"name":"Registrar estacionamento","short_name":"Estacionar","url":"./?action=parking","icons":[{"src":"./icons/icon-192.svg","sizes":"192x192","type":"image/svg+xml"}]}]
 }
