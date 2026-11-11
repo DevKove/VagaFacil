@@ -1,11 +1,16 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "https://devkove.github.io",
+const allowedOrigins = new Set([
+  "https://devkove.github.io",
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+]);
+const corsHeaders = (origin: string | null) => ({
+  "Access-Control-Allow-Origin": origin && allowedOrigins.has(origin) ? origin : "https://devkove.github.io",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Vary": "Origin",
-};
+});
 
 type Action = "list" | "create" | "update" | "delete";
 type Payload = {
@@ -18,29 +23,24 @@ type Payload = {
   is_active?: boolean;
 };
 
-const json = (body: unknown, status = 200) =>
+const json = (body: unknown, status = 200, origin: string | null = null) =>
   new Response(JSON.stringify(body), {
     status,
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
+    headers: { ...corsHeaders(origin), "Content-Type": "application/json" },
   });
 
 Deno.serve(async (req: Request) => {
   const origin = req.headers.get("Origin");
-  const allowedOrigins = new Set([
-    "https://devkove.github.io",
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-  ]);
-  const headers = { ...corsHeaders, ...(origin && allowedOrigins.has(origin) ? { "Access-Control-Allow-Origin": origin } : {}) };
+  const headers = corsHeaders(origin);
 
   if (req.method === "OPTIONS") return new Response("ok", { headers });
-  if (req.method !== "POST") return json({ error: "Método não permitido." }, 405);
-  if (origin && !allowedOrigins.has(origin)) return json({ error: "Origem não autorizada." }, 403);
+  if (req.method !== "POST") return json({ error: "Método não permitido." }, 405, origin);
+  if (origin && !allowedOrigins.has(origin)) return json({ error: "Origem não autorizada." }, 403, origin);
 
   try {
     const authHeader = req.headers.get("Authorization") || "";
     const token = authHeader.replace(/^Bearer\s+/i, "");
-    if (!token || token === authHeader) return json({ error: "Sessão inválida." }, 401);
+    if (!token || token === authHeader) return json({ error: "Sessão inválida." }, 401, origin);
 
     const url = Deno.env.get("SUPABASE_URL")!;
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
@@ -50,7 +50,7 @@ Deno.serve(async (req: Request) => {
       auth: { autoRefreshToken: false, persistSession: false },
     });
     const { data: authData, error: authError } = await admin.auth.getUser(token);
-    if (authError || !authData.user) return json({ error: "Sessão expirada ou inválida." }, 401);
+    if (authError || !authData.user) return json({ error: "Sessão expirada ou inválida." }, 401, origin);
 
     const actorId = authData.user.id;
     const { data: actor, error: actorError } = await admin
@@ -59,7 +59,7 @@ Deno.serve(async (req: Request) => {
       .eq("id", actorId)
       .single();
     if (actorError || !actor?.is_active || actor.role !== "admin") {
-      return json({ error: "Somente um administrador ativo pode gerenciar usuários." }, 403);
+      return json({ error: "Somente um administrador ativo pode gerenciar usuários." }, 403, origin);
     }
 
     const body = await req.json() as Payload;
@@ -78,7 +78,7 @@ Deno.serve(async (req: Request) => {
       if (profilesError) throw profilesError;
       if (usersError) throw usersError;
       const emails = new Map((authUsers.users || []).map(user => [user.id, user.email || ""]));
-      return json({ users: (profiles || []).map(profile => ({ ...profile, email: emails.get(profile.id) || "" })) });
+      return json({ users: (profiles || []).map(profile => ({ ...profile, email: emails.get(profile.id) || "" })) }, 200, origin);
     }
 
     if (body.action === "create") {
@@ -104,7 +104,7 @@ Deno.serve(async (req: Request) => {
         throw profileError;
       }
       await audit("user_created", userId, { email, role: body.role });
-      return json({ success: true, id: userId });
+      return json({ success: true, id: userId }, 200, origin);
     }
 
     if (!body.id) return json({ error: "Usuário não informado." }, 400);
@@ -129,7 +129,7 @@ Deno.serve(async (req: Request) => {
       });
       if (authDeleteError) throw authDeleteError;
       await audit("user_deleted", body.id);
-      return json({ success: true });
+      return json({ success: true }, 200, origin);
     }
 
     if (body.action === "update") {
@@ -182,6 +182,6 @@ Deno.serve(async (req: Request) => {
     return json({ error: "Ação inválida." }, 400);
   } catch (error) {
     const message = error instanceof Error ? error.message : "Falha ao gerenciar usuário.";
-    return json({ error: message }, 400);
+    return json({ error: message }, 400, origin);
   }
 });
