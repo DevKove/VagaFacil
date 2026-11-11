@@ -2313,3 +2313,20 @@ th{background:#eaf3f7;color:#547287}td{border-bottom-color:#e2edf2;color:#496579
     max-height: min(766px, 75vh);
   }
 }
+
+
+/* Filtros contextuais padronizados para todas as seções administrativas e dos agentes */
+.ops-page-actions{display:flex;align-items:center;gap:10px;flex:0 0 auto}
+.ops-filter-trigger{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 16px;border:1px solid #0b789e;border-radius:10px;background:linear-gradient(135deg,#fff,#e7f4f9);color:#07506d;font-weight:850;box-shadow:0 4px 12px rgba(4,29,48,.12);cursor:pointer}
+.ops-filter-trigger:hover,.ops-filter-trigger[aria-expanded=true]{background:linear-gradient(135deg,#07506d,#087da5);color:#fff}
+.ops-section-filter-menu{display:grid;gap:15px;margin:0 0 20px;padding:19px 21px;border:2px solid transparent;border-radius:14px;background:linear-gradient(145deg,#fff,#edf7fb) padding-box,linear-gradient(120deg,#07506d,#20b8d2,#f0a04c) border-box;box-shadow:0 10px 25px rgba(4,29,48,.14)}
+.ops-section-filter-heading,.ops-section-filter-footer{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.ops-section-filter-heading strong{font-size:16px;color:#082b40}
+.ops-filter-close{display:grid;place-items:center;width:34px;height:34px;border:1px solid #c5dce7;border-radius:9px;background:#fff;color:#16445d;cursor:pointer}
+.ops-section-filter-fields{display:grid;grid-template-columns:minmax(220px,2fr) minmax(180px,1fr);gap:14px}
+.ops-section-filter-fields label{display:grid;gap:7px;color:#18394d;font-size:13px;font-weight:800}
+.ops-section-filter-fields input,.ops-section-filter-fields select{width:100%;min-height:43px;padding:9px 12px;border:1px solid #b9d2df;border-radius:9px;background:#fff;color:#102f43;font:inherit}
+.ops-section-filter-fields input:focus,.ops-section-filter-fields select:focus{outline:3px solid #168fc026;border-color:#168fc0}
+.ops-section-filter-footer{color:#587487;font-size:12px}
+@media(max-width:760px){.ops-page-actions{width:100%;display:grid;grid-template-columns:1fr 1fr}.ops-page-actions>button{width:100%;justify-content:center}.ops-section-filter-menu{padding:15px}.ops-section-filter-fields{grid-template-columns:1fr}.ops-section-filter-footer{align-items:flex-start;flex-direction:column}.ops-section-filter-footer button{width:100%}}
+@media(max-width:390px){.ops-page-actions{gap:7px}.ops-filter-trigger,.ops-page-actions>.ops-primary{padding-inline:9px;font-size:12px}}
