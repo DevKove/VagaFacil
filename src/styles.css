@@ -2258,3 +2258,58 @@ th{background:#eaf3f7;color:#547287}td{border-bottom-color:#e2edf2;color:#496579
 .ops-sessions-table-wrap::-webkit-scrollbar-corner {
   background: #cbd5e1;
 }
+
+
+/* Usuários e agentes: exibir 15 registros e rolar verticalmente */
+.ops-users-table-wrap {
+  height: 766px;
+  max-height: min(766px, 75vh);
+  min-height: 320px;
+  overflow-y: auto !important;
+  overflow-x: auto !important;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: auto;
+  scrollbar-color: #334155 #cbd5e1;
+  scrollbar-gutter: stable;
+}
+.ops-users-table-wrap table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+.ops-users-table-wrap thead {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+.ops-users-table-wrap thead th {
+  background: #e8f2f7;
+}
+.ops-users-table-wrap tbody tr {
+  height: 48px;
+}
+.ops-users-table-wrap::-webkit-scrollbar {
+  width: 16px;
+  height: 16px;
+}
+.ops-users-table-wrap::-webkit-scrollbar-track {
+  background: #cbd5e1;
+  border: 1px solid #94a3b8;
+  border-radius: 10px;
+}
+.ops-users-table-wrap::-webkit-scrollbar-thumb {
+  background: #334155;
+  border: 3px solid #cbd5e1;
+  border-radius: 10px;
+}
+.ops-users-table-wrap::-webkit-scrollbar-thumb:hover {
+  background: #0f172a;
+}
+@media (max-width: 760px) {
+  .ops-users-table-wrap {
+    height: min(766px, 75vh);
+    max-height: min(766px, 75vh);
+  }
+}
