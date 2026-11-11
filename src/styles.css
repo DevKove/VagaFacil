@@ -1294,3 +1294,12 @@ th{font-size:12px!important;color:#263e54;background:#e4edf5}
     filter: none !important;
   }
 }
+
+.ops-user-heading-actions,.ops-user-actions{display:flex;align-items:center;gap:8px}
+.ops-user-actions{justify-content:flex-start}
+.ops-small-action.danger{background:#fff1ef;color:#b94235}
+.ops-small-action:disabled{opacity:.45;cursor:not-allowed}
+.ops-user-heading-actions .ops-primary{display:inline-flex;align-items:center;gap:7px}
+.ops-modal .ops-checkbox{display:flex;align-items:center;gap:9px}
+.ops-modal .ops-checkbox input{width:auto}
+@media(max-width:640px){.ops-user-heading-actions{align-items:flex-end;flex-direction:column}.ops-user-actions{flex-wrap:wrap}.ops-user-heading-actions .ops-primary{white-space:nowrap}}
