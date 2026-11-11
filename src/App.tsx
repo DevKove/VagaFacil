@@ -172,6 +172,7 @@ function AdminMfaScreen({ profile, onVerified, onCancel }: { profile: UserProfil
   const [secret, setSecret] = useState('');
   const [code, setCode] = useState('');
   const [setup, setSetup] = useState(false);
+  const [reconfigure, setReconfigure] = useState(false);
   const [busy, setBusy] = useState(true);
   const [error, setError] = useState('');
 
@@ -232,6 +233,23 @@ function AdminMfaScreen({ profile, onVerified, onCancel }: { profile: UserProfil
         const assurance = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
         if (assurance.error) throw assurance.error;
         if (assurance.data.currentLevel !== 'aal2') throw new Error('A autenticação em duas etapas ainda não foi concluída.');
+        if (reconfigure && !setup) {
+          const { error: unenrollError } = await supabase.auth.mfa.unenroll({ factorId });
+          if (unenrollError) throw unenrollError;
+          const enrollment = await supabase.auth.mfa.enroll({
+            factorType: 'totp',
+            friendlyName: 'VagaFácil',
+            issuer: 'VagaFácil',
+          });
+          if (enrollment.error) throw enrollment.error;
+          setFactorId(enrollment.data.id);
+          setQrCode(enrollment.data.totp.qr_code);
+          setSecret(enrollment.data.totp.secret);
+          setSetup(true);
+          setReconfigure(false);
+          setCode('');
+          return;
+        }
         onVerified();
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Código inválido ou expirado. Confira o aplicativo autenticador e tente novamente.');
@@ -250,7 +268,9 @@ function AdminMfaScreen({ profile, onVerified, onCancel }: { profile: UserProfil
           <form onSubmit={verify}>
             <label htmlFor="mfa-code">Código do autenticador</label>
             <input id="mfa-code" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6}" maxLength={6} placeholder="000000" value={code} onChange={event => setCode(event.target.value.replace(/\D/g, '').slice(0,6))} required />
-            <button type="submit" disabled={busy || code.length !== 6}>{busy ? 'Verificando...' : setup ? 'Ativar e continuar' : 'Verificar código'} <ArrowUpRight size={17}/></button>
+            <button type="submit" disabled={busy || code.length !== 6}>{busy ? 'Verificando...' : setup ? 'Ativar e continuar' : reconfigure ? 'Verificar e atualizar autenticador' : 'Verificar código'} <ArrowUpRight size={17}/></button>
+            {!setup && <button type="button" className="login-create" onClick={()=>{setReconfigure(value=>!value);setError('');setCode('');}}>{reconfigure?'Cancelar atualização':'Atualizar identificação para VagaFácil'}</button>}
+            {reconfigure && <small className="ops-hint">Confirme o código atual. Em seguida, será exibido um novo QR Code identificado como VagaFácil.</small>}
           </form>
         </>}
         {error && <div className="auth-feedback error" role="alert">{error}</div>}
