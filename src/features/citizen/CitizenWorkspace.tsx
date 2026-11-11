@@ -141,7 +141,9 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
     setSpaces((spaceResult.data ?? []) as unknown as ParkingSpace[]);
     const loadedNotices = (noticeResult.data ?? []) as Notice[];
     setNotices(loadedNotices);
-    setExpiryWarning([]);
+    const pendingManualAlerts = loadedNotices.filter(item => item.kind === 'admin_manual_alert' && !item.read_at);
+    setExpiryWarning(pendingManualAlerts.map(item => ({ sessionId: item.id, plate: 'ATENÇÃO', body: item.body })));
+    if (pendingManualAlerts.length) playAlertSound(soundEnabledRef.current);
     seenNotificationIds.current = new Set(loadedNotices.map(item => item.id));
     setSelectedVehicle(current => current || vehicleResult.data?.[0]?.id || '');
   }, [profile.id]);
@@ -196,6 +198,11 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
         if (seenNotificationIds.current.has(notice.id)) return;
         seenNotificationIds.current.add(notice.id);
         setNotices(current => [notice, ...current.filter(item => item.id !== notice.id)].slice(0, 30));
+        if (notice.kind === 'admin_manual_alert') {
+          setExpiryWarning(current => [...current.filter(item => item.sessionId !== notice.id), { sessionId: notice.id, plate: 'ATENÇÃO', body: notice.body }]);
+          playAlertSound(soundEnabledRef.current);
+          void showPersistentNotification(notice.title, notice.body, notice.id);
+        }
       })
       .subscribe();
     const notificationPoll = window.setInterval(async () => {
@@ -209,6 +216,11 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
       const incoming = data.filter(item => !seenNotificationIds.current.has(item.id));
       for (const notice of incoming) {
         seenNotificationIds.current.add(notice.id);
+        if (notice.kind === 'admin_manual_alert') {
+          setExpiryWarning(current => [...current.filter(item => item.sessionId !== notice.id), { sessionId: notice.id, plate: 'ATENÇÃO', body: notice.body }]);
+          playAlertSound(soundEnabledRef.current);
+          void showPersistentNotification(notice.title, notice.body, notice.id);
+        }
       }
       if (incoming.length) setNotices(data as Notice[]);
     }, 5000);
@@ -392,7 +404,7 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
         <div className="workspace-page-heading"><div><span className="portal-kicker">VAGAFÁCIL · SERVIÇOS DIGITAIS</span><h1>{navItems.find(item => item.id === tab)?.label}</h1><p>Seus dados e registros em um só lugar.</p></div>{tab === 'vehicles' && <button className="workspace-primary" onClick={() => setShowVehicleForm(true)}><Plus size={17}/> Adicionar veículo</button>}</div>
         {error && <div className="workspace-alert error" role="alert">{error}</div>}
         {success && <div className="workspace-alert success" role="status">{success}</div>}
-        {expiryWarning.map(warning => <div className="workspace-expiry-warning" role="alert" key={warning.sessionId}><span className="workspace-alert-pulse"><Bell size={25}/></span><div className="workspace-alert-copy"><strong>⚠ ATENÇÃO</strong><b className="workspace-alert-title">{warning.plate}</b><span>{warning.body}</span></div><button className="workspace-alert-dismiss" type="button" onClick={() => { setExpiryWarning(current => current.filter(item => item.sessionId !== warning.sessionId)); window.localStorage.setItem(`vagafacil:expiry-dismissed:${profile.id}:${warning.sessionId}`, '1'); }} aria-label="Marcar aviso como lido e fechar"><X size={19}/></button></div>)}
+        {expiryWarning.map(warning => <div className="workspace-expiry-warning" role="alert" key={warning.sessionId}><span className="workspace-alert-pulse"><Bell size={25}/></span><div className="workspace-alert-copy"><strong>⚠ ATENÇÃO</strong><b className="workspace-alert-title">{warning.plate}</b><span>{warning.body}</span></div><button className="workspace-alert-dismiss" type="button" onClick={() => { setExpiryWarning(current => current.filter(item => item.sessionId !== warning.sessionId)); if (notices.some(item => item.id === warning.sessionId && item.kind === 'admin_manual_alert')) void markRead(warning.sessionId); else window.localStorage.setItem(`vagafacil:expiry-dismissed:${profile.id}:${warning.sessionId}`, '1'); }} aria-label="Marcar aviso como lido e fechar"><X size={19}/></button></div>)}
         {loading ? <div className="workspace-empty">Carregando seus dados...</div> : <>
           {tab === 'overview' && <>
             <div className="workspace-section-title"><div><h2>Estacionamentos em andamento</h2><p>O tempo é atualizado automaticamente.</p></div><button onClick={() => setTab('register')}>Novo registro <Plus size={15}/></button></div>
