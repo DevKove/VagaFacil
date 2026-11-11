@@ -126,6 +126,7 @@ Deno.serve(async (req: Request) => {
         email: `deleted+${body.id}@vagafacil.invalid`,
         password: crypto.randomUUID(),
         email_confirm: false,
+        user_metadata: { full_name: "Conta excluída" },
       });
       if (authDeleteError) throw authDeleteError;
       await audit("user_deleted", body.id);
