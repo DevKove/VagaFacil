@@ -28,6 +28,29 @@ const getErrorMessage = (error: unknown, fallback = 'Não foi possível concluir
   return fallback;
 };
 
+function playAlertSound() {
+  try {
+    const audio = alertAudioContext;
+    if (!audio) return;
+    void audio.resume().then(() => {
+      [880, 660, 880].forEach((frequency, index) => {
+        const oscillator = audio.createOscillator();
+        const gain = audio.createGain();
+        const startAt = audio.currentTime + index * 0.22;
+        oscillator.frequency.value = frequency;
+        oscillator.type = 'sine';
+        gain.gain.setValueAtTime(0.0001, startAt);
+        gain.gain.exponentialRampToValueAtTime(0.16, startAt + 0.025);
+        gain.gain.exponentialRampToValueAtTime(0.0001, startAt + 0.16);
+        oscillator.connect(gain);
+        gain.connect(audio.destination);
+        oscillator.start(startAt);
+        oscillator.stop(startAt + 0.17);
+      });
+    }).catch(() => undefined);
+  } catch { /* áudio indisponível neste navegador */ }
+}
+
 export default function CitizenWorkspace({ profile, onSignOut }: { profile: Profile; onSignOut: () => void }) {
   const [tab, setTab] = useState<'overview' | 'register' | 'vehicles' | 'history' | 'notifications'>('overview');
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -95,6 +118,17 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
     const client = supabase;
     const channel = client?.channel(`citizen-${profile.id}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'parking_sessions', filter: `user_id=eq.${profile.id}` }, () => { void refresh(); })
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${profile.id}` }, payload => {
+        const notice = payload.new as Notice;
+        setNotices(current => [notice, ...current.filter(item => item.id !== notice.id)].slice(0, 30));
+        if (notice.kind === 'admin_manual_alert') {
+          setExpiryWarning(current => [...current.filter(item => item.sessionId !== notice.id), { sessionId: notice.id, plate: 'AVISO DA ADMINISTRAÇÃO', body: notice.body }]);
+          playAlertSound();
+          if ('Notification' in window && Notification.permission === 'granted') {
+            try { new Notification(notice.title, { body: notice.body, tag: notice.id }); } catch { /* notificação do sistema indisponível */ }
+          }
+        }
+      })
       .subscribe();
     return () => { alive = false; window.clearInterval(timer); if (client && channel) void client.removeChannel(channel); };
   }, [profile.id, refresh]);
@@ -123,28 +157,8 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
       setError('');
       setExpiryWarning(current => [...current.filter(item => item.sessionId !== session.id), { sessionId: session.id, plate: session.plate_snapshot, body }]);
 
-      // Toca um alerta curto usando o contexto liberado no primeiro gesto do usuário.
-      try {
-        const audio = alertAudioContext;
-        if (audio) {
-          void audio.resume().then(() => {
-            [880, 660, 880].forEach((frequency, index) => {
-              const oscillator = audio.createOscillator();
-              const gain = audio.createGain();
-              const startAt = audio.currentTime + index * 0.22;
-              oscillator.frequency.value = frequency;
-              oscillator.type = 'sine';
-              gain.gain.setValueAtTime(0.0001, startAt);
-              gain.gain.exponentialRampToValueAtTime(0.16, startAt + 0.025);
-              gain.gain.exponentialRampToValueAtTime(0.0001, startAt + 0.16);
-              oscillator.connect(gain);
-              gain.connect(audio.destination);
-              oscillator.start(startAt);
-              oscillator.stop(startAt + 0.17);
-            });
-          }).catch(() => undefined);
-        }
-      } catch { /* áudio indisponível neste navegador */ }
+      // Toca o alerta curto usando o contexto liberado no primeiro gesto do usuário.
+      playAlertSound();
 
       if ('Notification' in window && Notification.permission === 'granted') {
         try { new Notification(title, { body, tag: storageKey }); } catch { /* notificação do sistema indisponível */ }
