@@ -2191,16 +2191,18 @@ th{background:#eaf3f7;color:#547287}td{border-bottom-color:#e2edf2;color:#496579
 
 
 /* Correção de espaçamento entre indicadores e título do resultado */
-.ops-report-results{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:22px!important;min-width:0}
-.ops-report-results>.ops-report-metrics{position:relative!important;display:grid!important;isolation:isolate;width:100%;margin:0 0 2px!important;z-index:1}
-.ops-report-results>.ops-panel{position:relative!important;display:block!important;clear:both;width:100%;min-width:0;margin:0!important;z-index:0}
-.ops-report-results>.ops-panel>.ops-report-result-heading{position:relative!important;display:flex!important;align-items:center!important;justify-content:space-between!important;min-height:58px;margin:0 0 18px!important;padding:0 0 14px!important;border-bottom:1px solid #e4edf2}
+/* Empilhamento e fluxo explícitos: indicadores acima, resultado abaixo */
+.ops-report-results{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:30px!important;min-width:0;position:relative!important;isolation:isolate}
+.ops-report-results>.ops-report-metrics{position:relative!important;display:grid!important;isolation:isolate;width:100%;margin:0!important;z-index:1!important;order:1}
+.ops-report-results>.ops-panel{position:relative!important;display:block!important;clear:both;width:100%;min-width:0;margin:0!important;z-index:2!important;order:2;transform:none!important}
+.ops-report-results>.ops-panel:hover{transform:none!important}
+.ops-report-results>.ops-panel>.ops-report-result-heading{position:relative!important;display:flex!important;align-items:center!important;justify-content:space-between!important;min-height:58px;margin:0 0 18px!important;padding:0 0 14px!important;border-bottom:1px solid #e4edf2;z-index:3}
 .ops-report-results>.ops-panel>.ops-report-result-heading>div{min-width:0;flex:1}
-.ops-report-results>.ops-panel>.ops-report-result-heading h2{line-height:1.35;margin:0 0 6px!important}
+.ops-report-results>.ops-panel>.ops-report-result-heading h2{line-height:1.35;margin:0 0 6px!important;position:relative;z-index:4}
 .ops-report-results>.ops-panel>.ops-report-result-heading p{line-height:1.5}
 .ops-report-metrics article{position:relative;min-height:112px}
 @media(max-width:600px){
- .ops-report-results{gap:18px!important}
+ .ops-report-results{gap:24px!important}
  .ops-report-results>.ops-panel>.ops-report-result-heading{gap:12px;min-height:0;padding-bottom:13px!important}
  .ops-report-metrics article{min-height:98px;padding:14px!important}
  .ops-report-metrics article strong{font-size:27px}
