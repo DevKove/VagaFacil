@@ -2188,3 +2188,20 @@ th{background:#eaf3f7;color:#547287}td{border-bottom-color:#e2edf2;color:#496579
 .ops-report-cell-sub{display:block;margin-top:4px;color:#587487;font-size:11px}
 @media(max-width:900px){.ops-report-filter-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.ops-report-plate{grid-column:span 2}.ops-report-metrics{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
 @media(max-width:600px){.ops-report-filters{padding:15px!important}.ops-report-filter-grid{grid-template-columns:1fr;gap:12px;margin-top:15px}.ops-report-plate{grid-column:auto}.ops-report-metrics{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}.ops-report-result-heading{align-items:stretch}.ops-report-result-heading>.ops-primary{width:100%;justify-content:center}.ops-report-results .ops-table-wrap{overflow-x:auto}.ops-report-results table{min-width:760px}}
+
+
+/* Correção de espaçamento entre indicadores e título do resultado */
+.ops-report-results{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:22px!important;min-width:0}
+.ops-report-results>.ops-report-metrics{position:relative!important;display:grid!important;isolation:isolate;width:100%;margin:0 0 2px!important;z-index:1}
+.ops-report-results>.ops-panel{position:relative!important;display:block!important;clear:both;width:100%;min-width:0;margin:0!important;z-index:0}
+.ops-report-results>.ops-panel>.ops-report-result-heading{position:relative!important;display:flex!important;align-items:center!important;justify-content:space-between!important;min-height:58px;margin:0 0 18px!important;padding:0 0 14px!important;border-bottom:1px solid #e4edf2}
+.ops-report-results>.ops-panel>.ops-report-result-heading>div{min-width:0;flex:1}
+.ops-report-results>.ops-panel>.ops-report-result-heading h2{line-height:1.35;margin:0 0 6px!important}
+.ops-report-results>.ops-panel>.ops-report-result-heading p{line-height:1.5}
+.ops-report-metrics article{position:relative;min-height:112px}
+@media(max-width:600px){
+ .ops-report-results{gap:18px!important}
+ .ops-report-results>.ops-panel>.ops-report-result-heading{gap:12px;min-height:0;padding-bottom:13px!important}
+ .ops-report-metrics article{min-height:98px;padding:14px!important}
+ .ops-report-metrics article strong{font-size:27px}
+}
