@@ -2330,3 +2330,47 @@ th{background:#eaf3f7;color:#547287}td{border-bottom-color:#e2edf2;color:#496579
 .ops-section-filter-footer{color:#587487;font-size:12px}
 @media(max-width:760px){.ops-page-actions{width:100%;display:grid;grid-template-columns:1fr 1fr}.ops-page-actions>button{width:100%;justify-content:center}.ops-section-filter-menu{padding:15px}.ops-section-filter-fields{grid-template-columns:1fr}.ops-section-filter-footer{align-items:flex-start;flex-direction:column}.ops-section-filter-footer button{width:100%}}
 @media(max-width:390px){.ops-page-actions{gap:7px}.ops-filter-trigger,.ops-page-actions>.ops-primary{padding-inline:9px;font-size:12px}}
+
+/* Regras de estacionamento: painel institucional e responsivo */
+.ops-rules-page{display:grid;gap:25px}
+.ops-rules-heading{align-items:center!important;padding-bottom:22px;border-bottom:1px solid #dce8ef}
+.ops-rules-heading>div{max-width:760px}
+.ops-rules-eyebrow,.ops-rules-kicker,.ops-rule-label{display:inline-block;color:#147ca7;font-size:10px;font-weight:900;letter-spacing:.13em}
+.ops-rules-heading h2{margin:7px 0 8px!important;font-size:clamp(23px,3vw,30px)!important;font-weight:900!important;letter-spacing:-.035em;color:#102f43}
+.ops-rules-heading p{max-width:680px;line-height:1.65!important;font-size:14px!important;color:#597487!important}
+.ops-rules-heading-icon{display:grid;place-items:center;width:58px;height:58px;flex:0 0 58px;border-radius:17px;background:linear-gradient(145deg,#e2f5fc,#c8e8f5);color:#087ba8;box-shadow:inset 0 1px #fff,0 8px 20px #17445a12}
+.ops-rules-section{display:grid;gap:15px}
+.ops-rules-section-title h3,.ops-holidays-content h3{margin:5px 0 4px;color:#17394d;font-size:19px;font-weight:900;letter-spacing:-.02em}
+.ops-rules-section-title p{margin:0;color:#668092;font-size:13px}
+.ops-rule-modern{display:grid;gap:18px;padding:22px!important;border:1px solid #d8e6ed!important;border-radius:17px!important;background:linear-gradient(145deg,#fff 0%,#f7fbfd 100%)!important;box-shadow:0 12px 30px #17394d0c!important}
+.ops-rule-top{display:flex;align-items:center;justify-content:space-between;gap:14px}
+.ops-rule-top h3{margin:5px 0 0;color:#15364a;font-size:18px;font-weight:900}
+.ops-rule-status{display:inline-flex;align-items:center;gap:8px;padding:7px 11px;border-radius:999px;font-size:11px;font-weight:900;white-space:nowrap}
+.ops-rule-status i{width:7px;height:7px;border-radius:50%;background:currentColor;box-shadow:0 0 0 3px currentColor;opacity:.25}
+.ops-rule-status.is-enabled{background:#e7f7ef;color:#137847}
+.ops-rule-status.is-disabled{background:#fff0ed;color:#b53a2a}
+.ops-rule-schedule{display:flex;align-items:flex-start;gap:13px;padding:16px;border:1px solid #dceaf1;border-radius:13px;background:#f1f8fb}
+.ops-rule-schedule-icon{display:grid;place-items:center;width:38px;height:38px;flex:0 0 38px;border-radius:11px;background:#d9eef7;color:#087ba8}
+.ops-rule-schedule>div:last-child{display:grid;gap:6px}
+.ops-rule-schedule strong{color:#24495e;font-size:13px}
+.ops-rule-schedule span{color:#5b7585;font-size:12px}
+.ops-rule-schedule b{color:#17394d}
+.ops-rule-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}
+.ops-rule-metrics>div{display:grid;gap:5px;padding:15px;border:1px solid #e0eaf0;border-radius:12px;background:#fff}
+.ops-rule-metrics span{color:#607b8c;font-size:11px;font-weight:800}
+.ops-rule-metrics strong{color:#123b53;font-size:27px;line-height:1.1;font-weight:900;letter-spacing:-.04em}
+.ops-rule-metrics strong small{margin-left:4px;color:#638092;font-size:12px;letter-spacing:0}
+.ops-rule-metrics em{color:#8aa0ad;font-size:10px;font-style:normal}
+.ops-rule-actions{display:flex;align-items:center;justify-content:space-between;gap:14px;padding-top:15px;border-top:1px solid #e4edf2}
+.ops-rule-actions>span{color:#728997;font-size:11px;line-height:1.5}
+.ops-rule-actions button{display:inline-flex;align-items:center;gap:9px;padding:10px 15px;border:0;border-radius:10px;background:linear-gradient(135deg,#087fae,#075b86);color:#fff;font-size:12px;font-weight:900;box-shadow:0 5px 13px #087fae25;cursor:pointer;white-space:nowrap}
+.ops-rule-actions button:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.ops-rule-actions button span{font-size:17px;line-height:12px}
+.ops-holidays-card{display:flex;align-items:flex-start;gap:15px;padding:21px;border:1px solid #d8e6ed;border-radius:16px;background:linear-gradient(120deg,#f5f9fc,#edf5f9)}
+.ops-holidays-icon{display:grid;place-items:center;width:43px;height:43px;flex:0 0 43px;border-radius:12px;background:#e0edf4;color:#32647e}
+.ops-holidays-content{flex:1;min-width:0}
+.ops-holidays-content h3{font-size:18px}
+.ops-holidays-content p{max-width:850px;margin:8px 0 12px;color:#587283;font-size:13px;line-height:1.7}
+.ops-holidays-note{display:flex;align-items:center;gap:7px;color:#537286;font-size:11px;font-weight:800}
+.ops-holidays-status{padding:7px 10px;border:1px solid #d3e1e9;border-radius:999px;background:#fff;color:#597587;font-size:10px;font-weight:900;white-space:nowrap}
+@media(max-width:640px){.ops-rules-page{gap:19px}.ops-rules-heading{align-items:flex-start!important}.ops-rules-heading-icon{width:44px;height:44px;flex-basis:44px;border-radius:13px}.ops-rule-modern{padding:16px!important}.ops-rule-metrics{grid-template-columns:1fr;gap:8px}.ops-rule-metrics>div{grid-template-columns:1fr auto;align-items:center;padding:12px}.ops-rule-metrics strong{grid-column:2;grid-row:1/3}.ops-rule-metrics em{grid-column:1}.ops-rule-actions{align-items:stretch;flex-direction:column}.ops-rule-actions button{justify-content:center}.ops-holidays-card{padding:16px;flex-wrap:wrap}.ops-holidays-status{margin-left:58px}}
