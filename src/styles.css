@@ -1858,3 +1858,98 @@ th{background:#eaf3f7;color:#547287}td{border-bottom-color:#e2edf2;color:#496579
   .workspace-card,.ops-panel,.ops-metric-card,.ops-metrics article,.metric-card,.panel,
   .portal-role-card{transition:none}
 }
+
+/* Molduras realmente gradientes: borda em camadas, não apenas faixa decorativa */
+:root{
+  --vf-frame-gradient:linear-gradient(125deg,#087da5 0%,#35c5e5 42%,#168fc0 72%,#f19c4f 100%);
+  --vf-frame-face:linear-gradient(145deg,#ffffff 0%,#f5fbfe 58%,#eaf5fa 100%);
+  --vf-frame-elevation:0 13px 30px rgba(4,29,48,.17),0 3px 8px rgba(4,29,48,.08),inset 0 1px 0 rgba(255,255,255,.96);
+}
+.workspace-session-card,
+.workspace-form-card,
+.workspace-vehicle-card,
+.workspace-metrics article,
+.workspace-notices>article,
+.workspace-table-wrap,
+.ops-panel,
+.ops-metrics article,
+.ops-modal,
+.ops-alert,
+.ops-rule,
+.ops-two-col>.ops-panel{
+  border:2px solid transparent !important;
+  background:var(--vf-frame-face) padding-box,var(--vf-frame-gradient) border-box !important;
+  box-shadow:var(--vf-frame-elevation) !important;
+  border-radius:16px !important;
+  position:relative;
+  isolation:isolate;
+}
+.workspace-session-card,
+.workspace-form-card,
+.workspace-vehicle-card,
+.ops-panel,
+.ops-metrics article{
+  transition:transform .22s ease,box-shadow .22s ease,filter .22s ease;
+}
+.workspace-session-card:hover,
+.workspace-form-card:hover,
+.workspace-vehicle-card:hover,
+.ops-panel:hover,
+.ops-metrics article:hover{
+  transform:translateY(-2px);
+  box-shadow:0 19px 38px rgba(4,29,48,.22),0 6px 14px rgba(4,29,48,.10) !important;
+  filter:saturate(1.08);
+}
+/* Realce interno superior com gradiente visível */
+.workspace-session-card::before,
+.workspace-form-card::before,
+.workspace-vehicle-card::before,
+.ops-panel::before{
+  content:"";
+  position:absolute;
+  z-index:0;
+  top:0;left:16px;right:16px;
+  height:4px;
+  border-radius:0 0 8px 8px;
+  background:var(--vf-frame-gradient);
+  opacity:1;
+  pointer-events:none;
+}
+/* Subpainéis, listas e tabelas com contorno e profundidade consistentes */
+.workspace-session-grid,
+.workspace-vehicle-grid,
+.workspace-notices,
+.ops-two-col{
+  gap:18px;
+}
+.workspace-table-wrap,
+.ops-table-wrap{
+  border:2px solid transparent !important;
+  background:var(--vf-frame-face) padding-box,var(--vf-frame-gradient) border-box !important;
+  box-shadow:0 10px 24px rgba(4,29,48,.14),inset 0 1px 0 #fff !important;
+  border-radius:14px !important;
+}
+.workspace-metrics article{
+  min-height:100px;
+}
+.workspace-metrics article strong,
+.ops-metrics article strong{
+  text-shadow:0 2px 5px rgba(8,48,72,.12);
+}
+.workspace-notices>article{
+  margin-bottom:12px;
+}
+@media(max-width:760px){
+  .workspace-session-card,.workspace-form-card,.workspace-vehicle-card,
+  .workspace-metrics article,.workspace-notices>article,.workspace-table-wrap,
+  .ops-panel,.ops-metrics article,.ops-table-wrap{
+    border-radius:13px !important;
+    box-shadow:0 8px 19px rgba(4,29,48,.16),inset 0 1px 0 rgba(255,255,255,.96) !important;
+  }
+  .workspace-session-card:hover,.workspace-form-card:hover,.workspace-vehicle-card:hover,
+  .ops-panel:hover,.ops-metrics article:hover{transform:none}
+}
+@media(prefers-reduced-motion:reduce){
+  .workspace-session-card,.workspace-form-card,.workspace-vehicle-card,
+  .ops-panel,.ops-metrics article{transition:none}
+}
