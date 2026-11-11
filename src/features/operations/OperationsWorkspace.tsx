@@ -142,8 +142,8 @@ export default function OperationsWorkspace({ profile, area, onSignOut }: { prof
       && (reportFilters.status === 'all' || normalizedStatus === reportFilters.status)
       && (!reportFilters.zone || zoneName === reportFilters.zone)
       && (!reportFilters.plate || session.plate_snapshot.toLowerCase().includes(reportFilters.plate.trim().toLowerCase()))
-      && matchesSectionFilter([session.plate_snapshot, zoneName, session.status]);
-  }), [sessions, reportFilters]);
+      && (!normalizedSectionFilter || [session.plate_snapshot, zoneName, session.status].some(value => String(value ?? '').toLocaleLowerCase('pt-BR').includes(normalizedSectionFilter)));
+  }), [sessions, reportFilters, normalizedSectionFilter]);
   const reportMetrics = useMemo(() => ({
     total: reportSessions.length,
     active: reportSessions.filter(session => session.status === 'active' && new Date(session.expires_at).getTime() > Date.now()).length,
