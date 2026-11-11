@@ -85,7 +85,7 @@ function LoginScreen({ role, onBack, onAuthenticated, onMfaRequired }: { role: P
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
 
-  const redirectUrl = `${window.location.origin}${import.meta.env.BASE_URL}`;
+  const redirectUrl = 'https://devkove.github.io/VagaFacil/';
   const run = async (action: () => Promise<void>) => {
     setBusy(true); setError(''); setMessage('');
     try { await action(); } catch (err) { setError(err instanceof Error ? err.message : 'Não foi possível concluir a operação.'); }
