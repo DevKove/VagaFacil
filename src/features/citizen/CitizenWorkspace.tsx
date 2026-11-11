@@ -39,6 +39,7 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [expiryWarning, setExpiryWarning] = useState<Array<{ sessionId: string; plate: string; body: string }>>([]);
   const [vehicleForm, setVehicleForm] = useState({ plate: '', make: '', model: '', color: '', vehicle_type: 'Passeio' });
   const [selectedVehicle, setSelectedVehicle] = useState('');
   const [selectedSpace, setSelectedSpace] = useState('');
@@ -81,6 +82,71 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
 
   const activeSessions = useMemo(() => sessions.filter(item => item.status === 'active' && new Date(item.expires_at).getTime() > now), [sessions, now]);
   const unread = notices.filter(item => !item.read_at).length;
+
+  useEffect(() => {
+    const due = sessions.filter(session =>
+      session.status === 'active' &&
+      new Date(session.expires_at).getTime() > now &&
+      remaining(session.expires_at, now) <= 10 * 60
+    );
+    if (!due.length) return;
+
+    for (const session of due) {
+      const storageKey = `vagafacil:expiry-warning:${profile.id}:${session.id}`;
+      if (window.localStorage.getItem(storageKey)) continue;
+
+      const minutes = Math.max(1, Math.ceil(remaining(session.expires_at, now) / 60));
+      const title = 'Estacionamento próximo do vencimento';
+      const body = `O período de permanência do veículo ${session.plate_snapshot} termina em aproximadamente ${minutes} minuto(s). Organize-se para retirar o veículo dentro do prazo.`;
+
+      window.localStorage.setItem(storageKey, '1');
+      setSuccess('');
+      setError('');
+      setExpiryWarning(current => [...current.filter(item => item.sessionId !== session.id), { sessionId: session.id, plate: session.plate_snapshot, body }]);
+
+      // Alerta sonoro curto, executado quando o navegador permitir áudio.
+      try {
+        const AudioContextClass = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+        if (AudioContextClass) {
+          const audio = new AudioContextClass();
+          void audio.resume().then(() => {
+            [880, 660, 880].forEach((frequency, index) => {
+              const oscillator = audio.createOscillator();
+              const gain = audio.createGain();
+              const startAt = audio.currentTime + index * 0.22;
+              oscillator.frequency.value = frequency;
+              oscillator.type = 'sine';
+              gain.gain.setValueAtTime(0.0001, startAt);
+              gain.gain.exponentialRampToValueAtTime(0.16, startAt + 0.025);
+              gain.gain.exponentialRampToValueAtTime(0.0001, startAt + 0.16);
+              oscillator.connect(gain);
+              gain.connect(audio.destination);
+              oscillator.start(startAt);
+              oscillator.stop(startAt + 0.17);
+            });
+            window.setTimeout(() => void audio.close(), 1000);
+          }).catch(() => undefined);
+        }
+      } catch { /* áudio pode estar bloqueado pelas permissões do navegador */ }
+
+      if ('Notification' in window && Notification.permission === 'granted') {
+        try { new Notification(title, { body, tag: storageKey }); } catch { /* notificação do sistema indisponível */ }
+      }
+
+      if (supabase) {
+        void supabase.from('notifications').insert({
+          user_id: profile.id,
+          title,
+          body,
+          kind: 'parking_expiry_warning',
+        }).select('id,title,body,kind,read_at,created_at').single()
+          .then(({ data, error: insertError }) => {
+            if (!insertError && data) setNotices(current => [data as Notice, ...current].slice(0, 30));
+          });
+      }
+    }
+  }, [sessions, now, profile.id]);
+
 
   const perform = async (action: () => Promise<void>) => {
     setBusy(true); setError(''); setSuccess('');
@@ -186,6 +252,7 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
         <div className="workspace-page-heading"><div><span className="portal-kicker">VAGAFÁCIL · SERVIÇOS DIGITAIS</span><h1>{navItems.find(item => item.id === tab)?.label}</h1><p>Seus dados e registros em um só lugar.</p></div>{tab === 'vehicles' && <button className="workspace-primary" onClick={() => setShowVehicleForm(true)}><Plus size={17}/> Adicionar veículo</button>}</div>
         {error && <div className="workspace-alert error" role="alert">{error}</div>}
         {success && <div className="workspace-alert success" role="status">{success}</div>}
+        {expiryWarning.map(warning => <div className="workspace-expiry-warning" role="alert" key={warning.sessionId}><Bell size={19}/><div><strong>ATENÇÃO: PERÍODO PRÓXIMO DO FIM</strong><span><b>{warning.plate}</b> — {warning.body}</span></div><button type="button" onClick={() => setExpiryWarning(current => current.filter(item => item.sessionId !== warning.sessionId))} aria-label="Fechar aviso"><X size={17}/></button></div>}
         {loading ? <div className="workspace-empty">Carregando seus dados...</div> : <>
           {tab === 'overview' && <>
             <div className="workspace-section-title"><div><h2>Estacionamentos em andamento</h2><p>O tempo é atualizado automaticamente.</p></div><button onClick={() => setTab('register')}>Novo registro <Plus size={15}/></button></div>
