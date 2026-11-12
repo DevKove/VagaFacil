@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
-import { Check, Edit3, Plus, Trash2, X } from 'lucide-react';
+import { Check, Download, Edit3, FileText, Plus, Trash2, X } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { exportDataset } from '../../utils/export';
 
 type Ad = { id: string; title: string; alt_text: string; image_path: string; link_url: string | null; active: boolean; sort_order: number; duration_seconds: number; created_at: string };
 type AdForm = { title: string; alt_text: string; link_url: string; active: boolean; sort_order: number; duration_seconds: number };
@@ -78,6 +79,8 @@ export default function AdsManager() {
     finally { setBusy(false); }
   };
 
+  const exportAds = (format: 'pdf' | 'excel') => exportDataset('Anúncios cadastrados',['Título','Texto alternativo','Link de destino','Ordem de exibição','Permanência (segundos)','Situação','Imagem'],ads.map(ad=>[ad.title,ad.alt_text,ad.link_url || '',ad.sort_order,ad.duration_seconds || 5,ad.active?'Ativo':'Inativo',ad.image_path]),format);
+
   const toggle = async (ad: Ad) => {
     if (!supabase) return;
     setBusy(true); setError('');
@@ -102,7 +105,7 @@ export default function AdsManager() {
         <div className="wide" style={{display:'flex',gap:10,flexWrap:'wrap'}}><button className="ops-primary" disabled={busy}><Check size={16}/>{busy?'Salvando...':editing?'Salvar alterações':'Cadastrar anúncio'}</button>{editing && <button type="button" className="ops-small-action" onClick={reset}><X size={16}/> Cancelar edição</button>}</div>
       </form>
     </section>
-    <section className="ops-panel"><div className="ops-panel-heading"><div><h2>Anúncios cadastrados</h2><p>Somente anúncios ativos aparecem para os cidadãos.</p></div><button className="ops-small-action" type="button" onClick={()=>{reset();setError('');setSuccess('');}}><Plus size={16}/> Novo anúncio</button></div>
+    <section className="ops-panel"><div className="ops-panel-heading"><div><h2>Anúncios cadastrados</h2><p>Somente anúncios ativos aparecem para os cidadãos.</p></div><div className="ops-ads-export-actions"><button className="ops-small-action" type="button" onClick={()=>exportAds('pdf')} disabled={!ads.length}><FileText size={15}/> PDF</button><button className="ops-small-action" type="button" onClick={()=>exportAds('excel')} disabled={!ads.length}><Download size={15}/> Excel</button><button className="ops-small-action" type="button" onClick={()=>{reset();setError('');setSuccess('');}}><Plus size={16}/> Novo anúncio</button></div></div>
       {loading ? <div className="ops-loading">Carregando anúncios...</div> : ads.length ? <div className="ops-ads-list">{ads.map(ad=>{const url=supabase!.storage.from(bucket).getPublicUrl(ad.image_path).data.publicUrl;return <article className="ops-ads-item" key={ad.id}><img src={url} alt={ad.alt_text}/><div className="ops-ads-item-info"><strong>{ad.title || 'Anúncio sem título'}</strong><small>Ordem {ad.sort_order} · {ad.duration_seconds || 5}s de permanência · {ad.active?'Ativo':'Inativo'}</small><small>{ad.link_url || 'Sem link de destino'}</small></div><div className="ops-ads-item-actions"><button type="button" onClick={()=>chooseEdit(ad)}><Edit3 size={14}/> Editar</button><button type="button" onClick={()=>void toggle(ad)} disabled={busy}>{ad.active?'Desativar':'Ativar'}</button><button type="button" className="danger" onClick={()=>void remove(ad)} disabled={busy}><Trash2 size={14}/> Excluir</button></div></article>})}</div> : <div className="ops-empty">Nenhum anúncio cadastrado. Adicione a primeira imagem para exibir o carrossel aos cidadãos.</div>}
     </section>
   </div>;
