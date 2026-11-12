@@ -18,6 +18,18 @@ const fmtDate = (value: string) => new Intl.DateTimeFormat('pt-BR', { dateStyle:
 const fmtTime = (value: string) => new Intl.DateTimeFormat('pt-BR', { timeStyle: 'medium' }).format(new Date(value));
 const remaining = (expiresAt: string, now: number) => Math.max(0, Math.floor((new Date(expiresAt).getTime() - now) / 1000));
 const timerLabel = (seconds: number) => `${String(Math.floor(seconds / 3600)).padStart(2, '0')}:${String(Math.floor((seconds % 3600) / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
+
+async function fetchAllPages<T>(fetchPage: (from: number, to: number) => PromiseLike<{ data: T[] | null; error: unknown }>) {
+  const records: T[] = [];
+  for (let offset = 0; ; offset += 1000) {
+    const { data, error } = await fetchPage(offset, offset + 999);
+    if (error) throw error;
+    const page = data || [];
+    records.push(...page);
+    if (page.length < 1000) return records;
+  }
+}
+
 let alertAudioContext: AudioContext | null = null;
 let pendingAlertSound = false;
 
@@ -171,20 +183,16 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
   const refresh = useCallback(async () => {
     if (!supabase) return;
     const client = supabase;
-    const [vehicleResult, sessionResult, spaceResult, noticeResult] = await Promise.all([
-      client.from('vehicles').select('id,plate,make,model,color,vehicle_type').eq('owner_id', profile.id).order('created_at', { ascending: false }),
-      client.from('parking_sessions').select('id,plate_snapshot,started_at,expires_at,ended_at,status,space_id,latitude,longitude,location_accuracy_m,location_captured_at,beneficiary_category,parking_spaces(code,parking_zones(name))').eq('user_id', profile.id).order('started_at', { ascending: false }).limit(1000),
-      client.from('parking_spaces').select('id,code,category,zone_id,parking_zones(name)').eq('active', true).order('code'),
-      client.from('notifications').select('id,title,body,kind,read_at,created_at').eq('user_id', profile.id).order('created_at', { ascending: false }).limit(30),
+    const [vehicleRows, sessionRows, spaceRows, noticeRows] = await Promise.all([
+      fetchAllPages((from,to) => client.from('vehicles').select('id,plate,make,model,color,vehicle_type').eq('owner_id', profile.id).order('created_at', { ascending: false }).range(from,to)),
+      fetchAllPages((from,to) => client.from('parking_sessions').select('id,plate_snapshot,started_at,expires_at,ended_at,status,space_id,latitude,longitude,location_accuracy_m,location_captured_at,beneficiary_category,parking_spaces(code,parking_zones(name))').eq('user_id', profile.id).order('started_at', { ascending: false }).range(from,to)),
+      fetchAllPages((from,to) => client.from('parking_spaces').select('id,code,category,zone_id,parking_zones(name)').eq('active', true).order('code').range(from,to)),
+      fetchAllPages((from,to) => client.from('notifications').select('id,title,body,kind,read_at,created_at').eq('user_id', profile.id).order('created_at', { ascending: false }).range(from,to)),
     ]);
-    if (vehicleResult.error) throw vehicleResult.error;
-    if (sessionResult.error) throw sessionResult.error;
-    if (spaceResult.error) throw spaceResult.error;
-    if (noticeResult.error) throw noticeResult.error;
-    setVehicles(vehicleResult.data ?? []);
-    setSessions((sessionResult.data ?? []) as unknown as ParkingSession[]);
-    setSpaces((spaceResult.data ?? []) as unknown as ParkingSpace[]);
-    const loadedNotices = (noticeResult.data ?? []) as Notice[];
+    setVehicles(vehicleRows as Vehicle[]);
+    setSessions(sessionRows as unknown as ParkingSession[]);
+    setSpaces(spaceRows as ParkingSpace[]);
+    const loadedNotices = noticeRows as Notice[];
     setNotices(loadedNotices);
     const pendingManualAlerts = loadedNotices.filter(item => item.kind === 'admin_manual_alert' && !item.read_at);
     setExpiryWarning(pendingManualAlerts.map(item => ({ sessionId: item.id, plate: 'ATENÇÃO', body: item.body })));
