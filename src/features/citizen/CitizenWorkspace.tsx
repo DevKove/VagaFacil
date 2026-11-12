@@ -137,6 +137,20 @@ async function subscribeToWebPush(userId: string) {
   if (error) throw error;
 }
 
+async function syncExistingPushSubscription(userId: string) {
+  if (!supabase || !('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window) || Notification.permission !== 'granted') return;
+  const registration = await navigator.serviceWorker.ready;
+  const subscription = await registration.pushManager.getSubscription();
+  if (!subscription) return;
+  const { error } = await supabase.from('push_subscriptions').upsert({
+    user_id: userId,
+    endpoint: subscription.endpoint,
+    subscription: subscription.toJSON(),
+    updated_at: new Date().toISOString(),
+  }, { onConflict: 'user_id,endpoint' });
+  if (error) throw error;
+}
+
 async function showPersistentNotification(title: string, body: string, tag: string) {
   if (!('Notification' in window) || Notification.permission !== 'granted') return;
   try {
@@ -215,6 +229,12 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
   }, [soundEnabled]);
 
   useEffect(() => {
+    void syncExistingPushSubscription(profile.id).catch(error => {
+      console.warn('Não foi possível sincronizar a inscrição push existente:', error);
+    });
+  }, [profile.id]);
+
+  useEffect(() => {
     const unlockAudio = () => {
       if (soundEnabledRef.current) void unlockAlertAudio();
     };
@@ -257,15 +277,20 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
           try {
             await subscribeToWebPush(profile.id);
             window.localStorage.setItem(pushAttemptedKey, '1');
-            setSuccess('Notificações ativadas neste aparelho. Você já pode receber alertas do VagaFácil.');
+            window.localStorage.setItem(notificationConsentKey, '1');
+            setSuccess('Notificações do sistema ativadas neste aparelho. Os alertas poderão chegar mesmo com o VagaFácil fechado, conforme o suporte do aparelho.');
+            setNotificationPromptOpen(false);
           } catch (pushError) {
-            setError(getErrorMessage(pushError, 'A permissão foi concedida, mas não foi possível concluir a inscrição push. Tente novamente.'));
+            setError(getErrorMessage(pushError, 'A permissão foi concedida, mas a inscrição para notificações em segundo plano não foi concluída. Mantenha esta janela aberta e tente novamente.'));
+            setNotificationPromptOpen(true);
           }
         } else if (permission === 'denied') {
           setError('A permissão foi bloqueada. Libere as notificações do VagaFácil nas configurações do navegador ou do aparelho.');
+          window.localStorage.setItem(notificationConsentKey, '1');
+          setNotificationPromptOpen(false);
+        } else {
+          setNotificationPromptOpen(true);
         }
-        window.localStorage.setItem(notificationConsentKey, '1');
-        setNotificationPromptOpen(false);
       } catch (activationError) {
         setError(getErrorMessage(activationError, 'Não foi possível ativar as notificações.'));
       } finally {
