@@ -263,10 +263,34 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
     setError('');
     if (soundEnabledRef.current) void unlockAlertAudio();
 
-    const registration = pushRegistrationRef.current;
+    let registration = pushRegistrationRef.current;
     if (!registration) {
-      setError('O serviço de notificações ainda está iniciando. Feche e abra o VagaFácil e tente novamente.');
-      setPermissionBusy(false);
+      void (async () => {
+        try {
+          if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+            throw new Error('Este navegador não oferece suporte a notificações push.');
+          }
+          await withTimeout(
+            navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`),
+            12_000,
+            'O navegador não conseguiu registrar o serviço de notificações em 12 segundos.',
+          );
+          registration = await withTimeout(
+            navigator.serviceWorker.ready,
+            12_000,
+            'O serviço de notificações ainda não ficou ativo. Tente novamente em alguns segundos.',
+          );
+          if (!registration.pushManager) throw new Error('O navegador não disponibilizou o gerenciador de notificações push.');
+          pushRegistrationRef.current = registration;
+          pushSubscriptionRef.current = await registration.pushManager.getSubscription();
+          setPushReady(true);
+          setError('Serviço de notificações preparado. Toque novamente em “Permitir notificações” para concluir a ativação.');
+        } catch (setupError) {
+          setError(`Não foi possível iniciar as notificações: ${getErrorMessage(setupError)}`);
+        } finally {
+          setPermissionBusy(false);
+        }
+      })();
       return;
     }
 
