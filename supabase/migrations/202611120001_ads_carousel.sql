@@ -32,6 +32,9 @@ insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_typ
 values ('vagafacil-ads', 'vagafacil-ads', true, 8388608, array['image/jpeg','image/png','image/webp'])
 on conflict (id) do update set public = true, file_size_limit = 8388608, allowed_mime_types = array['image/jpeg','image/png','image/webp'];
 
+create policy "admins read ad images" on storage.objects
+for select to authenticated
+using (bucket_id = 'vagafacil-ads' and private.current_app_role() = 'admin');
 create policy "admins upload ad images" on storage.objects
 for insert to authenticated
 with check (bucket_id = 'vagafacil-ads' and private.current_app_role() = 'admin');
