@@ -2374,3 +2374,45 @@ th{background:#eaf3f7;color:#547287}td{border-bottom-color:#e2edf2;color:#496579
 .ops-holidays-note{display:flex;align-items:center;gap:7px;color:#537286;font-size:11px;font-weight:800}
 .ops-holidays-status{padding:7px 10px;border:1px solid #d3e1e9;border-radius:999px;background:#fff;color:#597587;font-size:10px;font-weight:900;white-space:nowrap}
 @media(max-width:640px){.ops-rules-page{gap:19px}.ops-rules-heading{align-items:flex-start!important}.ops-rules-heading-icon{width:44px;height:44px;flex-basis:44px;border-radius:13px}.ops-rule-modern{padding:16px!important}.ops-rule-metrics{grid-template-columns:1fr;gap:8px}.ops-rule-metrics>div{grid-template-columns:1fr auto;align-items:center;padding:12px}.ops-rule-metrics strong{grid-column:2;grid-row:1/3}.ops-rule-metrics em{grid-column:1}.ops-rule-actions{align-items:stretch;flex-direction:column}.ops-rule-actions button{justify-content:center}.ops-holidays-card{padding:16px;flex-wrap:wrap}.ops-holidays-status{margin-left:58px}}
+
+
+/* Carrossel institucional de anúncios */
+.citizen-ads { position: relative; width: 100%; margin: 0 0 24px; overflow: hidden; border: 1px solid rgba(16,48,76,.12); border-radius: 18px; background: #eaf1f6; box-shadow: 0 12px 28px rgba(14,39,63,.10); }
+.citizen-ads-link { display: block; position: relative; height: clamp(150px, 21vw, 270px); color: inherit; text-decoration: none; }
+.citizen-ads-image { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; }
+.citizen-ads-caption { position: absolute; inset: auto 0 0; padding: 28px 24px 18px; color: #fff; font-size: clamp(15px, 1.8vw, 21px); font-weight: 750; background: linear-gradient(transparent, rgba(7,23,39,.78)); text-shadow: 0 1px 3px rgba(0,0,0,.35); }
+.citizen-ads-dots { position: absolute; z-index: 2; right: 18px; bottom: 16px; display: flex; gap: 7px; }
+.citizen-ads-dot { width: 9px; height: 9px; padding: 0; border: 0; border-radius: 50%; background: rgba(255,255,255,.62); cursor: pointer; box-shadow: 0 1px 4px rgba(0,0,0,.35); }
+.citizen-ads-dot[aria-current="true"] { width: 25px; border-radius: 9px; background: #fff; }
+.citizen-ads-arrow { position: absolute; z-index: 2; top: 50%; display: grid; width: 38px; height: 38px; place-items: center; border: 1px solid rgba(255,255,255,.65); border-radius: 50%; color: #12324d; background: rgba(255,255,255,.9); box-shadow: 0 3px 12px rgba(0,0,0,.16); cursor: pointer; transform: translateY(-50%); }
+.citizen-ads-arrow.prev { left: 12px; } .citizen-ads-arrow.next { right: 12px; }
+.ops-ads-manager { display: grid; gap: 20px; }
+.ops-ads-form { display: grid; grid-template-columns: minmax(0,1.2fr) minmax(0,1fr); gap: 14px; padding: 20px; border: 1px solid #dce5ed; border-radius: 14px; background: #fff; }
+.ops-ads-form label { display: grid; gap: 7px; color: #233d53; font-size: 13px; font-weight: 700; }
+.ops-ads-form input:not([type="checkbox"]), .ops-ads-form textarea { width: 100%; min-height: 42px; padding: 10px 12px; border: 1px solid #cbd7e1; border-radius: 9px; color: #172f45; background: #fff; font: inherit; }
+.ops-ads-form textarea { min-height: 76px; resize: vertical; }
+.ops-ads-form .wide { grid-column: 1 / -1; }
+.ops-ads-form .ops-checkbox { display: flex; align-items: center; gap: 9px; }
+.ops-ads-preview { width: 100%; max-height: 190px; object-fit: contain; border-radius: 10px; background: #edf2f6; }
+.ops-ads-list { display: grid; gap: 12px; }
+.ops-ads-item { display: grid; grid-template-columns: 180px minmax(0,1fr) auto; align-items: center; gap: 16px; padding: 14px; border: 1px solid #dce5ed; border-radius: 13px; background: #fff; }
+.ops-ads-item img { width: 180px; height: 96px; object-fit: cover; border-radius: 9px; background: #edf2f6; }
+.ops-ads-item-info { min-width: 0; display: grid; gap: 5px; }
+.ops-ads-item-info strong { color: #17334b; }
+.ops-ads-item-info small { color: #62788b; overflow-wrap: anywhere; }
+.ops-ads-item-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 7px; }
+.ops-ads-item-actions button { padding: 8px 10px; border: 1px solid #cfdae4; border-radius: 8px; color: #173b59; background: #fff; font-weight: 700; cursor: pointer; }
+.ops-ads-item-actions button.danger { color: #b42318; }
+@media (max-width: 640px) {
+  .citizen-ads { margin-bottom: 18px; border-radius: 13px; }
+  .citizen-ads-link { height: 170px; }
+  .citizen-ads-caption { padding: 24px 15px 14px; font-size: 15px; }
+  .citizen-ads-arrow { width: 32px; height: 32px; }
+  .citizen-ads-dots { right: 12px; bottom: 12px; }
+  .ops-ads-form { grid-template-columns: 1fr; padding: 14px; }
+  .ops-ads-form .wide { grid-column: auto; }
+  .ops-ads-item { grid-template-columns: 104px minmax(0,1fr); gap: 10px; }
+  .ops-ads-item img { width: 104px; height: 82px; }
+  .ops-ads-item-actions { grid-column: 1 / -1; justify-content: flex-start; }
+}
+@media (prefers-reduced-motion: reduce) { .citizen-ads * { scroll-behavior: auto !important; transition: none !important; } }
