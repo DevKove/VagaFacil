@@ -87,12 +87,40 @@ function playAlertSound(enabled = true) {
   try { playAlertTone(audio); } catch { /* áudio indisponível neste navegador */ }
 }
 
+const VAPID_PUBLIC_KEY = 'BIjo3YabQkhAppxBI5GWM_JmMrdZNvtKXTZgEzax3kTjm2u6S4tg4FfbUflhwOys_JyBHoRLHqoTEgJy7gxATAU';
+
+function decodeVapidKey(value: string): Uint8Array {
+  const padding = '='.repeat((4 - value.length % 4) % 4);
+  const raw = atob((value + padding).replace(/-/g, '+').replace(/_/g, '/'));
+  return Uint8Array.from(raw, character => character.charCodeAt(0));
+}
+
+async function subscribeToWebPush(userId: string) {
+  if (!supabase || !('serviceWorker' in navigator) || !('PushManager' in window)) {
+    throw new Error('Este navegador não oferece suporte a notificações push em segundo plano.');
+  }
+  const registration = await navigator.serviceWorker.ready;
+  const subscription = await registration.pushManager.getSubscription()
+    ?? await registration.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: decodeVapidKey(VAPID_PUBLIC_KEY),
+    });
+  const { error } = await supabase.from('push_subscriptions').upsert({
+    user_id: userId,
+    endpoint: subscription.endpoint,
+    subscription: subscription.toJSON(),
+    updated_at: new Date().toISOString(),
+  }, { onConflict: 'user_id,endpoint' });
+  if (error) throw error;
+}
+
 async function showPersistentNotification(title: string, body: string, tag: string) {
   if (!('Notification' in window) || Notification.permission !== 'granted') return;
   try {
     const registration = await navigator.serviceWorker?.ready;
+    if (registration?.pushManager && await registration.pushManager.getSubscription()) return;
     if (registration) {
-      await registration.showNotification(title, { body, tag, requireInteraction: true, icon: `${import.meta.env.BASE_URL}favicon.svg`, badge: `${import.meta.env.BASE_URL}favicon.svg` });
+      await registration.showNotification(title, { body, tag, requireInteraction: true, silent: false, vibrate: [250, 120, 250], icon: `${import.meta.env.BASE_URL}favicon.svg`, badge: `${import.meta.env.BASE_URL}favicon.svg` });
     } else {
       new Notification(title, { body, tag, requireInteraction: true });
     }
@@ -112,10 +140,12 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
   const soundEnabledRef = useRef(soundEnabled);
   // O aceite é persistido por conta neste navegador; não reapresentar a cada recarga.
   const notificationConsentKey = `vagafacil:notification-consent:v1:${profile.id}`;
+  const pushAttemptedKey = `vagafacil:push-attempted:v1:${profile.id}`;
   const [notificationPromptOpen, setNotificationPromptOpen] = useState(() => {
     const alreadyAccepted = window.localStorage.getItem(notificationConsentKey) === '1';
     const browserAlreadyGranted = 'Notification' in window && Notification.permission === 'granted';
-    return !alreadyAccepted && !browserAlreadyGranted;
+    const pushSetupAttempted = window.localStorage.getItem(pushAttemptedKey) === '1';
+    return (!alreadyAccepted && !browserAlreadyGranted) || (browserAlreadyGranted && !pushSetupAttempted);
   });
   const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>(() => 'Notification' in window ? Notification.permission : 'denied');
   const [permissionBusy, setPermissionBusy] = useState(false);
@@ -186,14 +216,20 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
     setPermissionBusy(true);
     const audioActivation = soundEnabledRef.current ? unlockAlertAudio() : Promise.resolve(false);
     const notificationActivation = 'Notification' in window ? Notification.requestPermission() : Promise.resolve('denied' as NotificationPermission);
-    void Promise.all([audioActivation, notificationActivation]).then(([, permission]) => {
+    void Promise.all([audioActivation, notificationActivation]).then(async ([, permission]) => {
       setNotificationPermission(permission);
-      // A confirmação do usuário é lembrada mesmo se o navegador bloquear notificações;
-      // nesse caso, a permissão pode ser alterada nas configurações do próprio navegador.
+      if (permission === 'granted') {
+        try {
+          await subscribeToWebPush(profile.id);
+        } catch (pushError) {
+          setError(getErrorMessage(pushError, 'Não foi possível ativar os avisos em segundo plano neste aparelho.'));
+        }
+      }
+      window.localStorage.setItem(pushAttemptedKey, '1');
       window.localStorage.setItem(notificationConsentKey, '1');
       setNotificationPromptOpen(false);
     }).catch(() => {
-      // Evita insistência após a tentativa explícita; o estado do navegador continua soberano.
+      window.localStorage.setItem(pushAttemptedKey, '1');
       window.localStorage.setItem(notificationConsentKey, '1');
       setNotificationPromptOpen(false);
     }).finally(() => setPermissionBusy(false));
@@ -412,7 +448,7 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
       <div className="workspace-user"><button className={`workspace-audio-toggle${soundEnabled ? ' is-ready' : ' is-muted'}`} type="button" onClick={toggleAlertSound} aria-pressed={soundEnabled} title={soundEnabled ? 'Desativar alertas sonoros (não recomendado)' : 'Ativar alertas sonoros'}>{soundEnabled ? <Volume2 size={16}/> : <VolumeX size={16}/>}<span>{soundEnabled ? 'Som ativado' : 'Som desativado'}</span></button><span className="workspace-avatar">{(profile.full_name || 'C').slice(0,1).toUpperCase()}</span><span><strong>{profile.full_name || 'Cidadão'}</strong><small>Conta ativa</small></span><button className="workspace-signout" onClick={onSignOut}><Power size={16}/> Sair</button></div>
     </header>
     <AdsCarousel />
-    {notificationPromptOpen && <div className="workspace-permission-backdrop" role="presentation"><section className="workspace-permission-dialog" role="dialog" aria-modal="true" aria-labelledby="workspace-permission-title"><span className="workspace-permission-icon"><Bell size={27}/></span><span className="portal-kicker">CENTRAL DE AVISOS · VAGAFÁCIL</span><h2 id="workspace-permission-title">Ative seus avisos</h2><p>Para receber avisos importantes sobre seu estacionamento, permita as notificações do VagaFácil. O som dos alertas fica ativado por padrão e não é recomendado desativá-lo.</p><div className="workspace-permission-features"><div><Bell size={19}/><span><strong>Notificações de texto</strong><small>Avisos na tela e no sistema, mesmo quando outra aba estiver em uso.</small></span></div></div>{notificationPermission === 'denied' && 'Notification' in window && <p className="workspace-permission-hint">As notificações estão bloqueadas nas configurações do navegador. Você ainda poderá receber avisos dentro do VagaFácil.</p>}<button className="workspace-permission-enable" type="button" disabled={permissionBusy} onClick={enableNotificationsAndSound}>{permissionBusy ? 'Ativando...' : 'Permitir notificações'}</button><button className="workspace-permission-later" type="button" onClick={() => setNotificationPromptOpen(false)}>Agora não</button></section></div>}
+    {notificationPromptOpen && <div className="workspace-permission-backdrop" role="presentation"><section className="workspace-permission-dialog" role="dialog" aria-modal="true" aria-labelledby="workspace-permission-title"><span className="workspace-permission-icon"><Bell size={27}/></span><span className="portal-kicker">CENTRAL DE AVISOS · VAGAFÁCIL</span><h2 id="workspace-permission-title">Ative seus avisos</h2><p>Permita as notificações do VagaFácil para receber alertas de texto e som na barra de notificações do celular, inclusive com o aplicativo fechado. O som depende das configurações do aparelho.</p><div className="workspace-permission-features"><div><Bell size={19}/><span><strong>Avisos no celular</strong><small>Notificações em segundo plano, tela bloqueada e central de notificações, quando o navegador oferecer suporte.</small></span></div><div><Volume2 size={19}/><span><strong>Alerta sonoro e vibração</strong><small>O aparelho usará o som e a vibração padrão das notificações.</small></span></div></div>{notificationPermission === 'denied' && 'Notification' in window && <p className="workspace-permission-hint">As notificações estão bloqueadas nas configurações do navegador. Você ainda poderá receber avisos dentro do VagaFácil.</p>}<button className="workspace-permission-enable" type="button" disabled={permissionBusy} onClick={enableNotificationsAndSound}>{permissionBusy ? 'Ativando...' : 'Permitir notificações'}</button><button className="workspace-permission-later" type="button" onClick={() => setNotificationPromptOpen(false)}>Agora não</button></section></div>}
     <div className="workspace-body">
       {sidebarOpen && <button className="workspace-sidebar-scrim" aria-label="Fechar menu" onClick={() => setSidebarOpen(false)} />}
       <aside className={`workspace-sidebar${sidebarOpen ? " is-open" : ""}`}><div className="workspace-greeting"><small>PORTAL DO CIDADÃO</small><strong>Olá, {profile.full_name?.split(' ')[0] || 'tudo bem'}!</strong><span>Gerencie seus estacionamentos.</span></div><nav>{navItems.map(item => { const Icon = item.icon; return <button key={item.id} className={tab === item.id ? 'active' : ''} onClick={() => { setTab(item.id); setError(''); setSuccess(''); setSidebarOpen(false); }}><Icon size={17}/>{item.label}{item.id === 'notifications' && unread > 0 && <b>{unread}</b>}</button>; })}</nav></aside>
