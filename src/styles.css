@@ -3412,3 +3412,24 @@ body {
   to{transform:translateX(0);opacity:1}
 }
 @media(prefers-reduced-motion:reduce){.citizen-ads-slide{animation:none;will-change:auto}}
+
+
+/* Painel central do administrador e pesquisa global */
+.ops-admin-dashboard{display:grid;gap:20px;min-width:0}
+.ops-admin-global-search{position:relative;display:grid;gap:10px;padding:18px 20px;border:1px solid #cfe1eb;border-radius:14px;background:linear-gradient(145deg,#fff,#f1f8fb);box-shadow:0 8px 22px #12364d0d}
+.ops-admin-global-search>label{display:flex;align-items:center;gap:9px;color:#12394f;font-size:14px;font-weight:850}
+.ops-admin-global-search>.ops-search-control input{min-height:46px;padding:10px 13px;border:1px solid #b9d2df;border-radius:9px;background:#fff;color:#102f43;font:inherit}
+.ops-admin-global-search>.ops-search-control button{width:44px;height:44px;flex-basis:44px;background:linear-gradient(135deg,#07506d,#087da5);color:#fff}
+.ops-admin-global-results{display:grid;gap:7px;padding-top:10px;border-top:1px solid #dce9ef}
+.ops-admin-global-result{display:flex;align-items:center;justify-content:space-between;gap:14px;width:100%;padding:11px 12px;border:1px solid #e0ebf0;border-radius:9px;background:#fff;color:#17394d;text-align:left;cursor:pointer}
+.ops-admin-global-result:hover{border-color:#6ab4d0;background:#f4fbfe}
+.ops-admin-global-result>span:first-child{display:grid;gap:3px;min-width:0}
+.ops-admin-global-result strong{font-size:13px}
+.ops-admin-global-result small{overflow-wrap:anywhere;color:#607b8d;font-size:11px}
+.ops-admin-global-result>span:last-child{flex:0 0 auto;color:#087da8;font-size:11px;font-weight:800}
+.ops-admin-dashboard>.ops-panel{min-width:0}
+.ops-admin-dashboard>.ops-panel>.ops-panel-heading{align-items:center;flex-wrap:wrap}
+.ops-admin-dashboard>.ops-panel>.ops-panel-heading>div:first-child{min-width:220px}
+.ops-admin-dashboard>.ops-panel>.ops-panel-heading .ops-eyebrow{margin-bottom:5px}
+.ops-admin-dashboard .ops-table-wrap{max-width:100%}
+@media(max-width:620px){.ops-admin-global-search{padding:14px}.ops-admin-global-result{align-items:flex-start;flex-direction:column;gap:5px}.ops-admin-dashboard>.ops-panel>.ops-panel-heading .ops-page-actions{width:100%}}
