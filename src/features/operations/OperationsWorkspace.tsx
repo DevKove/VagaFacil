@@ -134,7 +134,7 @@ export default function OperationsWorkspace({ profile, area, onSignOut }: { prof
         fetchAllPages((from,to) => supabase.from('parking_sessions').select('id,plate_snapshot,started_at,expires_at,ended_at,status,user_id,space_id,latitude,longitude,location_accuracy_m,location_captured_at,parking_spaces(code,latitude,longitude,parking_zones(name))').order('started_at', { ascending: false }).range(from,to)),
         fetchAllPages((from,to) => supabase.from('alerts').select('id,status,severity,created_at,session_id,claimed_by,parking_sessions(id,plate_snapshot,started_at,expires_at,status,user_id,space_id,latitude,longitude,parking_spaces(code,latitude,longitude,parking_zones(name)))').in('status', ['open','claimed']).order('created_at', { ascending: false }).range(from,to)),
         fetchAllPages((from,to) => supabase.from('parking_spaces').select('id,code,category,active,zone_id,latitude,longitude').order('code').range(from,to)),
-        fetchAllPages((from,to) => supabase.from('parking_zones').select('id,name,description,active').eq('active', true).order('name').range(from,to)),
+        fetchAllPages((from,to) => supabase.from('parking_zones').select('id,name,description,active').order('name').range(from,to)),
         area === 'agent' || profile.role === 'admin' ? fetchAllPages((from,to) => supabase.from('physical_card_sessions').select('id,plate_snapshot,category,started_at,expires_at,ended_at,status,zone_id,space_id,created_by,created_by_name,created_at,notes,latitude,longitude,location_accuracy_m,location_captured_at').order('started_at', { ascending: false }).range(from,to)) : Promise.resolve([]),
       ]);
       setSessions(sessionRows as unknown as Session[]);
