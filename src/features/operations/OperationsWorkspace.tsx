@@ -63,6 +63,18 @@ const auditEntityText = (entity: string) => ({
 }[entity] || entity.replace(/[_-]+/g, ' '));
 
 
+
+async function fetchAllPages<T>(fetchPage: (from: number, to: number) => PromiseLike<{ data: T[] | null; error: unknown }>) {
+  const records: T[] = [];
+  for (let offset = 0; ; offset += 1000) {
+    const { data, error } = await fetchPage(offset, offset + 999);
+    if (error) throw error;
+    const page = data || [];
+    records.push(...page);
+    if (page.length < 1000) return records;
+  }
+}
+
 async function invokeUserManagement(payload: Record<string, unknown>) {
   if (!supabase) throw new Error('Serviço de autenticação indisponível.');
   const { data, error } = await supabase.functions.invoke('manage-users', { body: payload });
@@ -118,27 +130,21 @@ export default function OperationsWorkspace({ profile, area, onSignOut }: { prof
     setLoading(true);
     setError('');
     try {
-      const [sessionRes, alertRes, spaceMapRes, zoneRes, cardRes] = await Promise.all([
-        supabase.from('parking_sessions').select('id,plate_snapshot,started_at,expires_at,ended_at,status,user_id,space_id,latitude,longitude,location_accuracy_m,location_captured_at,parking_spaces(code,latitude,longitude,parking_zones(name))').order('started_at', { ascending: false }).limit(1000),
-        supabase.from('alerts').select('id,status,severity,created_at,session_id,claimed_by,parking_sessions(id,plate_snapshot,started_at,expires_at,status,user_id,space_id,latitude,longitude,parking_spaces(code,latitude,longitude,parking_zones(name)))').in('status', ['open','claimed']).order('created_at', { ascending: false }).limit(300),
-        supabase.from('parking_spaces').select('id,code,category,active,zone_id,latitude,longitude').order('code'),
-        supabase.from('parking_zones').select('id,name,description,active').eq('active', true).order('name'),
-        area === 'agent' || profile.role === 'admin' ? supabase.from('physical_card_sessions').select('id,plate_snapshot,category,started_at,expires_at,ended_at,status,zone_id,space_id,created_by,created_by_name,created_at,notes,latitude,longitude,location_accuracy_m,location_captured_at').order('started_at', { ascending: false }).limit(500) : Promise.resolve({ data: [], error: null }),
+      const [sessionRows, alertRows, spaceRows, zoneRows, cardRows] = await Promise.all([
+        fetchAllPages((from,to) => supabase.from('parking_sessions').select('id,plate_snapshot,started_at,expires_at,ended_at,status,user_id,space_id,latitude,longitude,location_accuracy_m,location_captured_at,parking_spaces(code,latitude,longitude,parking_zones(name))').order('started_at', { ascending: false }).range(from,to)),
+        fetchAllPages((from,to) => supabase.from('alerts').select('id,status,severity,created_at,session_id,claimed_by,parking_sessions(id,plate_snapshot,started_at,expires_at,status,user_id,space_id,latitude,longitude,parking_spaces(code,latitude,longitude,parking_zones(name)))').in('status', ['open','claimed']).order('created_at', { ascending: false }).range(from,to)),
+        fetchAllPages((from,to) => supabase.from('parking_spaces').select('id,code,category,active,zone_id,latitude,longitude').order('code').range(from,to)),
+        fetchAllPages((from,to) => supabase.from('parking_zones').select('id,name,description,active').eq('active', true).order('name').range(from,to)),
+        area === 'agent' || profile.role === 'admin' ? fetchAllPages((from,to) => supabase.from('physical_card_sessions').select('id,plate_snapshot,category,started_at,expires_at,ended_at,status,zone_id,space_id,created_by,created_by_name,created_at,notes,latitude,longitude,location_accuracy_m,location_captured_at').order('started_at', { ascending: false }).range(from,to)) : Promise.resolve([]),
       ]);
-      if (sessionRes.error) throw sessionRes.error;
-      if (alertRes.error) throw alertRes.error;
-      if (spaceMapRes.error) throw spaceMapRes.error;
-      if (zoneRes.error) throw zoneRes.error;
-      if (cardRes.error) throw cardRes.error;
-      setSessions((sessionRes.data || []) as unknown as Session[]);
-      setZones((zoneRes.data || []) as Zone[]);
-      setPhysicalCardSessions((cardRes.data || []) as PhysicalCardSession[]);
-      setAlerts((alertRes.data || []) as unknown as Alert[]);
-      setSpaces((spaceMapRes.data || []) as Space[]);
+      setSessions(sessionRows as unknown as Session[]);
+      setZones(zoneRows as Zone[]);
+      setPhysicalCardSessions(cardRows as PhysicalCardSession[]);
+      setAlerts(alertRows as unknown as Alert[]);
+      setSpaces(spaceRows as Space[]);
       if (area === 'agent') {
-        const historyRes = await supabase.from('enforcements').select('id,status,result,notes,created_at,alert_id,alerts(parking_sessions(plate_snapshot)),enforcement_photos(storage_path)').eq('agent_id', profile.id).order('created_at', { ascending: false }).limit(100);
-        if (historyRes.error) throw historyRes.error;
-        const historyItems = (historyRes.data || []) as unknown as EnforcementHistory[];
+        const historyRows = await fetchAllPages((from,to) => supabase.from('enforcements').select('id,status,result,notes,created_at,alert_id,alerts(parking_sessions(plate_snapshot)),enforcement_photos(storage_path)').eq('agent_id', profile.id).order('created_at', { ascending: false }).range(from,to));
+        const historyItems = historyRows as unknown as EnforcementHistory[];
         setHistory(historyItems);
         const signedPhotos = await Promise.all(historyItems.map(async item => {
           const signed = await Promise.all((item.enforcement_photos || []).map(async photo => {
@@ -150,16 +156,14 @@ export default function OperationsWorkspace({ profile, area, onSignOut }: { prof
         setHistoryPhotoUrls(Object.fromEntries(signedPhotos));
       }
       if (area === 'admin') {
-        const [userRes, ruleRes, auditRes] = await Promise.all([
+        const [userRes, ruleRows, auditRows] = await Promise.all([
           invokeUserManagement({ action: 'list' }),
-          supabase.from('parking_rules').select('id,name,enabled,start_time,end_time,saturday_start,saturday_end,conventional_minutes,special_minutes,grace_minutes').order('created_at', { ascending: false }),
-          supabase.from('audit_logs').select('id,actor_id,action,entity_type,entity_id,created_at').order('created_at', { ascending: false }).limit(300),
+          fetchAllPages((from,to) => supabase.from('parking_rules').select('id,name,enabled,start_time,end_time,saturday_start,saturday_end,conventional_minutes,special_minutes,grace_minutes').order('created_at', { ascending: false }).range(from,to)),
+          fetchAllPages((from,to) => supabase.from('audit_logs').select('id,actor_id,action,entity_type,entity_id,created_at').order('created_at', { ascending: false }).range(from,to)),
         ]);
-        if (ruleRes.error) throw ruleRes.error;
-        if (auditRes.error) throw auditRes.error;
         setUsers((userRes?.users || []) as Profile[]);
-        setRules(ruleRes.data || []);
-        setAuditLogs((auditRes.data || []) as AuditLog[]);
+        setRules(ruleRows as Rule[]);
+        setAuditLogs(auditRows as AuditLog[]);
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Falha ao carregar os dados do ambiente.');
