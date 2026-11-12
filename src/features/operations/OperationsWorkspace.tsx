@@ -14,7 +14,7 @@ type AuditLog = { id: number; actor_id: string | null; action: string; entity_ty
 type EnforcementHistory = { id: string; status: string; result: string | null; notes: string | null; created_at: string; alert_id: string; alerts?: { parking_sessions?: { plate_snapshot: string } | null } | null; enforcement_photos?: { storage_path: string }[] };
 type Rule = { id: string; name: string; enabled: boolean; start_time: string; end_time: string; saturday_start: string | null; saturday_end: string | null; conventional_minutes: number; special_minutes: number; grace_minutes: number };
 type PhysicalCardSession = { id: string; plate_snapshot: string; category: string; started_at: string; expires_at: string; status: string; zone_id: string | null; space_id: string | null; created_by: string; created_at: string; notes: string | null };
-const localDateTimeValue = () => { const now = new Date(); const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000); return local.toISOString().slice(0,16); };
+const localDateTimeParts = () => { const now = new Date(); const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString(); return { date: local.slice(0,10), time: local.slice(11,16) }; };
 
 const menus = {
   agent: [{ id: 'overview', label: 'Painel operacional', icon: LayoutDashboard }, { id: 'sessions', label: 'Sessões em andamento', icon: CarFront }, { id: 'card', label: 'Cartão', icon: CreditCard }, { id: 'alerts', label: 'Alertas e fiscalização', icon: AlertTriangle }, { id: 'history', label: 'Histórico de ações', icon: FileText }, { id: 'map', label: 'Mapa operacional', icon: MapPinned }],
@@ -48,7 +48,7 @@ export default function OperationsWorkspace({ profile, area, onSignOut }: { prof
   const [error, setError] = useState('');
   const [sessions, setSessions] = useState<Session[]>([]);
   const [physicalCardSessions, setPhysicalCardSessions] = useState<PhysicalCardSession[]>([]);
-  const [cardForm, setCardForm] = useState({ plate: '', category: 'conventional', zone_id: '', space_id: '', started_at: localDateTimeValue(), notes: '' });
+  const [cardForm, setCardForm] = useState(() => ({ plate: '', category: 'conventional', zone_id: '', space_id: '', ...{ started_date: localDateTimeParts().date, started_time: localDateTimeParts().time }, notes: '' }));
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [zones, setZones] = useState<Zone[]>([]);
   const [spaces, setSpaces] = useState<Space[]>([]);
@@ -205,8 +205,8 @@ export default function OperationsWorkspace({ profile, area, onSignOut }: { prof
     if (!supabase) return;
     const plate = cardForm.plate.replace(/[^a-z0-9]/gi, '').toUpperCase();
     if (!/^[A-Z]{3}[0-9][A-Z0-9][0-9]{2}$/.test(plate)) { setError('Informe uma placa válida no padrão ABC1D23 ou ABC1234.'); return; }
-    const startedAt = new Date(cardForm.started_at);
-    if (Number.isNaN(startedAt.getTime()) || startedAt.getTime() > Date.now()) { setError('O início deve ser uma data e horário válidos, não futuros.'); return; }
+    const startedAt = new Date(`${cardForm.started_date}T${cardForm.started_time}`);
+    if (!cardForm.started_date || !cardForm.started_time || Number.isNaN(startedAt.getTime()) || startedAt.getTime() > Date.now()) { setError('Informe uma data e um horário de início válidos, não futuros.'); return; }
     void run(async () => {
       const { error } = await supabase!.rpc('register_physical_card_session', {
         p_plate: plate,
@@ -217,7 +217,7 @@ export default function OperationsWorkspace({ profile, area, onSignOut }: { prof
         p_notes: cardForm.notes.trim() || null,
       });
       if (error) throw error;
-      setCardForm({ plate: '', category: 'conventional', zone_id: '', space_id: '', started_at: localDateTimeValue(), notes: '' });
+      setCardForm({ plate: '', category: 'conventional', zone_id: '', space_id: ...localDateTimeParts(), notes: '' });
     });
   };
   const finishSession = (session: Session) => {
@@ -319,7 +319,7 @@ export default function OperationsWorkspace({ profile, area, onSignOut }: { prof
                   <label>Zona<select value={cardForm.zone_id} onChange={e=>setCardForm(v=>({...v,zone_id:e.target.value,space_id:''}))}><option value="">Não informada</option>{zones.map(zone=><option key={zone.id} value={zone.id}>{zone.name}</option>)}</select></label>
                 </div>
                 <label>Vaga (opcional)<select value={cardForm.space_id} onChange={e=>setCardForm(v=>({...v,space_id:e.target.value}))}><option value="">Sem vaga específica</option>{spaces.filter(space=>space.active && (!cardForm.zone_id || space.zone_id===cardForm.zone_id)).map(space=><option key={space.id} value={space.id}>{space.code}</option>)}</select></label>
-                <label>Data e horário de início<input type="datetime-local" value={cardForm.started_at} max={localDateTimeValue()} onChange={e=>setCardForm(v=>({...v,started_at:e.target.value}))} required/><small>Você pode informar o horário em que o cartão físico começou a ser utilizado, mesmo que o lançamento seja feito depois.</small></label>
+                <div className="ops-form-grid ops-card-start-fields"><label>Data de início<input type="date" value={cardForm.started_date} max={localDateTimeParts().date} onChange={e=>setCardForm(v=>({...v,started_date:e.target.value}))} required/></label><label>Horário de início<input type="time" value={cardForm.started_time} max={cardForm.started_date===localDateTimeParts().date?localDateTimeParts().time:undefined} onChange={e=>setCardForm(v=>({...v,started_time:e.target.value}))} required/></label></div><small className="ops-card-start-help">Informe separadamente a data e o horário em que o cartão físico começou a ser utilizado. O lançamento pode ser feito posteriormente.</small>
                 <label>Observações (opcional)<textarea rows={3} maxLength={500} value={cardForm.notes} onChange={e=>setCardForm(v=>({...v,notes:e.target.value}))} placeholder="Informações complementares do atendimento"/></label>
                 <div className="ops-card-notice"><Clock3 size={17}/><span>O vencimento será calculado automaticamente a partir do horário de início informado, conforme a duração configurada para a categoria.</span></div>
                 <button className="ops-primary" disabled={busy}><CreditCard size={16}/> Registrar cartão físico</button>
