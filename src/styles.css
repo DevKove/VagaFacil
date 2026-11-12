@@ -3464,3 +3464,9 @@ body {
 .ops-audit-footnote{margin:12px 0 0;padding-top:12px;border-top:1px solid var(--ops-border,#e3e8ef);color:var(--ops-muted,#667085);font-size:11px;line-height:1.5}
 @media(max-width:760px){.ops-audit-summary{grid-template-columns:1fr 1fr}.ops-audit-summary article:last-child{grid-column:1/-1}.ops-audit-intro{padding:19px}.ops-audit-table{min-width:700px}}
 @media(max-width:480px){.ops-audit-summary{gap:9px}.ops-audit-summary article{padding:13px}.ops-audit-summary article strong{font-size:23px}.ops-audit-intro-icon{width:46px;height:46px;flex-basis:46px}.ops-audit-intro h2{font-size:19px}}
+
+
+.ops-export-action{display:inline-flex;align-items:center;justify-content:center;gap:7px;white-space:nowrap}
+.ops-report-export-actions,.ops-ads-export-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ops-report-result-heading .ops-report-export-actions{flex:0 0 auto}
+@media(max-width:680px){.ops-page-actions .ops-export-action{flex:1 1 auto}.ops-report-export-actions{width:100%}.ops-report-export-actions button{flex:1}.ops-ads-export-actions{width:100%}.ops-ads-export-actions button{flex:1}}
