@@ -82,7 +82,7 @@ function Portal({ onSelect }: { onSelect: (role: PortalRole) => void }) {
   return <main className="portal-page">
     <header className="portal-header">
       <a className="portal-brand" href="#" aria-label="VagaFácil início"><img className="portal-brand-logo" src={`${import.meta.env.BASE_URL}IMG/logo-vagafacil.svg`} alt="VagaFácil" /><span><strong>VagaFácil</strong><small>Estacionar ficou mais fácil.</small></span></a>
-      <div className="portal-header-actions"><span className="portal-header-note"><i /> Plataforma de estacionamento rotativo</span>{canInstall && <button type="button" className="portal-install-trigger" onClick={() => void install()}><Download size={17}/><span>Instalar aplicativo</span></button>}{installed && <span className="portal-installed-badge">Aplicativo instalado</span>}<button type="button" className="portal-login-trigger" onClick={() => setAccessOpen(true)}><LockKeyhole size={17}/> Entrar</button></div>
+      <div className="portal-header-actions"><span className="portal-header-note"><i /> Plataforma de estacionamento rotativo</span>{canInstall && <button type="button" className="portal-install-trigger" onClick={() => void install()}><Download size={17}/><span>Instalar aplicativo</span></button>}{installed && <span className="portal-installed-badge">Aplicativo instalado</span>}</div>
     </header>
     <section className="portal-hero">
       <div className="portal-hero-art" aria-hidden="true">
@@ -92,6 +92,7 @@ function Portal({ onSelect }: { onSelect: (role: PortalRole) => void }) {
           <img className="portal-hero-image" src={new URL('../IMG/banner.jpg', import.meta.url).href} alt="" />
         </picture>
       </div>
+      <button type="button" className="portal-login-trigger portal-hero-login" onClick={() => setAccessOpen(true)}><LockKeyhole size={18}/> Entrar <ArrowUpRight size={17}/></button>
     </section>
     <footer className="portal-footer portal-footer-refined">
       <span>© 2026 VagaFácil · Plataforma municipal de estacionamento rotativo</span>
