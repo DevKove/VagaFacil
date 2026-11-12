@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
-import { Activity, Bell, CarFront, CheckCircle2, Clock3, History, MapPin, Menu, Plus, Power, Trash2, Volume2, VolumeX, X } from 'lucide-react';
+import { Activity, Bell, CarFront, CheckCircle2, Clock3, Download, FileText, History, MapPin, Menu, Plus, Power, Trash2, Volume2, VolumeX, X } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { VehiclePlate } from '../../components/VehiclePlate';
 import AdsCarousel from '../../components/AdsCarousel';
+import { exportDataset } from '../../utils/export';
 
 type Vehicle = { id: string; plate: string; make: string | null; model: string | null; color: string | null; vehicle_type: string | null };
 type ParkingSpace = { id: string; code: string; category: string; zone_id: string | null; parking_zones?: { name: string } | null };
@@ -172,7 +173,7 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
     const client = supabase;
     const [vehicleResult, sessionResult, spaceResult, noticeResult] = await Promise.all([
       client.from('vehicles').select('id,plate,make,model,color,vehicle_type').eq('owner_id', profile.id).order('created_at', { ascending: false }),
-      client.from('parking_sessions').select('id,plate_snapshot,started_at,expires_at,ended_at,status,space_id,latitude,longitude,location_accuracy_m,location_captured_at,beneficiary_category,parking_spaces(code,parking_zones(name))').eq('user_id', profile.id).order('started_at', { ascending: false }).limit(50),
+      client.from('parking_sessions').select('id,plate_snapshot,started_at,expires_at,ended_at,status,space_id,latitude,longitude,location_accuracy_m,location_captured_at,beneficiary_category,parking_spaces(code,parking_zones(name))').eq('user_id', profile.id).order('started_at', { ascending: false }).limit(1000),
       client.from('parking_spaces').select('id,code,category,zone_id,parking_zones(name)').eq('active', true).order('code'),
       client.from('notifications').select('id,title,body,kind,read_at,created_at').eq('user_id', profile.id).order('created_at', { ascending: false }).limit(30),
     ]);
@@ -534,6 +535,13 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
     if (!updateError) await refresh();
   };
 
+
+  const exportCitizenData = (format: 'pdf' | 'excel') => {
+    if (tab === 'vehicles') return exportDataset('Meus veículos',['Placa','Marca','Modelo','Cor','Tipo'],vehicles.map(item=>[item.plate,item.make || '',item.model || '',item.color || '',item.vehicle_type || '']),format);
+    if (tab === 'notifications') return exportDataset('Minhas notificações',['Título','Mensagem','Tipo','Data','Situação'],notices.map(item=>[item.title,item.body,item.kind,item.created_at,item.read_at?'Lida':'Não lida']),format);
+    return exportDataset('Meu histórico de estacionamentos',['Placa','Data e hora de início','Vencimento','Encerramento','Vaga','Zona','Categoria','Situação','Latitude','Longitude','Precisão GPS (m)','GPS capturado em'],sessions.map(item=>[item.plate_snapshot,item.started_at,item.expires_at,item.ended_at || '',item.parking_spaces?.code || '',item.parking_spaces?.parking_zones?.name || '',item.beneficiary_category === 'elderly'?'Idoso':item.beneficiary_category === 'accessible'?'Pessoa com deficiência':'Convencional',item.status === 'finished'?'Encerrado':item.status === 'cancelled'?'Cancelado':item.status === 'expired' || (item.status === 'active' && new Date(item.expires_at).getTime() <= now)?'Prazo encerrado':'Em andamento',item.latitude,item.longitude,item.location_accuracy_m,item.location_captured_at || '']),format);
+  };
+
   const navItems = [
     { id: 'overview', label: 'Início', icon: Activity },
     { id: 'register', label: 'Registrar estacionamento', icon: MapPin },
@@ -554,7 +562,7 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
       {sidebarOpen && <button className="workspace-sidebar-scrim" aria-label="Fechar menu" onClick={() => setSidebarOpen(false)} />}
       <aside className={`workspace-sidebar${sidebarOpen ? " is-open" : ""}`}><div className="workspace-greeting"><small>PORTAL DO CIDADÃO</small><strong>Olá, {profile.full_name?.split(' ')[0] || 'tudo bem'}!</strong><span>Gerencie seus estacionamentos.</span></div><nav>{navItems.map(item => { const Icon = item.icon; return <button key={item.id} className={tab === item.id ? 'active' : ''} onClick={() => { setTab(item.id); setError(''); setSuccess(''); setSidebarOpen(false); }}><Icon size={17}/>{item.label}{item.id === 'notifications' && unread > 0 && <b>{unread}</b>}</button>; })}</nav></aside>
       <section className="workspace-content">
-        {tab !== 'overview' && <div className="workspace-page-heading"><div><span className="portal-kicker">VAGAFÁCIL · SERVIÇOS DIGITAIS</span><h1>{navItems.find(item => item.id === tab)?.label}</h1><p>Seus dados e registros em um só lugar.</p></div>{tab === 'vehicles' && <button className="workspace-primary" onClick={() => setShowVehicleForm(true)}><Plus size={17}/> Adicionar veículo</button>}</div>}
+        {tab !== 'overview' && <div className="workspace-page-heading"><div><span className="portal-kicker">VAGAFÁCIL · SERVIÇOS DIGITAIS</span><h1>{navItems.find(item => item.id === tab)?.label}</h1><p>Seus dados e registros em um só lugar.</p></div><div className="workspace-export-actions"><button type="button" className="workspace-export-button" onClick={()=>exportCitizenData('pdf')}><FileText size={16}/> PDF</button><button type="button" className="workspace-export-button" onClick={()=>exportCitizenData('excel')}><Download size={16}/> Excel</button>{tab === 'vehicles' && <button className="workspace-primary" onClick={() => setShowVehicleForm(true)}><Plus size={17}/> Adicionar veículo</button>}</div></div>}
         {error && <div className="workspace-alert error" role="alert">{error}</div>}
         {success && <div className="workspace-alert success" role="status">{success}</div>}
         {expiryWarning.map(warning => <div className="workspace-expiry-warning" role="alert" key={warning.sessionId}><span className="workspace-alert-pulse"><Bell size={25}/></span><div className="workspace-alert-copy"><strong>⚠ ATENÇÃO</strong><b className="workspace-alert-title">{warning.plate}</b><span>{warning.body}</span></div><button className="workspace-alert-dismiss" type="button" onClick={() => { setExpiryWarning(current => current.filter(item => item.sessionId !== warning.sessionId)); if (notices.some(item => item.id === warning.sessionId && item.kind === 'admin_manual_alert')) void markRead(warning.sessionId); else window.localStorage.setItem(`vagafacil:expiry-dismissed:${profile.id}:${warning.sessionId}`, '1'); }} aria-label="Marcar aviso como lido e fechar"><X size={19}/></button></div>)}
