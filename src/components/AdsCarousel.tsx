@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
-type Ad = { id: string; title: string; alt_text: string; image_path: string; link_url: string | null; sort_order: number };
+type Ad = { id: string; title: string; alt_text: string; image_path: string; link_url: string | null; sort_order: number; duration_seconds: number };
 
 export default function AdsCarousel() {
   const [ads, setAds] = useState<Ad[]>([]);
@@ -12,7 +12,7 @@ export default function AdsCarousel() {
     if (!supabase) return;
     let alive = true;
     const load = async () => {
-      const { data, error } = await supabase!.from('ads').select('id,title,alt_text,image_path,link_url,sort_order').eq('active', true).order('sort_order').order('created_at');
+      const { data, error } = await supabase!.from('ads').select('id,title,alt_text,image_path,link_url,sort_order,duration_seconds').eq('active', true).order('sort_order').order('created_at');
       if (!error && alive) {
         setAds((data || []) as Ad[]);
         setActiveIndex(index => Math.min(index, Math.max(0, (data || []).length - 1)));
@@ -25,9 +25,11 @@ export default function AdsCarousel() {
 
   useEffect(() => {
     if (ads.length < 2) return;
-    const timer = window.setInterval(() => setActiveIndex(index => (index + 1) % ads.length), 5000);
-    return () => window.clearInterval(timer);
-  }, [ads.length]);
+    const current = ads[activeIndex];
+    const duration = Math.min(120, Math.max(1, Number(current?.duration_seconds) || 5)) * 1000;
+    const timer = window.setTimeout(() => setActiveIndex(index => (index + 1) % ads.length), duration);
+    return () => window.clearTimeout(timer);
+  }, [ads, activeIndex]);
 
   if (!ads.length || !supabase) return null;
   const ad = ads[activeIndex];
