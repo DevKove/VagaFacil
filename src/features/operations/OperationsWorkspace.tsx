@@ -207,11 +207,17 @@ export default function OperationsWorkspace({ profile, area, onSignOut }: { prof
         kind: 'admin_manual_alert',
       }).select('id').single();
       if (error) throw error;
-      const { error: pushError } = await supabase!.functions.invoke('send-web-push', {
+      const { data: pushResult, error: pushError } = await supabase!.functions.invoke('send-web-push', {
         body: { notificationId: notice.id },
       });
       if (pushError) {
         throw new Error('Alerta registrado no sistema, mas o envio ao celular não foi concluído. Verifique a configuração do Web Push no Supabase.');
+      }
+      if (!pushResult || pushResult.sent < 1) {
+        throw new Error(pushResult?.message || 'Alerta registrado no sistema, mas este cidadão ainda não possui um aparelho inscrito para receber notificações push.');
+      }
+      if (pushResult.failed > 0) {
+        throw new Error(`Alerta enviado a ${pushResult.sent} aparelho(s), mas ${pushResult.failed} envio(s) falharam. Verifique a inscrição dos aparelhos.`);
       }
     });
   };
