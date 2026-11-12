@@ -131,7 +131,6 @@ export default function OperationsWorkspace({ profile, area, onSignOut }: { prof
   useEffect(() => { void load(); }, [load]);
   const normalizedSectionFilter = sectionFilter.trim().toLocaleLowerCase('pt-BR');
   const matchesSectionFilter = (values: unknown[]) => !normalizedSectionFilter || values.some(value => String(value ?? '').toLocaleLowerCase('pt-BR').includes(normalizedSectionFilter));
-  const filteredSessions = useMemo(() => sessions.filter(s => [s.plate_snapshot, s.latitude, s.longitude, s.parking_spaces?.code, s.parking_spaces?.parking_zones?.name].join(' ').toLowerCase().includes(search.toLowerCase()) && matchesSectionFilter([s.plate_snapshot,s.latitude,s.longitude,s.parking_spaces?.code,s.parking_spaces?.parking_zones?.name]) && (sectionStatus === 'all' || (sectionStatus === 'expired' ? s.status === 'expired' || (s.status === 'active' && new Date(s.expires_at).getTime() <= Date.now()) : s.status === sectionStatus))), [sessions, search, sectionFilter, sectionStatus]);
   const monitoredSessions = useMemo(() => [
     ...sessions.map(session => ({ ...session, source: 'citizen' as const })),
     ...physicalCardSessions.map(item => {
