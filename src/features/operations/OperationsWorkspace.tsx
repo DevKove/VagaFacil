@@ -26,13 +26,40 @@ const getDeviceLocation = () => new Promise<{ latitude: number; longitude: numbe
 
 const menus = {
   agent: [{ id: 'overview', label: 'Painel operacional', icon: LayoutDashboard }, { id: 'sessions', label: 'Sessões em andamento', icon: CarFront }, { id: 'card', label: 'Cartão', icon: CreditCard }, { id: 'alerts', label: 'Alertas e fiscalização', icon: AlertTriangle }, { id: 'history', label: 'Histórico de ações', icon: FileText }, { id: 'map', label: 'Mapa operacional', icon: MapPinned }],
-  admin: [{ id: 'overview', label: 'Visão geral', icon: LayoutDashboard }, { id: 'sessions', label: 'Estacionamentos', icon: CarFront }, { id: 'card', label: 'Cartão', icon: CreditCard }, { id: 'zones', label: 'Zonas e vagas', icon: MapPin }, { id: 'users', label: 'Usuários e agentes', icon: Users }, { id: 'rules', label: 'Regras e feriados', icon: Clock3 }, { id: 'reports', label: 'Relatórios', icon: FileText }, { id: 'map', label: 'Mapa de vagas', icon: MapPinned }, { id: 'audit', label: 'Auditoria', icon: ShieldCheck }, { id: 'ads', label: 'Ads', icon: Images }],
+  admin: [{ id: 'overview', label: 'Visão geral', icon: LayoutDashboard }, { id: 'sessions', label: 'Estacionamentos', icon: CarFront }, { id: 'card', label: 'Cartão', icon: CreditCard }, { id: 'zones', label: 'Zonas e vagas', icon: MapPin }, { id: 'users', label: 'Usuários e agentes', icon: Users }, { id: 'rules', label: 'Regras e feriados', icon: Clock3 }, { id: 'reports', label: 'Relatórios', icon: FileText }, { id: 'map', label: 'Mapa de vagas', icon: MapPinned }, { id: 'ads', label: 'Ads', icon: Images }, { id: 'audit', label: 'Auditoria', icon: ShieldCheck }],
 };
 const dateTime = (value: string) => new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'medium' }).format(new Date(value));
 const dateOnly = (value: string) => new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short' }).format(new Date(value));
 const timeOnly = (value: string) => new Intl.DateTimeFormat('pt-BR', { timeStyle: 'medium' }).format(new Date(value));
 const statusText = (status: string) => ({ active: 'Em andamento', expired: 'Vencido', finished: 'Encerrado', open: 'Aberto', claimed: 'Em atendimento', resolved: 'Resolvido', dismissed: 'Descartado' }[status] || status);
 const roleText = (role: string) => ({ admin: 'Administrador', supervisor: 'Supervisor', agent: 'Agente', citizen: 'Cidadão' }[role] || role);
+const auditActionText = (action: string) => {
+  const value = action.trim().toUpperCase();
+  const labels: Record<string, string> = {
+    INSERT: 'Cadastro criado',
+    CREATE: 'Cadastro criado',
+    UPDATE: 'Registro atualizado',
+    DELETE: 'Registro excluído',
+    LOGIN: 'Acesso realizado',
+    LOGOUT: 'Saída do sistema',
+    SIGN_IN: 'Acesso realizado',
+    SIGN_OUT: 'Saída do sistema',
+  };
+  return labels[value] || action.replace(/[_-]+/g, ' ').toLocaleLowerCase('pt-BR').replace(/^\\p{L}/u, letter => letter.toLocaleUpperCase('pt-BR'));
+};
+const auditEntityText = (entity: string) => ({
+  profiles: 'Usuário',
+  users: 'Usuário',
+  parking_sessions: 'Estacionamento',
+  physical_card_sessions: 'Cartão físico',
+  parking_zones: 'Zona',
+  parking_spaces: 'Vaga',
+  parking_rules: 'Regra de estacionamento',
+  alerts: 'Alerta',
+  enforcements: 'Fiscalização',
+  ads: 'Anúncio',
+}[entity] || entity.replace(/[_-]+/g, ' '));
+
 
 async function invokeUserManagement(payload: Record<string, unknown>) {
   if (!supabase) throw new Error('Serviço de autenticação indisponível.');
@@ -179,7 +206,9 @@ export default function OperationsWorkspace({ profile, area, onSignOut }: { prof
   const filteredZones = zones.filter(z => matchesSectionFilter([z.name,z.description,z.active ? 'ativa' : 'inativa']) && (sectionStatus === 'all' || (sectionStatus === 'active' ? z.active : sectionStatus === 'inactive' ? !z.active : true)));
   const filteredSpaces = spaces.filter(item => matchesSectionFilter([item.code,item.category,item.active ? 'ativa' : 'inativa']) && (sectionStatus === 'all' || (sectionStatus === 'active' ? item.active : sectionStatus === 'inactive' ? !item.active : true)));
   const filteredRules = rules.filter(rule => matchesSectionFilter([rule.name,rule.enabled ? 'habilitada' : 'desabilitada']) && (sectionStatus === 'all' || (sectionStatus === 'active' ? rule.enabled : sectionStatus === 'inactive' ? !rule.enabled : true)));
-  const filteredAuditLogs = auditLogs.filter(log => matchesSectionFilter([log.actor_id,log.action,log.entity_type,log.entity_id]));
+  const filteredAuditLogs = auditLogs.filter(log => { const actor = users.find(user => user.id === log.actor_id); return matchesSectionFilter([actor?.full_name,actor?.email,log.actor_id,log.action,auditActionText(log.action),log.entity_type,auditEntityText(log.entity_type),log.entity_id]); });
+  const auditTodayCount = auditLogs.filter(log => new Date(log.created_at).toDateString() === new Date().toDateString()).length;
+  const auditActorCount = new Set(auditLogs.map(log => log.actor_id).filter(Boolean)).size;
   const activeSessions = sessions.filter(s => s.status === 'active');
   const expiredSessions = sessions.filter(s => s.status === 'expired' || (s.status === 'active' && new Date(s.expires_at).getTime() <= Date.now()));
   const openAlerts = alerts.filter(a => a.status === 'open').length;
@@ -439,7 +468,26 @@ export default function OperationsWorkspace({ profile, area, onSignOut }: { prof
             </section>
             <section className="ops-holidays-card"><div className="ops-holidays-icon"><Clock3 size={22}/></div><div className="ops-holidays-content"><span className="ops-rules-kicker">02 · CALENDÁRIO MUNICIPAL</span><h3>Feriados e datas especiais</h3><p>Os registros de feriados são armazenados na base de dados do VagaFácil. A gestão do calendário — incluindo cadastro, edição e aplicação de exceções ao estacionamento rotativo — será liberada após a validação das regras municipais aplicáveis.</p><div className="ops-holidays-note"><ShieldCheck size={15}/> A aplicação de regras especiais depende de validação normativa.</div></div><span className="ops-holidays-status">Disponibilização futura</span></section>
           </div>}
-          {section === 'audit' && area === 'admin' && <div className="ops-panel"><div className="ops-panel-heading"><div><h2>Trilha de auditoria</h2><p>Eventos gerados automaticamente pelo banco de dados.</p></div><span className="ops-pill info">{auditLogs.length} eventos recentes</span></div><div className="ops-table-wrap"><table><thead><tr><th>DATA / HORA</th><th>RESPONSÁVEL</th><th>EVENTO</th><th>REGISTRO</th></tr></thead><tbody>{filteredAuditLogs.map(log=><tr key={log.id}><td>{dateTime(log.created_at)}</td><td>{log.actor_id || 'Sistema'}</td><td><strong>{log.action}</strong></td><td>{log.entity_type} · {log.entity_id || '—'}</td></tr>)}</tbody></table></div>{auditLogs.length===0&&<div className="ops-empty">Nenhum evento registrado.</div>}</div>}
+          {section === 'audit' && area === 'admin' && <div className="ops-audit-page">
+            <section className="ops-audit-intro">
+              <div><span className="ops-audit-kicker">CONTROLE E TRANSPARÊNCIA</span><h2>Auditoria do sistema</h2><p>Consulte as atividades registradas no VagaFácil, identifique quem realizou cada ação e veja quando ela aconteceu.</p></div>
+              <div className="ops-audit-intro-icon"><ShieldCheck size={28}/></div>
+            </section>
+            <section className="ops-audit-summary" aria-label="Resumo da auditoria">
+              <article><span>Eventos recentes</span><strong>{auditLogs.length}</strong><small>Últimos registros carregados</small></article>
+              <article><span>Eventos de hoje</span><strong>{auditTodayCount}</strong><small>Atividades desde 00h</small></article>
+              <article><span>Responsáveis</span><strong>{auditActorCount}</strong><small>Contas distintas nos registros</small></article>
+            </section>
+            <section className="ops-panel ops-audit-list">
+              <div className="ops-panel-heading"><div><h3>Registro de atividades</h3><p>Mais recentes primeiro. Use o botão “Filtros” acima para pesquisar por responsável, ação ou registro.</p></div><span className="ops-pill info">{filteredAuditLogs.length} de {auditLogs.length} exibidos</span></div>
+              <div className="ops-audit-legend"><span><i className="ops-audit-dot"/> Ação registrada</span><span>Os eventos são gravados automaticamente para consulta administrativa.</span></div>
+              <div className="ops-table-wrap"><table className="ops-audit-table"><thead><tr><th>QUANDO</th><th>QUEM REALIZOU</th><th>O QUE ACONTECEU</th><th>ITEM RELACIONADO</th></tr></thead><tbody>
+                {filteredAuditLogs.map(log => { const actor = users.find(user => user.id === log.actor_id); return <tr key={log.id}><td><strong>{dateOnly(log.created_at)}</strong><small>{timeOnly(log.created_at)}</small></td><td><strong>{actor?.full_name || (log.actor_id ? 'Usuário não identificado' : 'Sistema')}</strong><small>{actor?.email || (log.actor_id ? 'Conta sem identificação disponível' : 'Ação automática')}</small></td><td><span className="ops-audit-action">{auditActionText(log.action)}</span><small className="ops-audit-technical">Tipo: {log.action}</small></td><td><strong>{auditEntityText(log.entity_type)}</strong><small>{log.entity_id ? 'Identificador: '+log.entity_id.slice(0,8)+'…' : 'Sem identificador associado'}</small></td></tr>; })}
+                {filteredAuditLogs.length===0&&<tr><td colSpan={4} className="ops-empty">{auditLogs.length===0?'Ainda não há atividades registradas.':'Nenhum evento corresponde à pesquisa. Limpe os filtros e tente novamente.'}</td></tr>}
+              </tbody></table></div>
+              <p className="ops-audit-footnote">Por segurança, esta tela é somente para consulta. Os registros não podem ser alterados por aqui.</p>
+            </section>
+          </div>}
           {section === 'ads' && area === 'admin' && profile.role === 'admin' && <AdsManager />}
           {section === 'reports' && area === 'admin' && <div className="ops-report-layout"><section className="ops-panel ops-report-filters"><div className="ops-panel-heading"><div><h2>Filtros do relatório</h2><p>Defina o período e os critérios para consultar os estacionamentos.</p></div><button type="button" className="ops-small-action" onClick={() => setReportFilters({ startDate: '', endDate: '', status: 'all', zone: '', plate: '' })}>Limpar filtros</button></div><div className="ops-report-filter-grid"><label>Data inicial<input type="date" value={reportFilters.startDate} max={reportFilters.endDate || undefined} onChange={e => setReportFilters(v => ({ ...v, startDate: e.target.value }))}/></label><label>Data final<input type="date" value={reportFilters.endDate} min={reportFilters.startDate || undefined} onChange={e => setReportFilters(v => ({ ...v, endDate: e.target.value }))}/></label><label>Situação<select value={reportFilters.status} onChange={e => setReportFilters(v => ({ ...v, status: e.target.value }))}><option value="all">Todas as situações</option><option value="active">Em andamento</option><option value="expired">Vencidos</option><option value="finished">Encerrados</option></select></label><label>Zona<select value={reportFilters.zone} onChange={e => setReportFilters(v => ({ ...v, zone: e.target.value }))}><option value="">Todas as zonas</option>{zones.map(zone => <option key={zone.id} value={zone.name}>{zone.name}</option>)}</select></label><label className="ops-report-plate">Placa<div className="ops-search-control"><input value={reportFilters.plate} onChange={e => setReportFilters(v => ({ ...v, plate: e.target.value.toUpperCase() }))} onKeyDown={e => { if (e.key === 'Enter') e.currentTarget.blur(); }} placeholder="Digite a placa" maxLength={10}/><button type="button" aria-label="Pesquisar placa" title="Pesquisar placa" onClick={() => setReportFilters(v => ({ ...v, plate: v.plate.trim().toUpperCase() }))}><Search size={17}/></button></div></label></div></section><section className="ops-report-results"><div className="ops-metrics compact ops-report-metrics"><article><span>Registros encontrados</span><strong>{reportMetrics.total}</strong></article><article><span>Em andamento</span><strong>{reportMetrics.active}</strong></article><article><span>Vencidos</span><strong>{reportMetrics.expired}</strong></article><article><span>Encerrados</span><strong>{reportMetrics.finished}</strong></article></div><div className="ops-panel"><div className="ops-panel-heading ops-report-result-heading"><div><h2>Resultado do relatório</h2><p>{reportSessions.length} registro(s) correspondem aos filtros aplicados.</p></div><button className="ops-primary" onClick={() => exportCsv(reportSessions)} disabled={reportSessions.length === 0}><Download size={16}/> Exportar CSV</button></div><div className="ops-table-wrap"><table><thead><tr><th>PLACA</th><th>ZONA / VAGA</th><th>DATA</th><th>CHEGADA</th><th>VENCIMENTO</th><th>ENCERRAMENTO</th><th>SITUAÇÃO</th><th>LOCALIZAÇÃO</th></tr></thead><tbody>{reportSessions.map(session => { const expired = session.status === 'expired' || (session.status === 'active' && new Date(session.expires_at).getTime() <= Date.now()); return <tr key={session.id}><td><VehiclePlate value={session.plate_snapshot} compact/></td><td>{session.parking_spaces?.parking_zones?.name || '—'}<small className="ops-report-cell-sub">{session.parking_spaces?.code || 'Sem vaga vinculada'}</small></td><td>{dateOnly(session.started_at)}</td><td>{timeOnly(session.started_at)}</td><td><strong className="ops-expiry-time">{timeOnly(session.expires_at)}</strong></td><td>{session.ended_at ? timeOnly(session.ended_at) : "—"}</td><td><span className={`ops-pill ${expired ? 'danger' : session.status === 'finished' ? 'info' : 'success'}`}>{expired ? 'Vencido' : statusText(session.status)}</span></td><td>{session.latitude != null && session.longitude != null ? <a className="ops-location-link" href={`https://www.openstreetmap.org/?mlat=${session.latitude}&mlon=${session.longitude}#map=18/${session.latitude}/${session.longitude}`} target="_blank" rel="noreferrer"><MapPin size={14}/> Ver mapa</a> : 'Não disponível'}</td></tr>; })}{reportSessions.length === 0 && <tr><td colSpan={8} className="ops-empty">Nenhum registro corresponde aos filtros selecionados.</td></tr>}</tbody></table></div></div></section></div>}
         </>}
