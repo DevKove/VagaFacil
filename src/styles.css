@@ -3300,3 +3300,44 @@ body {
     will-change: auto;
   }
 }
+
+
+/* Dashboard operacional exclusivo do agente */
+.ops-agent-dashboard{display:grid;gap:18px}
+.ops-agent-welcome{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:23px 25px;border-radius:15px;background:linear-gradient(120deg,#102f49 0%,#145477 58%,#167da0 100%);color:#fff;box-shadow:0 12px 28px #102f4926}
+.ops-agent-kicker{font-size:9px;letter-spacing:1.6px;font-weight:850;color:#8ed8ed}
+.ops-agent-welcome h2{font-size:23px;letter-spacing:-.5px;margin:7px 0 5px;color:#fff}
+.ops-agent-welcome p{font-size:11px;line-height:1.6;color:#d3e8f1;margin:0;max-width:620px}
+.ops-agent-status{display:flex;align-items:center;gap:8px;padding:9px 12px;border:1px solid #ffffff35;border-radius:30px;color:#e7f8ef;font-size:10px;font-weight:750;white-space:nowrap}
+.ops-agent-status i{width:7px;height:7px;border-radius:50%;background:#5ee0a4;box-shadow:0 0 0 4px #5ee0a426}
+.ops-agent-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.ops-agent-metrics>button{position:relative;display:grid;grid-template-columns:40px 1fr;grid-template-rows:auto auto auto;align-items:center;column-gap:11px;text-align:left;padding:16px;background:#fff;border:1px solid #e2ebf1;border-radius:13px;box-shadow:0 5px 16px #17364b0b;cursor:pointer;transition:transform .18s,border-color .18s}
+.ops-agent-metrics>button:hover{transform:translateY(-2px);border-color:#9dcbdc}
+.ops-agent-metric-icon{grid-row:1/4;width:40px;height:40px;display:grid;place-items:center;border-radius:11px}
+.ops-agent-metric-icon.urgent{background:#fff1eb;color:#c65b3c}.ops-agent-metric-icon.assigned{background:#eaf4fc;color:#287eaa}.ops-agent-metric-icon.completed{background:#e8f7ef;color:#16845e}.ops-agent-metric-icon.expired{background:#fff6e7;color:#b77a20}
+.ops-agent-metrics button>span:nth-child(2){font-size:10px;color:#708597;font-weight:700}
+.ops-agent-metrics button strong{font-size:25px;line-height:1.2;color:#173a55;margin:4px 0}
+.ops-agent-metrics button small{font-size:9px;color:#91a0ab}
+.ops-agent-grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,.85fr);gap:16px;align-items:start}
+.ops-agent-queue-item{display:flex;align-items:center;gap:12px;padding:13px 0;border-top:1px solid #edf1f4}
+.ops-agent-queue-symbol{width:36px;height:36px;flex:0 0 36px;display:grid;place-items:center;border-radius:10px;background:#fff4e7;color:#c18a32}
+.ops-agent-queue-info{flex:1;min-width:0;display:grid;gap:5px}
+.ops-agent-queue-info>strong,.ops-agent-history-item strong{font-size:11px;color:#29465d}
+.ops-agent-queue-info>small,.ops-agent-history-item small{font-size:9px;color:#8193a1;line-height:1.45}
+.ops-agent-queue-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.ops-agent-queue-actions>button:not(.ops-primary){border:1px solid #dce6ec;background:#fff;color:#365b72;border-radius:8px;padding:8px 10px;font-size:9px;font-weight:750;cursor:pointer}
+.ops-agent-queue-actions .ops-primary{padding:8px 10px;font-size:9px}
+.ops-agent-history-item{display:flex;align-items:center;gap:10px;padding:12px 0;border-top:1px solid #edf1f4}
+.ops-agent-history-icon{width:30px;height:30px;display:grid;place-items:center;border-radius:9px;background:#eaf7f0;color:#16845e}
+.ops-agent-history-item>div{flex:1;min-width:0;display:grid;gap:4px}
+.ops-agent-empty{min-height:145px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;color:#8aa0ad;text-align:center}
+.ops-agent-empty svg{color:#65a88f}
+.ops-agent-empty strong{font-size:11px;color:#456176}
+.ops-agent-empty span{font-size:9px}
+.ops-agent-quick-actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding:14px 16px;border:1px solid #e2ebf1;border-radius:12px;background:#f8fbfd}
+.ops-agent-quick-actions>div{display:grid;gap:4px;flex:1;min-width:190px}
+.ops-agent-quick-actions>div strong{font-size:11px;color:#29465d}
+.ops-agent-quick-actions>div span{font-size:9px;color:#8395a3}
+.ops-agent-quick-actions>button{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:9px 11px;border:1px solid #dce8ef;border-radius:8px;background:#fff;color:#28627e;font-size:9px;font-weight:750;cursor:pointer}
+@media(max-width:1000px){.ops-agent-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.ops-agent-grid{grid-template-columns:1fr}}
+@media(max-width:620px){.ops-agent-welcome{align-items:flex-start;flex-direction:column;padding:19px}.ops-agent-welcome h2{font-size:21px}.ops-agent-metrics{gap:8px}.ops-agent-metrics>button{padding:12px;grid-template-columns:34px 1fr;column-gap:8px}.ops-agent-metric-icon{width:34px;height:34px}.ops-agent-metrics button>span:nth-child(2){font-size:9px}.ops-agent-metrics button strong{font-size:22px}.ops-agent-metrics button small{font-size:8px}.ops-agent-queue-item{align-items:flex-start;flex-wrap:wrap}.ops-agent-queue-info{width:calc(100% - 50px);flex:1}.ops-agent-queue-actions{width:100%;padding-left:48px;justify-content:flex-start}.ops-agent-quick-actions{align-items:stretch}.ops-agent-quick-actions>div{flex-basis:100%;padding-bottom:4px}.ops-agent-quick-actions>button{flex:1 1 100%}}
