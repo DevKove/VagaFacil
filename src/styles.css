@@ -2445,3 +2445,12 @@ th{background:#eaf3f7;color:#547287}td{border-bottom-color:#e2edf2;color:#496579
 .workspace-session-card-modern .workspace-overdue-message{margin:0}
 @media(max-width:600px){.workspace-session-grid{grid-template-columns:minmax(0,1fr);gap:14px}.workspace-session-card-modern{padding:15px!important;gap:13px;border-radius:15px!important}.workspace-session-timer-panel{padding:15px 10px}.workspace-session-timer-panel .session-timer{font-size:34px}.workspace-session-details{gap:8px}.workspace-session-details>div{padding:10px}.workspace-session-details strong{font-size:13px}.workspace-session-head{align-items:flex-start}}
 @media(max-width:360px){.workspace-session-details{grid-template-columns:1fr}.workspace-session-head{flex-wrap:wrap}}
+
+
+/* Ação principal de novo registro no painel do cidadão */
+.workspace-section-title .workspace-new-registration{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:44px;padding:0 19px;border:1px solid #087da8;border-radius:12px;background:linear-gradient(120deg,#078bb8 0%,#08658f 100%);color:#fff;font-size:12px;font-weight:850;letter-spacing:.01em;box-shadow:0 7px 16px rgba(7,112,153,.22),inset 0 1px 0 rgba(255,255,255,.2);transition:transform .18s ease,box-shadow .18s ease,filter .18s ease;cursor:pointer}
+.workspace-section-title .workspace-new-registration svg{flex:0 0 auto;stroke-width:2.7}
+.workspace-section-title .workspace-new-registration:hover{transform:translateY(-2px);filter:brightness(1.06);box-shadow:0 10px 20px rgba(7,112,153,.28)}
+.workspace-section-title .workspace-new-registration:focus-visible{outline:3px solid rgba(8,137,184,.28);outline-offset:3px}
+@media(max-width:480px){.workspace-section-title{align-items:center;gap:10px}.workspace-section-title .workspace-new-registration{min-height:42px;padding:0 13px;font-size:11px;white-space:nowrap}.workspace-section-title .workspace-new-registration svg{width:16px;height:16px}}
+@media(prefers-reduced-motion:reduce){.workspace-section-title .workspace-new-registration{transition:none}}
