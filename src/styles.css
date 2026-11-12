@@ -2625,3 +2625,65 @@ input,select,textarea{scroll-margin-top:90px}
 @media (prefers-reduced-motion: reduce) {
   .portal-hero-login { transition: none; }
 }
+
+
+/* Destaque contínuo e discreto para o acesso principal */
+@keyframes portal-login-pulse {
+  0%, 100% {
+    box-shadow: 0 12px 28px rgba(0,18,39,.42), 0 0 0 0 rgba(32,197,220,.34), inset 0 1px 0 rgba(255,255,255,.3);
+    filter: brightness(1);
+  }
+  50% {
+    box-shadow: 0 15px 34px rgba(0,18,39,.48), 0 0 0 9px rgba(32,197,220,0), inset 0 1px 0 rgba(255,255,255,.38);
+    filter: brightness(1.09);
+  }
+}
+.portal-hero-login {
+  animation: portal-login-pulse 2.4s ease-in-out infinite;
+  will-change: box-shadow, filter;
+}
+.portal-hero-login:hover,
+.portal-hero-login:focus-visible {
+  animation-play-state: paused;
+}
+.portal-hero-login:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 5px;
+}
+
+/* Rolagem vertical natural nas áreas autenticadas (Android, iOS e desktop) */
+html, body, #root {
+  min-height: 100%;
+  height: auto;
+}
+body {
+  overflow-y: auto;
+  overscroll-behavior-y: auto;
+}
+.app-shell,
+.citizen-workspace,
+.ops-shell {
+  min-height: 100vh;
+  min-height: 100dvh;
+  height: auto;
+  overflow-y: visible;
+}
+@media (max-width: 760px) {
+  html, body, #root {
+    height: auto;
+    min-height: 100%;
+    overflow-x: clip;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .app-shell,
+  .citizen-workspace,
+  .ops-shell {
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .portal-hero-login { animation: none; }
+}
