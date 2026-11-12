@@ -127,15 +127,16 @@ export default function OperationsWorkspace({ profile, area, onSignOut }: { prof
 
   const load = useCallback(async () => {
     if (!supabase) return;
+    const client = supabase;
     setLoading(true);
     setError('');
     try {
       const [sessionRows, alertRows, spaceRows, zoneRows, cardRows] = await Promise.all([
-        fetchAllPages((from,to) => supabase.from('parking_sessions').select('id,plate_snapshot,started_at,expires_at,ended_at,status,user_id,space_id,latitude,longitude,location_accuracy_m,location_captured_at,parking_spaces(code,latitude,longitude,parking_zones(name))').order('started_at', { ascending: false }).range(from,to)),
-        fetchAllPages((from,to) => supabase.from('alerts').select('id,status,severity,created_at,session_id,claimed_by,parking_sessions(id,plate_snapshot,started_at,expires_at,status,user_id,space_id,latitude,longitude,parking_spaces(code,latitude,longitude,parking_zones(name)))').in('status', ['open','claimed']).order('created_at', { ascending: false }).range(from,to)),
-        fetchAllPages((from,to) => supabase.from('parking_spaces').select('id,code,category,active,zone_id,latitude,longitude').order('code').range(from,to)),
-        fetchAllPages((from,to) => supabase.from('parking_zones').select('id,name,description,active').order('name').range(from,to)),
-        area === 'agent' || profile.role === 'admin' ? fetchAllPages((from,to) => supabase.from('physical_card_sessions').select('id,plate_snapshot,category,started_at,expires_at,ended_at,status,zone_id,space_id,created_by,created_by_name,created_at,notes,latitude,longitude,location_accuracy_m,location_captured_at').order('started_at', { ascending: false }).range(from,to)) : Promise.resolve([]),
+        fetchAllPages((from,to) => client.from('parking_sessions').select('id,plate_snapshot,started_at,expires_at,ended_at,status,user_id,space_id,latitude,longitude,location_accuracy_m,location_captured_at,parking_spaces(code,latitude,longitude,parking_zones(name))').order('started_at', { ascending: false }).range(from,to)),
+        fetchAllPages((from,to) => client.from('alerts').select('id,status,severity,created_at,session_id,claimed_by,parking_sessions(id,plate_snapshot,started_at,expires_at,status,user_id,space_id,latitude,longitude,parking_spaces(code,latitude,longitude,parking_zones(name)))').in('status', ['open','claimed']).order('created_at', { ascending: false }).range(from,to)),
+        fetchAllPages((from,to) => client.from('parking_spaces').select('id,code,category,active,zone_id,latitude,longitude').order('code').range(from,to)),
+        fetchAllPages((from,to) => client.from('parking_zones').select('id,name,description,active').order('name').range(from,to)),
+        area === 'agent' || profile.role === 'admin' ? fetchAllPages((from,to) => client.from('physical_card_sessions').select('id,plate_snapshot,category,started_at,expires_at,ended_at,status,zone_id,space_id,created_by,created_by_name,created_at,notes,latitude,longitude,location_accuracy_m,location_captured_at').order('started_at', { ascending: false }).range(from,to)) : Promise.resolve([]),
       ]);
       setSessions(sessionRows as unknown as Session[]);
       setZones(zoneRows as Zone[]);
@@ -143,7 +144,7 @@ export default function OperationsWorkspace({ profile, area, onSignOut }: { prof
       setAlerts(alertRows as unknown as Alert[]);
       setSpaces(spaceRows as Space[]);
       if (area === 'agent') {
-        const historyRows = await fetchAllPages((from,to) => supabase.from('enforcements').select('id,status,result,notes,created_at,alert_id,alerts(parking_sessions(plate_snapshot)),enforcement_photos(storage_path)').eq('agent_id', profile.id).order('created_at', { ascending: false }).range(from,to));
+        const historyRows = await fetchAllPages((from,to) => client.from('enforcements').select('id,status,result,notes,created_at,alert_id,alerts(parking_sessions(plate_snapshot)),enforcement_photos(storage_path)').eq('agent_id', profile.id).order('created_at', { ascending: false }).range(from,to));
         const historyItems = historyRows as unknown as EnforcementHistory[];
         setHistory(historyItems);
         const signedPhotos = await Promise.all(historyItems.map(async item => {
@@ -158,8 +159,8 @@ export default function OperationsWorkspace({ profile, area, onSignOut }: { prof
       if (area === 'admin') {
         const [userRes, ruleRows, auditRows] = await Promise.all([
           invokeUserManagement({ action: 'list' }),
-          fetchAllPages((from,to) => supabase.from('parking_rules').select('id,name,enabled,start_time,end_time,saturday_start,saturday_end,conventional_minutes,special_minutes,grace_minutes').order('created_at', { ascending: false }).range(from,to)),
-          fetchAllPages((from,to) => supabase.from('audit_logs').select('id,actor_id,action,entity_type,entity_id,created_at').order('created_at', { ascending: false }).range(from,to)),
+          fetchAllPages((from,to) => client.from('parking_rules').select('id,name,enabled,start_time,end_time,saturday_start,saturday_end,conventional_minutes,special_minutes,grace_minutes').order('created_at', { ascending: false }).range(from,to)),
+          fetchAllPages((from,to) => client.from('audit_logs').select('id,actor_id,action,entity_type,entity_id,created_at').order('created_at', { ascending: false }).range(from,to)),
         ]);
         setUsers((userRes?.users || []) as Profile[]);
         setRules(ruleRows as Rule[]);
