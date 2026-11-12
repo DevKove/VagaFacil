@@ -424,7 +424,30 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
         {loading ? <div className="workspace-empty">Carregando seus dados...</div> : <>
           {tab === 'overview' && <>
             <div className="workspace-section-title"><div><h2>Estacionamentos em andamento</h2><p>O tempo é atualizado automaticamente.</p></div><button onClick={() => setTab('register')}>Novo registro <Plus size={15}/></button></div>
-            {activeSessions.length === 0 ? <div className="workspace-empty"><CarFront size={28}/><strong>Nenhum estacionamento ativo</strong><span>Quando registrar uma vaga, o cronômetro aparecerá aqui.</span><button onClick={() => setTab('register')}>Registrar estacionamento</button></div> : <div className="workspace-session-grid">{activeSessions.map(session => <article className="workspace-session-card" key={session.id}><div className="session-card-top"><span className={`session-live${new Date(session.expires_at).getTime() <= now ? " is-overdue" : ""}`}><i/> {new Date(session.expires_at).getTime() <= now ? "PRAZO EXCEDIDO" : "EM ANDAMENTO"}</span><VehiclePlate value={session.plate_snapshot} compact /></div><strong className={`session-timer${new Date(session.expires_at).getTime() <= now ? " is-overdue" : ""}`}>{new Date(session.expires_at).getTime() <= now ? "+" + timerLabel(Math.max(0, Math.floor((now - new Date(session.expires_at).getTime()) / 1000))) : timerLabel(remaining(session.expires_at, now))}</strong><small>{new Date(session.expires_at).getTime() <= now ? "Tempo excedido · cronômetro continua" : "Tempo restante"}</small>{new Date(session.expires_at).getTime() <= now && <div className="workspace-overdue-message" role="alert"><strong>Período permitido excedido.</strong><span>O estacionamento permanece em aberto até que você ou a administração o encerre.</span></div>}<div className="session-meta"><span><Clock3 size={14}/> Início: {fmtTime(session.started_at)}</span><span><MapPin size={14}/> {session.parking_spaces?.code || 'Vaga não informada'}{session.parking_spaces?.parking_zones?.name ? ` · ${session.parking_spaces.parking_zones.name}` : ''}</span><span className="session-expiry-time">Limite: {fmtTime(session.expires_at)}</span><span>Categoria: {session.beneficiary_category === 'elderly' ? 'Idoso · até 2 horas' : session.beneficiary_category === 'accessible' ? 'Pessoa com deficiência · até 2 horas' : 'Convencional · até 1 hora'}</span></div><button className="workspace-danger-outline" disabled={busy} onClick={() => finishSession(session.id)}><X size={15}/> Encerrar estacionamento</button></article>)}</div>}
+            {activeSessions.length === 0 ? <div className="workspace-empty"><CarFront size={28}/><strong>Nenhum estacionamento ativo</strong><span>Quando registrar uma vaga, o cronômetro aparecerá aqui.</span><button onClick={() => setTab('register')}>Registrar estacionamento</button></div> : <div className="workspace-session-grid">{activeSessions.map(session => {
+              const overdue = new Date(session.expires_at).getTime() <= now;
+              const location = [session.parking_spaces?.code || 'Vaga não informada', session.parking_spaces?.parking_zones?.name].filter(Boolean).join(' · ');
+              const category = session.beneficiary_category === 'elderly' ? 'Idoso · até 2 horas' : session.beneficiary_category === 'accessible' ? 'Pessoa com deficiência · até 2 horas' : 'Convencional · até 1 hora';
+              return <article className={`workspace-session-card workspace-session-card-modern${overdue ? ' is-overdue' : ''}`} key={session.id}>
+                <div className="workspace-session-head">
+                  <span className={`session-live${overdue ? ' is-overdue' : ''}`}><i/>{overdue ? 'PRAZO EXCEDIDO' : 'ESTACIONAMENTO ATIVO'}</span>
+                  <VehiclePlate value={session.plate_snapshot} compact />
+                </div>
+                <div className={`workspace-session-timer-panel${overdue ? ' is-overdue' : ''}`}>
+                  <span>{overdue ? 'TEMPO EXCEDIDO' : 'TEMPO RESTANTE'}</span>
+                  <strong className={`session-timer${overdue ? ' is-overdue' : ''}`}>{overdue ? '+' + timerLabel(Math.max(0, Math.floor((now - new Date(session.expires_at).getTime()) / 1000))) : timerLabel(remaining(session.expires_at, now))}</strong>
+                  <small>{overdue ? 'O cronômetro continua até o encerramento do registro.' : 'Contagem atualizada automaticamente'}</small>
+                </div>
+                {overdue && <div className="workspace-overdue-message" role="alert"><strong>Período permitido excedido.</strong><span>O estacionamento permanece em aberto até que você ou a administração o encerre.</span></div>}
+                <div className="workspace-session-details">
+                  <div><span><Clock3 size={14}/> INÍCIO</span><strong>{fmtTime(session.started_at)}</strong></div>
+                  <div className="is-limit"><span><Clock3 size={14}/> LIMITE</span><strong>{fmtTime(session.expires_at)}</strong></div>
+                  <div><span><MapPin size={14}/> LOCALIZAÇÃO</span><strong>{location}</strong></div>
+                  <div><span><CarFront size={14}/> CATEGORIA</span><strong>{category}</strong></div>
+                </div>
+                <button className="workspace-danger-outline workspace-session-finish" disabled={busy} onClick={() => finishSession(session.id)}><X size={16}/> Encerrar estacionamento</button>
+              </article>;
+            })}</div>}
             <div className="workspace-metrics"><article><span>Veículos cadastrados</span><strong>{vehicles.length}</strong><CarFront size={21}/></article><article><span>Estacionamentos ativos</span><strong>{activeSessions.length}</strong><Activity size={21}/></article><article><span>Notificações não lidas</span><strong>{unread}</strong><Bell size={21}/></article></div>
             <div className="workspace-section-title"><div><h2>Atividade recente</h2><p>Últimos registros da sua conta.</p></div><button onClick={() => setTab('history')}>Ver histórico <History size={15}/></button></div>
             <SessionTable sessions={sessions.slice(0,5)} now={now}/>
