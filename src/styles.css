@@ -3470,3 +3470,9 @@ body {
 .ops-report-export-actions,.ops-ads-export-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .ops-report-result-heading .ops-report-export-actions{flex:0 0 auto}
 @media(max-width:680px){.ops-page-actions .ops-export-action{flex:1 1 auto}.ops-report-export-actions{width:100%}.ops-report-export-actions button{flex:1}.ops-ads-export-actions{width:100%}.ops-ads-export-actions button{flex:1}}
+
+
+.workspace-export-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.workspace-export-button{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:40px;padding:0 13px;border:1px solid #d0d5dd;border-radius:10px;background:#fff;color:#344054;font-size:13px;font-weight:700;cursor:pointer}
+.workspace-export-button:hover{border-color:#d6a400;background:#fffaf0}
+@media(max-width:640px){.workspace-export-actions{width:100%}.workspace-export-actions>*{flex:1}.workspace-page-heading{align-items:flex-start;flex-direction:column}}
