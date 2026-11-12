@@ -35,7 +35,7 @@ export default function AdsCarousel() {
   const move = (direction: number) => setActiveIndex(index => (index + direction + ads.length) % ads.length);
   const content = <><img className="citizen-ads-image" src={imageUrl} alt={ad.alt_text || ad.title} loading="eager"/>{ad.title && <span className="citizen-ads-caption">{ad.title}</span>}</>;
   return <section className="citizen-ads" aria-label="Anúncios e comunicados">
-    {ad.link_url ? <a className="citizen-ads-link" href={ad.link_url} target="_blank" rel="noopener noreferrer">{content}</a> : <div className="citizen-ads-link">{content}</div>}
+    {ad.link_url ? <a key={ad.id} className="citizen-ads-link citizen-ads-slide" href={ad.link_url} target="_blank" rel="noopener noreferrer">{content}</a> : <div key={ad.id} className="citizen-ads-link citizen-ads-slide">{content}</div>}
     {ads.length > 1 && <>
       <button type="button" className="citizen-ads-arrow prev" aria-label="Anúncio anterior" onClick={() => move(-1)}><ChevronLeft size={20}/></button>
       <button type="button" className="citizen-ads-arrow next" aria-label="Próximo anúncio" onClick={() => move(1)}><ChevronRight size={20}/></button>
