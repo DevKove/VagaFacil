@@ -74,7 +74,7 @@ function exportPdf(title: string, headers: string[], rows: ExportValue[][], stam
 function exportExcel(title: string, headers: string[], rows: ExportValue[][], stamp: string) {
   const columnCount = Math.max(headers.length, 1);
   const lastColumn = headers.length || 1;
-  const sheetName = title.replace(/[\\/?*[\]:]/g, ' ').trim().slice(0, 31) || 'Relatorio';
+  const sheetName = Array.from(title, char => '/\\?*[]:'.includes(char) ? ' ' : char).join('').trim().slice(0, 31) || 'Relatorio';
   const widths = headers.map((header, index) => {
     const sampleLength = rows.slice(0, 100).reduce(
       (max, row) => Math.max(max, String(row[index] ?? '').length),
