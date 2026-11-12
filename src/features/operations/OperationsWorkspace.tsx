@@ -45,7 +45,7 @@ const auditActionText = (action: string) => {
     SIGN_IN: 'Acesso realizado',
     SIGN_OUT: 'Saída do sistema',
   };
-  return labels[value] || action.replace(/[_-]+/g, ' ').toLocaleLowerCase('pt-BR').replace(/^\\p{L}/u, letter => letter.toLocaleUpperCase('pt-BR'));
+  return labels[value] || action.replace(/[_-]+/g, ' ').toLocaleLowerCase('pt-BR').replace(/^[a-zá-ú]/i, letter => letter.toLocaleUpperCase('pt-BR'));
 };
 const auditEntityText = (entity: string) => ({
   profiles: 'Usuário',
