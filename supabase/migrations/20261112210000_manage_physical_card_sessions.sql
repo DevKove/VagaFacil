@@ -2,6 +2,27 @@
 alter table public.physical_card_sessions
   add column if not exists ended_at timestamptz;
 
+drop policy if exists "Operations update own physical card sessions" on public.physical_card_sessions;
+create policy "Operations update own physical card sessions"
+  on public.physical_card_sessions
+  for update to authenticated
+  using (
+    exists (
+      select 1 from public.profiles p
+      where p.id = (select auth.uid()) and p.is_active
+        and (p.role = 'admin' or (p.role = 'agent' and p.id = created_by))
+    )
+  )
+  with check (
+    exists (
+      select 1 from public.profiles p
+      where p.id = (select auth.uid()) and p.is_active
+        and (p.role = 'admin' or (p.role = 'agent' and p.id = created_by))
+    )
+  );
+grant update (plate_snapshot, category, zone_id, space_id, started_at, expires_at, status, ended_at, notes)
+  on public.physical_card_sessions to authenticated;
+
 create or replace function public.update_physical_card_session(
   p_session_id uuid,
   p_plate text,
@@ -13,7 +34,7 @@ create or replace function public.update_physical_card_session(
 )
 returns public.physical_card_sessions
 language plpgsql
-security definer
+security invoker
 set search_path = ''
 as $$
 declare
@@ -85,7 +106,7 @@ $$;
 create or replace function public.finish_physical_card_session(p_session_id uuid)
 returns public.physical_card_sessions
 language plpgsql
-security definer
+security invoker
 set search_path = ''
 as $$
 declare
