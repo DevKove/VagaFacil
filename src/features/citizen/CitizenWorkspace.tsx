@@ -224,12 +224,11 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
         } catch (pushError) {
           setError(getErrorMessage(pushError, 'Não foi possível ativar os avisos em segundo plano neste aparelho.'));
         }
+        window.localStorage.setItem(pushAttemptedKey, '1');
       }
-      window.localStorage.setItem(pushAttemptedKey, '1');
       window.localStorage.setItem(notificationConsentKey, '1');
       setNotificationPromptOpen(false);
     }).catch(() => {
-      window.localStorage.setItem(pushAttemptedKey, '1');
       window.localStorage.setItem(notificationConsentKey, '1');
       setNotificationPromptOpen(false);
     }).finally(() => setPermissionBusy(false));
