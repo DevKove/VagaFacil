@@ -3378,3 +3378,14 @@ body {
     width: 100%;
   }
 }
+
+
+/* Lançamento manual de estacionamento por cartão físico. */
+.ops-card-layout{display:grid;gap:16px;grid-template-columns:minmax(280px,.72fr) minmax(0,1.28fr);align-items:start}
+.ops-card-form-panel .ops-form{gap:14px}
+.ops-card-heading-icon{width:44px;height:44px;display:grid;place-items:center;border-radius:12px;background:linear-gradient(145deg,#e7f4fb,#d8eaf5);color:#17668e}
+.ops-card-notice{display:flex;align-items:flex-start;gap:10px;padding:12px 13px;border:1px solid #d9e9f2;border-radius:10px;background:#f1f8fc;color:#45677d;font-size:12px;line-height:1.5}
+.ops-card-notice svg{flex:0 0 auto;color:#167da0;margin-top:1px}
+.ops-card-layout .ops-table-wrap{max-width:100%;overflow-x:auto}
+@media(max-width:1000px){.ops-card-layout{grid-template-columns:1fr}}
+@media(max-width:620px){.ops-card-layout .ops-panel{padding:15px 12px}.ops-card-layout .ops-panel-heading{align-items:flex-start}.ops-card-layout .ops-table-wrap table{min-width:680px}}
