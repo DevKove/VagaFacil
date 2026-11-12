@@ -1,8 +1,18 @@
 const BASE = new URL('./', self.registration.scope).pathname;
-const CACHE = 'vagafacil-shell-v13';
+const CACHE = 'vagafacil-shell-v14';
 const INDEX = `${BASE}index.html`;
 const SHELL = [BASE, INDEX, `${BASE}manifest.webmanifest`, `${BASE}IMG/favicon.ico`, `${BASE}IMG/logo.png`, `${BASE}icons/icon-192.svg`, `${BASE}icons/icon-512.svg`, `${BASE}icons/icon-maskable.svg`];
-self.addEventListener('install', event => { event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(SHELL))); self.skipWaiting(); });
+self.addEventListener('install', event => {
+  event.waitUntil((async () => {
+    const cache = await caches.open(CACHE);
+    // Um único recurso ausente não pode impedir a ativação do Service Worker.
+    await Promise.all(SHELL.map(async asset => {
+      try { await cache.add(asset); }
+      catch (error) { console.warn('Recurso opcional não armazenado no cache:', asset, error); }
+    }));
+    await self.skipWaiting();
+  })());
+});
 self.addEventListener('activate', event => { event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key.startsWith('vagafacil-shell-') && key !== CACHE).map(key => caches.delete(key))))); self.clients.claim(); });
 self.addEventListener('fetch', event => {
  const request=event.request, url=new URL(request.url);
