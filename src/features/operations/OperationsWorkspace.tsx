@@ -83,7 +83,7 @@ export default function OperationsWorkspace({ profile, area, onSignOut }: { prof
         supabase.from('alerts').select('id,status,severity,created_at,session_id,claimed_by,parking_sessions(id,plate_snapshot,started_at,expires_at,status,user_id,space_id,latitude,longitude,parking_spaces(code,latitude,longitude,parking_zones(name)))').in('status', ['open','claimed']).order('created_at', { ascending: false }).limit(300),
         supabase.from('parking_spaces').select('id,code,category,active,zone_id,latitude,longitude').order('code'),
         supabase.from('parking_zones').select('id,name,description,active').eq('active', true).order('name'),
-        supabase.from('physical_card_sessions').select('id,plate_snapshot,category,started_at,expires_at,status,zone_id,space_id,created_by,created_at,notes').order('started_at', { ascending: false }).limit(500),
+        area === 'agent' || profile.role === 'admin' ? supabase.from('physical_card_sessions').select('id,plate_snapshot,category,started_at,expires_at,status,zone_id,space_id,created_by,created_at,notes').order('started_at', { ascending: false }).limit(500) : Promise.resolve({ data: [], error: null }),
       ]);
       if (sessionRes.error) throw sessionRes.error;
       if (alertRes.error) throw alertRes.error;
@@ -262,7 +262,7 @@ export default function OperationsWorkspace({ profile, area, onSignOut }: { prof
   const mappedSpaces = spaces.filter(item => item.latitude !== null && item.longitude !== null);
   const mapCenter = mappedSpaces.length ? { lat: mappedSpaces.reduce((sum,item)=>sum + Number(item.latitude),0)/mappedSpaces.length, lon: mappedSpaces.reduce((sum,item)=>sum + Number(item.longitude),0)/mappedSpaces.length } : null;
   const mapBounds = mappedSpaces.length ? { minLon: Math.min(...mappedSpaces.map(item=>Number(item.longitude))) - 0.002, maxLon: Math.max(...mappedSpaces.map(item=>Number(item.longitude))) + 0.002, minLat: Math.min(...mappedSpaces.map(item=>Number(item.latitude))) - 0.002, maxLat: Math.max(...mappedSpaces.map(item=>Number(item.latitude))) + 0.002 } : null;
-  const menu = area === 'admin' && profile.role === 'admin' ? menus.admin : area === 'admin' ? menus.admin.filter(item => item.id !== 'ads') : menus.agent;
+  const menu = area === 'admin' && profile.role === 'admin' ? menus.admin : area === 'admin' ? menus.admin.filter(item => item.id !== 'ads' && item.id !== 'card') : menus.agent;
   const heading = menu.find(item => item.id === section)?.label || 'Painel';
   return <div className="ops-shell">
     <aside className={mobileOpen ? 'ops-sidebar open' : 'ops-sidebar'}>
