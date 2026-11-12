@@ -3143,3 +3143,95 @@ body {
     animation: none !important;
   }
 }
+
+
+/* Instalação multiplataforma acima do CTA principal. */
+.portal-hero-actions {
+  position: absolute;
+  z-index: 6;
+  left: 56%;
+  bottom: clamp(34px, 9vh, 92px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  transform: translateX(-50%);
+}
+.portal-hero-actions .portal-hero-login {
+  position: relative;
+  inset: auto;
+  left: auto;
+  bottom: auto;
+  transform: none;
+}
+.portal-hero-actions .portal-hero-login:hover { transform: translateY(-3px); }
+.portal-hero-actions .portal-hero-login:active { transform: scale(.98); }
+.portal-install-platforms {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.portal-platform-install {
+  display: inline-flex;
+  min-width: 112px;
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 15px;
+  border: 1px solid rgba(255,255,255,.72);
+  border-radius: 12px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 850;
+  letter-spacing: .2px;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(0,18,39,.32), inset 0 1px 0 rgba(255,255,255,.25);
+  transition: transform .2s ease, filter .2s ease, box-shadow .2s ease;
+}
+.portal-platform-android { background: linear-gradient(135deg,#32b66a,#16864a); }
+.portal-platform-ios { background: linear-gradient(135deg,#414b5c,#172333); }
+.portal-platform-install:hover { transform: translateY(-2px); filter: brightness(1.12); }
+.portal-platform-install:focus-visible { outline: 3px solid #fff; outline-offset: 4px; }
+.portal-platform-install:disabled { opacity: .55; cursor: default; }
+.install-help-backdrop {
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(5,18,31,.72);
+  backdrop-filter: blur(7px);
+}
+.install-help-dialog {
+  position: relative;
+  width: min(100%, 460px);
+  padding: 30px;
+  border: 1px solid #dbe7ef;
+  border-radius: 22px;
+  background: linear-gradient(145deg,#fff,#f2f8fc);
+  color: #183247;
+  box-shadow: 0 24px 70px rgba(0,0,0,.35);
+}
+.install-help-dialog h2 { margin: 10px 38px 20px 0; font-size: 23px; line-height: 1.2; }
+.install-help-steps { display: grid; gap: 15px; margin: 0; padding: 0; list-style: none; }
+.install-help-steps li { display: flex; align-items: flex-start; gap: 12px; font-size: 14px; line-height: 1.55; }
+.install-help-steps li > svg,
+.install-step-number { flex: 0 0 25px; width: 25px; height: 25px; display: grid; place-items: center; color: #087eb7; font-weight: 900; }
+.install-step-number { border-radius: 50%; background: #e1f2fa; }
+.install-help-note { margin: 20px 0; padding: 12px 14px; border-radius: 11px; background: #e8f4fa; color: #31566e; font-size: 12px; line-height: 1.5; }
+.install-help-confirm { width: 100%; min-height: 46px; border: 0; border-radius: 11px; background: linear-gradient(120deg,#087fc0,#0759a5); color: #fff; font-weight: 850; cursor: pointer; }
+@media(max-width:760px) {
+  .portal-hero-actions { left: 50%; bottom: clamp(22px,8vh,72px); gap: 10px; }
+  .portal-platform-install { min-width: 104px; min-height: 38px; padding-inline: 12px; font-size: 12px; }
+  .portal-hero-actions .portal-hero-login { min-height: 50px; padding-inline: 22px; }
+}
+@media(max-width:390px) {
+  .portal-hero-actions { gap: 8px; }
+  .portal-platform-install { min-width: 96px; min-height: 36px; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .portal-platform-install { transition: none; }
+}
