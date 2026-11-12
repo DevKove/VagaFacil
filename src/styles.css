@@ -3402,3 +3402,13 @@ body {
 .ops-user-list-switch button span{min-width:22px;padding:2px 6px;border-radius:20px;background:#eaf1f5;color:#527084;text-align:center;font-size:10px}
 .ops-user-list-switch button.active span{background:#e4f4fa;color:#087da8}
 @media(max-width:620px){.ops-user-list-switch{width:100%}.ops-user-list-switch button{flex:1;justify-content:center}.ops-search-control{width:100%}}
+
+
+/* Transição dos anúncios: entrada sempre da direita para a esquerda. */
+.citizen-ads{overflow:hidden}
+.citizen-ads-slide{animation:citizen-ads-enter-left .55s cubic-bezier(.22,.75,.25,1) both;will-change:transform,opacity}
+@keyframes citizen-ads-enter-left{
+  from{transform:translateX(100%);opacity:.35}
+  to{transform:translateX(0);opacity:1}
+}
+@media(prefers-reduced-motion:reduce){.citizen-ads-slide{animation:none;will-change:auto}}
