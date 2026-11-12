@@ -423,7 +423,7 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
         {expiryWarning.map(warning => <div className="workspace-expiry-warning" role="alert" key={warning.sessionId}><span className="workspace-alert-pulse"><Bell size={25}/></span><div className="workspace-alert-copy"><strong>⚠ ATENÇÃO</strong><b className="workspace-alert-title">{warning.plate}</b><span>{warning.body}</span></div><button className="workspace-alert-dismiss" type="button" onClick={() => { setExpiryWarning(current => current.filter(item => item.sessionId !== warning.sessionId)); if (notices.some(item => item.id === warning.sessionId && item.kind === 'admin_manual_alert')) void markRead(warning.sessionId); else window.localStorage.setItem(`vagafacil:expiry-dismissed:${profile.id}:${warning.sessionId}`, '1'); }} aria-label="Marcar aviso como lido e fechar"><X size={19}/></button></div>)}
         {loading ? <div className="workspace-empty">Carregando seus dados...</div> : <>
           {tab === 'overview' && <>
-            <div className="workspace-section-title"><div><h2>Estacionamentos em andamento</h2><p>O tempo é atualizado automaticamente.</p></div><button onClick={() => setTab('register')}>Novo registro <Plus size={15}/></button></div>
+            <div className="workspace-section-title"><div><h2>Estacionamentos em andamento</h2></div><button className="workspace-new-registration" onClick={() => setTab('register')}><Plus size={18}/> <span>Novo registro</span></button></div>
             {activeSessions.length === 0 ? <div className="workspace-empty"><CarFront size={28}/><strong>Nenhum estacionamento ativo</strong><span>Quando registrar uma vaga, o cronômetro aparecerá aqui.</span><button onClick={() => setTab('register')}>Registrar estacionamento</button></div> : <div className="workspace-session-grid">{activeSessions.map(session => {
               const overdue = new Date(session.expires_at).getTime() <= now;
               const location = [session.parking_spaces?.code || 'Vaga não informada', session.parking_spaces?.parking_zones?.name].filter(Boolean).join(' · ');
@@ -436,7 +436,7 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
                 <div className={`workspace-session-timer-panel${overdue ? ' is-overdue' : ''}`}>
                   <span>{overdue ? 'TEMPO EXCEDIDO' : 'TEMPO RESTANTE'}</span>
                   <strong className={`session-timer${overdue ? ' is-overdue' : ''}`}>{overdue ? '+' + timerLabel(Math.max(0, Math.floor((now - new Date(session.expires_at).getTime()) / 1000))) : timerLabel(remaining(session.expires_at, now))}</strong>
-                  <small>{overdue ? 'O cronômetro continua até o encerramento do registro.' : 'Contagem atualizada automaticamente'}</small>
+                  
                 </div>
                 {overdue && <div className="workspace-overdue-message" role="alert"><strong>Período permitido excedido.</strong><span>O estacionamento permanece em aberto até que você ou a administração o encerre.</span></div>}
                 <div className="workspace-session-details">
