@@ -86,10 +86,6 @@ function Portal({ onSelect }: { onSelect: (role: PortalRole) => void }) {
     setInstallHelp('android');
   };
   return <main className="portal-page">
-    <header className="portal-header">
-      <a className="portal-brand" href="#" aria-label="VagaFácil início"><img className="portal-brand-logo" src={`${import.meta.env.BASE_URL}IMG/logo-vagafacil.svg`} alt="VagaFácil" /><span><strong>VagaFácil</strong><small>Estacionar ficou mais fácil.</small></span></a>
-      <div className="portal-header-actions"><span className="portal-header-note"><i /> Plataforma de estacionamento rotativo</span>{canInstall && <button type="button" className="portal-install-trigger" onClick={() => void install()}><Download size={17}/><span>Instalar aplicativo</span></button>}{installed && <span className="portal-installed-badge">Aplicativo instalado</span>}</div>
-    </header>
     <section className="portal-hero">
       <div className="portal-hero-art" aria-hidden="true">
         <img className="portal-hero-backdrop" src={new URL('../IMG/banner mobile.jpg', import.meta.url).href} alt="" />
