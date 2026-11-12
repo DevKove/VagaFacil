@@ -117,20 +117,6 @@ async function savePushSubscription(userId: string, subscription: PushSubscripti
   if (error) throw new Error(`Falha ao salvar a inscrição no servidor: ${getErrorMessage(error)}`);
 }
 
-async function syncExistingPushSubscription(userId: string) {
-  if (!supabase || !('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window) || Notification.permission !== 'granted') return;
-  const registration = await navigator.serviceWorker.ready;
-  const subscription = await registration.pushManager.getSubscription();
-  if (!subscription) return;
-  const { error } = await supabase.from('push_subscriptions').upsert({
-    user_id: userId,
-    endpoint: subscription.endpoint,
-    subscription: subscription.toJSON(),
-    updated_at: new Date().toISOString(),
-  }, { onConflict: 'user_id,endpoint' });
-  if (error) throw error;
-}
-
 async function showPersistentNotification(title: string, body: string, tag: string) {
   if (!('Notification' in window) || Notification.permission !== 'granted') return;
   try {
