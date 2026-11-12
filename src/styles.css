@@ -2936,3 +2936,148 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .workspace-registration-card * { scroll-behavior: auto; }
 }
+
+
+/* Histórico do cidadão: tabela desktop e cartões fluidos no mobile.
+   Sobrescreve a regra global de min-width aplicada às tabelas. */
+.workspace-history-wrap {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+}
+.workspace-history-table {
+  width: 100%;
+  min-width: 760px;
+}
+.workspace-history-table th,
+.workspace-history-table td {
+  vertical-align: middle;
+}
+.workspace-history-table tbody tr:hover {
+  background: #f6fbfd;
+}
+.workspace-history-table td:first-child {
+  white-space: nowrap;
+}
+@media (max-width: 760px) {
+  .workspace-history-wrap {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    overflow: visible !important;
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+  .workspace-history-table {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    table-layout: fixed;
+  }
+  .workspace-history-table thead {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+  }
+  .workspace-history-table tbody {
+    display: grid !important;
+    width: 100%;
+    min-width: 0;
+    gap: 13px;
+  }
+  .workspace-history-table tr {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid #d8e5ec;
+    border-radius: 15px;
+    background: linear-gradient(145deg, #fff 0%, #f7fbfd 100%);
+    box-shadow: 0 7px 18px rgba(16, 49, 69, .09);
+  }
+  .workspace-history-table td {
+    display: flex !important;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 5px;
+    min-width: 0 !important;
+    width: auto !important;
+    padding: 12px 13px !important;
+    border-top: 1px solid #e8eff3 !important;
+    font-size: 13px !important;
+    line-height: 1.35;
+    color: #29465a;
+    overflow-wrap: anywhere;
+    word-break: normal;
+  }
+  .workspace-history-table td::before {
+    content: attr(data-label);
+    display: block;
+    color: #718797;
+    font-size: 10px !important;
+    line-height: 1.2;
+    font-weight: 800;
+    letter-spacing: .55px;
+    text-transform: uppercase;
+  }
+  .workspace-history-table td:first-child {
+    grid-column: 1 / -1;
+    padding: 15px !important;
+    border-top: 0 !important;
+    background: linear-gradient(110deg, #eaf5fa, #f3f9fb);
+  }
+  .workspace-history-table td:first-child::before {
+    color: #547185;
+  }
+  .workspace-history-table td:nth-child(6),
+  .workspace-history-table td:nth-child(7),
+  .workspace-history-table td:last-child {
+    grid-column: 1 / -1;
+  }
+  .workspace-history-table td strong {
+    max-width: 100%;
+    font-size: 14px !important;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+  }
+  .workspace-history-table .session-status {
+    display: inline-flex;
+    align-self: flex-start;
+    min-height: 28px;
+    align-items: center;
+    padding: 6px 11px;
+    border-radius: 8px;
+    font-size: 11px !important;
+    font-weight: 800;
+  }
+  .workspace-history-table .session-expiry-time {
+    color: #b42318 !important;
+  }
+}
+@media (max-width: 390px) {
+  .workspace-history-table tr {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .workspace-history-table td:first-child,
+  .workspace-history-table td:nth-child(6),
+  .workspace-history-table td:nth-child(7),
+  .workspace-history-table td:last-child {
+    grid-column: 1;
+  }
+  .workspace-history-table td {
+    padding: 11px 13px !important;
+  }
+}
