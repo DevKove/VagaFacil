@@ -200,13 +200,19 @@ export default function OperationsWorkspace({ profile, area, onSignOut }: { prof
     const confirmed = window.confirm(`Emitir agora um alerta sonoro e visual para o responsável pelo veículo ${session.plate_snapshot}?`);
     if (!confirmed) return;
     void run(async () => {
-      const { error } = await supabase!.from('notifications').insert({
+      const { data: notice, error } = await supabase!.from('notifications').insert({
         user_id: session.user_id,
         title: 'Atenção ao estacionamento',
         body: `Veículo ${session.plate_snapshot}: verifique as informações do seu registro de estacionamento.`,
         kind: 'admin_manual_alert',
-      });
+      }).select('id').single();
       if (error) throw error;
+      const { error: pushError } = await supabase!.functions.invoke('send-web-push', {
+        body: { notificationId: notice.id },
+      });
+      if (pushError) {
+        throw new Error('Alerta registrado no sistema, mas o envio ao celular não foi concluído. Verifique a configuração do Web Push no Supabase.');
+      }
     });
   };
   const saveRule = (event: FormEvent) => { event.preventDefault(); if (!supabase || !editingRule) return; void run(async () => { const { id, name, enabled, start_time, end_time, saturday_start, saturday_end, conventional_minutes, special_minutes, grace_minutes } = editingRule; const { error } = await supabase!.from('parking_rules').update({ name, enabled, start_time, end_time, saturday_start, saturday_end, conventional_minutes, special_minutes, grace_minutes }).eq('id', id); if (error) throw error; setEditingRule(null); }); };
