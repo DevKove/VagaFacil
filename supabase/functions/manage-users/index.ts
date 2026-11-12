@@ -12,7 +12,7 @@ const corsHeaders = (origin: string | null) => ({
   "Vary": "Origin",
 });
 
-type Action = "list" | "create" | "update" | "delete";
+type Action = "list" | "create" | "update" | "delete" | "reset_mfa";
 type Payload = {
   action: Action;
   id?: string;
@@ -108,6 +108,28 @@ Deno.serve(async (req: Request) => {
     }
 
     if (!body.id) return json({ error: "Usuário não informado." }, 400);
+    if (body.action === "reset_mfa") {
+      const { data: target, error: targetError } = await admin
+        .from("profiles")
+        .select("id,full_name,role")
+        .eq("id", body.id)
+        .is("deleted_at", null)
+        .single();
+      if (targetError) throw targetError;
+      const { data: factorData, error: factorError } = await admin.auth.admin.mfa.listFactors({ userId: body.id });
+      if (factorError) throw factorError;
+      const factors = factorData?.factors || [];
+      let removed = 0;
+      for (const factor of factors) {
+        const { error } = await admin.auth.admin.mfa.deleteFactor({ id: factor.id, userId: body.id });
+        if (error) throw error;
+        removed += 1;
+      }
+      await audit("user_mfa_reset", body.id, { removed_factors: removed, target_role: target.role });
+      return json({ success: true, removed_factors: removed, message: removed
+        ? "Autenticador resetado. O usuário deverá cadastrar um novo autenticador no próximo acesso."
+        : "Nenhum autenticador estava cadastrado para este usuário." }, 200, origin);
+    }
     if (body.action === "delete") {
       if (body.id === actorId) return json({ error: "Não é permitido excluir a própria conta administrativa." }, 400);
       const { data: target, error: targetError } = await admin.from("profiles").select("id,role").eq("id", body.id).is("deleted_at", null).single();
