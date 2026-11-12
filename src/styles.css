@@ -3389,3 +3389,16 @@ body {
 .ops-card-layout .ops-table-wrap{max-width:100%;overflow-x:auto}
 @media(max-width:1000px){.ops-card-layout{grid-template-columns:1fr}}
 @media(max-width:620px){.ops-card-layout .ops-panel{padding:15px 12px}.ops-card-layout .ops-panel-heading{align-items:flex-start}.ops-card-layout .ops-table-wrap table{min-width:680px}}
+
+
+/* Pesquisa acionável e alternância de listas administrativas */
+.ops-search-control{display:flex;align-items:center;gap:6px;width:100%}
+.ops-search-control input{flex:1;min-width:0}
+.ops-search-control button,.ops-search button{width:36px;height:36px;flex:0 0 36px;display:grid;place-items:center;border:0;border-radius:8px;background:#eaf5fa;color:#087da8;cursor:pointer}
+.ops-search-control button:hover,.ops-search button:hover{background:#d8edf6}
+.ops-user-list-switch{display:flex;gap:8px;padding:4px;margin:0 0 16px;border:1px solid #e3ebf0;border-radius:10px;background:#f7fafc;width:max-content;max-width:100%}
+.ops-user-list-switch button{display:flex;align-items:center;gap:8px;padding:10px 15px;border:0;border-radius:7px;background:transparent;color:#637b8d;font-size:11px;font-weight:750;cursor:pointer}
+.ops-user-list-switch button.active{background:#fff;color:#087da8;box-shadow:0 2px 8px #173b5414}
+.ops-user-list-switch button span{min-width:22px;padding:2px 6px;border-radius:20px;background:#eaf1f5;color:#527084;text-align:center;font-size:10px}
+.ops-user-list-switch button.active span{background:#e4f4fa;color:#087da8}
+@media(max-width:620px){.ops-user-list-switch{width:100%}.ops-user-list-switch button{flex:1;justify-content:center}.ops-search-control{width:100%}}
