@@ -199,21 +199,40 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
 
   useEffect(() => {
     let active = true;
-    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
-    void navigator.serviceWorker.ready.then(async registration => {
-      if (!active) return;
-      pushRegistrationRef.current = registration;
-      const subscription = await registration.pushManager.getSubscription();
-      if (!active) return;
-      pushSubscriptionRef.current = subscription;
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
       setPushReady(true);
-      if (subscription && Notification.permission === 'granted') {
-        await savePushSubscription(profile.id, subscription);
+      setError('Este navegador não oferece suporte ao serviço de notificações push.');
+      return;
+    }
+    void (async () => {
+      try {
+        const registration = await withTimeout(
+          navigator.serviceWorker.ready,
+          12_000,
+          'O Service Worker não ficou ativo em 12 segundos. Verifique a conexão e tente novamente.',
+        );
+        if (!active) return;
+        if (!registration.pushManager) throw new Error('O navegador não disponibilizou o gerenciador de notificações push.');
+        pushRegistrationRef.current = registration;
+        const subscription = await withTimeout(
+          registration.pushManager.getSubscription(),
+          8_000,
+          'O Android demorou para consultar a inscrição de notificações.',
+        );
+        if (!active) return;
+        pushSubscriptionRef.current = subscription;
+        setPushReady(true);
+        if (subscription && Notification.permission === 'granted') {
+          await savePushSubscription(profile.id, subscription);
+        }
+      } catch (pushError) {
+        console.error('Falha ao preparar notificações push:', pushError);
+        if (active) {
+          setPushReady(true);
+          setError(`Preparação das notificações interrompida: ${getErrorMessage(pushError)}`);
+        }
       }
-    }).catch(error => {
-      console.error('Falha ao preparar notificações push:', error);
-      if (active) setError(`Não foi possível preparar o serviço de notificações: ${getErrorMessage(error)}`);
-    });
+    })();
     return () => { active = false; };
   }, [profile.id]);
 
