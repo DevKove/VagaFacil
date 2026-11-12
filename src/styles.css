@@ -2783,3 +2783,156 @@ body {
     animation: portal-login-pulse 2.2s ease-in-out infinite;
   }
 }
+
+/* Formulário de registro: layout fluido e controles confortáveis em celulares. */
+.workspace-registration-card {
+  width: 100%;
+  max-width: 760px;
+  min-width: 0;
+  box-sizing: border-box;
+}
+.workspace-registration-card > * { min-width: 0; }
+.workspace-registration-card .workspace-form-intro { align-items: flex-start; }
+.workspace-registration-card .workspace-form-intro > div { min-width: 0; }
+.workspace-registration-card .workspace-form-intro p { line-height: 1.5; }
+.workspace-registration-card > label { display: grid; width: 100%; min-width: 0; }
+.workspace-registration-card fieldset.workspace-beneficiary {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  margin: 18px 0;
+}
+.workspace-registration-card .workspace-beneficiary-options {
+  width: 100%;
+  min-width: 0;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.workspace-registration-card .workspace-beneficiary-options label {
+  min-width: 0;
+  box-sizing: border-box;
+  overflow-wrap: anywhere;
+}
+.workspace-registration-card .workspace-beneficiary-options span { min-width: 0; }
+.workspace-registration-card .workspace-credential-notice,
+.workspace-registration-card .workspace-rule-callout { min-width: 0; box-sizing: border-box; }
+.workspace-registration-card .workspace-rule-callout { align-items: flex-start; }
+.workspace-registration-card .workspace-rule-callout > svg { flex: 0 0 20px; margin-top: 2px; }
+.workspace-registration-card .workspace-rule-callout > span { min-width: 0; }
+.workspace-registration-card .workspace-rule-callout small,
+.workspace-registration-card .workspace-credential-notice p,
+.workspace-registration-card .workspace-credential-confirm span { overflow-wrap: anywhere; }
+.workspace-registration-card .workspace-full { white-space: normal; line-height: 1.3; }
+@media (max-width: 760px) {
+  .workspace-registration-card {
+    max-width: none;
+    padding: 18px 16px !important;
+    border-radius: 14px !important;
+  }
+  .workspace-registration-card .workspace-form-intro {
+    gap: 11px;
+    margin-bottom: 20px;
+  }
+  .workspace-registration-card .workspace-form-intro h2 {
+    font-size: 19px !important;
+    line-height: 1.25;
+  }
+  .workspace-registration-card .workspace-form-intro p {
+    font-size: 14px !important;
+    line-height: 1.45;
+  }
+  .workspace-registration-card > label {
+    gap: 8px;
+    margin-bottom: 17px;
+    font-size: 14px !important;
+  }
+  .workspace-registration-card > label select {
+    width: 100%;
+    min-width: 0;
+    min-height: 50px;
+    height: auto;
+    padding: 11px 38px 11px 12px;
+    font-size: 16px !important;
+    line-height: 1.35;
+    white-space: normal;
+  }
+  .workspace-registration-card fieldset.workspace-beneficiary {
+    padding: 13px;
+    margin: 18px 0;
+  }
+  .workspace-registration-card .workspace-beneficiary legend {
+    max-width: calc(100% - 18px);
+    white-space: normal;
+    font-size: 14px;
+  }
+  .workspace-registration-card .workspace-beneficiary > p {
+    font-size: 13px !important;
+    line-height: 1.45;
+  }
+  .workspace-registration-card .workspace-beneficiary-options {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 9px;
+  }
+  .workspace-registration-card .workspace-beneficiary-options label {
+    display: flex !important;
+    align-items: center;
+    width: 100%;
+    min-height: 58px;
+    padding: 12px !important;
+    gap: 11px;
+  }
+  .workspace-registration-card .workspace-beneficiary-options input {
+    width: 20px !important;
+    height: 20px !important;
+    min-height: 20px !important;
+    margin: 0;
+  }
+  .workspace-registration-card .workspace-beneficiary-options span { flex: 1; }
+  .workspace-registration-card .workspace-beneficiary-options strong {
+    font-size: 14px !important;
+    line-height: 1.3;
+  }
+  .workspace-registration-card .workspace-beneficiary-options small { font-size: 13px !important; }
+  .workspace-registration-card .workspace-credential-notice { padding: 13px; }
+  .workspace-registration-card .workspace-credential-notice > strong { font-size: 14px; line-height: 1.35; }
+  .workspace-registration-card .workspace-credential-notice > p,
+  .workspace-registration-card .workspace-credential-confirm {
+    font-size: 13px !important;
+    line-height: 1.5;
+  }
+  .workspace-registration-card .workspace-credential-confirm {
+    display: flex !important;
+    align-items: flex-start;
+    padding: 11px;
+    gap: 10px;
+  }
+  .workspace-registration-card .workspace-credential-confirm input {
+    flex: 0 0 20px;
+    width: 20px !important;
+    height: 20px !important;
+    min-height: 20px !important;
+    margin-top: 1px;
+  }
+  .workspace-registration-card .workspace-rule-callout {
+    gap: 10px;
+    padding: 13px;
+    margin: 13px 0;
+  }
+  .workspace-registration-card .workspace-rule-callout strong { font-size: 14px !important; line-height: 1.35; }
+  .workspace-registration-card .workspace-rule-callout small { font-size: 13px !important; line-height: 1.5; }
+  .workspace-registration-card .workspace-full {
+    min-height: 52px;
+    padding: 12px 14px;
+    font-size: 15px !important;
+    gap: 8px;
+  }
+}
+@media (max-width: 380px) {
+  .workspace-registration-card { padding: 15px 12px !important; }
+  .workspace-registration-card fieldset.workspace-beneficiary { padding: 11px; }
+  .workspace-registration-card .workspace-rule-callout { padding: 11px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .workspace-registration-card * { scroll-behavior: auto; }
+}
