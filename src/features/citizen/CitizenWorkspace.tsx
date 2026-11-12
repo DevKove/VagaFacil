@@ -102,28 +102,8 @@ function withTimeout<T>(promise: PromiseLike<T>, milliseconds: number, message: 
   });
 }
 
-async function subscribeToWebPush(userId: string) {
-  if (!supabase || !('serviceWorker' in navigator) || !('PushManager' in window)) {
-    throw new Error('Este navegador não oferece suporte a notificações push em segundo plano.');
-  }
-  const registration = await withTimeout(
-    navigator.serviceWorker.ready,
-    8_000,
-    'O serviço de notificações ainda não iniciou. Feche e abra o VagaFácil e tente novamente.',
-  );
-  const existing = await withTimeout(
-    registration.pushManager.getSubscription(),
-    8_000,
-    'O navegador demorou para verificar a inscrição de notificações.',
-  );
-  const subscription = existing ?? await withTimeout(
-    registration.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: decodeVapidKey(VAPID_PUBLIC_KEY),
-    }),
-    12_000,
-    'O navegador não concluiu a inscrição push. Verifique a conexão e tente novamente.',
-  );
+async function savePushSubscription(userId: string, subscription: PushSubscription) {
+  if (!supabase) throw new Error('Conexão com o servidor indisponível.');
   const { error } = await withTimeout(
     supabase.from('push_subscriptions').upsert({
       user_id: userId,
@@ -131,10 +111,10 @@ async function subscribeToWebPush(userId: string) {
       subscription: subscription.toJSON(),
       updated_at: new Date().toISOString(),
     }, { onConflict: 'user_id,endpoint' }),
-    12_000,
-    'A inscrição foi criada no aparelho, mas não foi possível salvá-la no servidor. Tente novamente.',
+    15_000,
+    'A inscrição foi criada no Android, mas o servidor não confirmou o salvamento. Verifique sua conexão e tente novamente.',
   );
-  if (error) throw error;
+  if (error) throw new Error(`Falha ao salvar a inscrição no servidor: ${getErrorMessage(error)}`);
 }
 
 async function syncExistingPushSubscription(userId: string) {
@@ -186,6 +166,9 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
   });
   const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>(() => 'Notification' in window ? Notification.permission : 'denied');
   const [permissionBusy, setPermissionBusy] = useState(false);
+  const pushRegistrationRef = useRef<ServiceWorkerRegistration | null>(null);
+  const pushSubscriptionRef = useRef<PushSubscription | null>(null);
+  const [pushReady, setPushReady] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -229,9 +212,23 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
   }, [soundEnabled]);
 
   useEffect(() => {
-    void syncExistingPushSubscription(profile.id).catch(error => {
-      console.warn('Não foi possível sincronizar a inscrição push existente:', error);
+    let active = true;
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+    void navigator.serviceWorker.ready.then(async registration => {
+      if (!active) return;
+      pushRegistrationRef.current = registration;
+      const subscription = await registration.pushManager.getSubscription();
+      if (!active) return;
+      pushSubscriptionRef.current = subscription;
+      setPushReady(true);
+      if (subscription && Notification.permission === 'granted') {
+        await savePushSubscription(profile.id, subscription);
+      }
+    }).catch(error => {
+      console.error('Falha ao preparar notificações push:', error);
+      if (active) setError(`Não foi possível preparar o serviço de notificações: ${getErrorMessage(error)}`);
     });
+    return () => { active = false; };
   }, [profile.id]);
 
   useEffect(() => {
@@ -259,40 +256,51 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
     if (permissionBusy) return;
     setPermissionBusy(true);
     setError('');
-    // Solicita a permissão diretamente no clique do usuário (requisito dos navegadores móveis).
-    const notificationActivation = 'Notification' in window
-      ? Notification.requestPermission()
-      : Promise.resolve('denied' as NotificationPermission);
     if (soundEnabledRef.current) void unlockAlertAudio();
+
+    const registration = pushRegistrationRef.current;
+    if (!registration) {
+      setError('O serviço de notificações ainda está iniciando. Feche e abra o VagaFácil e tente novamente.');
+      setPermissionBusy(false);
+      return;
+    }
+
+    // subscribe() é iniciado diretamente no clique. No Android/Chrome, aguardar
+    // requestPermission() ou outra operação assíncrona antes dele pode perder
+    // a ativação do usuário e fazer o navegador rejeitar a inscrição.
+    let subscriptionTask: Promise<PushSubscription>;
+    try {
+      subscriptionTask = pushSubscriptionRef.current
+        ? Promise.resolve(pushSubscriptionRef.current)
+        : registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: decodeVapidKey(VAPID_PUBLIC_KEY),
+          });
+    } catch (subscriptionError) {
+      setError(`O Android recusou a inscrição de notificações: ${getErrorMessage(subscriptionError)}`);
+      setPermissionBusy(false);
+      return;
+    }
 
     void (async () => {
       try {
-        const permission = await withTimeout(
-          notificationActivation,
-          15_000,
-          'A solicitação de permissão não foi respondida pelo navegador. Verifique as permissões do site e tente novamente.',
+        const subscription = await withTimeout(
+          subscriptionTask,
+          25_000,
+          'O Android não concluiu a inscrição em 25 segundos. Verifique a permissão de notificações do VagaFácil nas configurações do aparelho.',
         );
-        setNotificationPermission(permission);
-        if (permission === 'granted') {
-          try {
-            await subscribeToWebPush(profile.id);
-            window.localStorage.setItem(pushAttemptedKey, '1');
-            window.localStorage.setItem(notificationConsentKey, '1');
-            setSuccess('Notificações do sistema ativadas neste aparelho. Os alertas poderão chegar mesmo com o VagaFácil fechado, conforme o suporte do aparelho.');
-            setNotificationPromptOpen(false);
-          } catch (pushError) {
-            setError(getErrorMessage(pushError, 'A permissão foi concedida, mas a inscrição para notificações em segundo plano não foi concluída. Mantenha esta janela aberta e tente novamente.'));
-            setNotificationPromptOpen(true);
-          }
-        } else if (permission === 'denied') {
-          setError('A permissão foi bloqueada. Libere as notificações do VagaFácil nas configurações do navegador ou do aparelho.');
-          window.localStorage.setItem(notificationConsentKey, '1');
-          setNotificationPromptOpen(false);
-        } else {
-          setNotificationPromptOpen(true);
-        }
-      } catch (activationError) {
-        setError(getErrorMessage(activationError, 'Não foi possível ativar as notificações.'));
+        pushSubscriptionRef.current = subscription;
+        setNotificationPermission(Notification.permission);
+        await savePushSubscription(profile.id, subscription);
+        window.localStorage.setItem(pushAttemptedKey, '1');
+        window.localStorage.setItem(notificationConsentKey, '1');
+        setSuccess('Notificações do sistema ativadas neste aparelho. Os alertas poderão chegar mesmo com o VagaFácil fechado.');
+        setNotificationPromptOpen(false);
+      } catch (pushError) {
+        const message = getErrorMessage(pushError, 'Não foi possível concluir a inscrição de notificações.');
+        setNotificationPermission('Notification' in window ? Notification.permission : 'denied');
+        setError(`Ativação não concluída: ${message}`);
+        setNotificationPromptOpen(true);
       } finally {
         setPermissionBusy(false);
       }
@@ -512,7 +520,7 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
       <div className="workspace-user"><button className={`workspace-audio-toggle${soundEnabled ? ' is-ready' : ' is-muted'}`} type="button" onClick={toggleAlertSound} aria-pressed={soundEnabled} title={soundEnabled ? 'Desativar alertas sonoros (não recomendado)' : 'Ativar alertas sonoros'}>{soundEnabled ? <Volume2 size={16}/> : <VolumeX size={16}/>}<span>{soundEnabled ? 'Som ativado' : 'Som desativado'}</span></button><span className="workspace-avatar">{(profile.full_name || 'C').slice(0,1).toUpperCase()}</span><span><strong>{profile.full_name || 'Cidadão'}</strong><small>Conta ativa</small></span><button className="workspace-signout" onClick={onSignOut}><Power size={16}/> Sair</button></div>
     </header>
     <AdsCarousel />
-    {notificationPromptOpen && <div className="workspace-permission-backdrop" role="presentation"><section className="workspace-permission-dialog" role="dialog" aria-modal="true" aria-labelledby="workspace-permission-title"><span className="workspace-permission-icon"><Bell size={27}/></span><span className="portal-kicker">CENTRAL DE AVISOS · VAGAFÁCIL</span><h2 id="workspace-permission-title">Ative seus avisos</h2><p>Permita as notificações do VagaFácil para receber alertas de texto e som na barra de notificações do celular, inclusive com o aplicativo fechado. O som depende das configurações do aparelho.</p><div className="workspace-permission-features"><div><Bell size={19}/><span><strong>Avisos no celular</strong><small>Notificações em segundo plano, tela bloqueada e central de notificações, quando o navegador oferecer suporte.</small></span></div><div><Volume2 size={19}/><span><strong>Alerta sonoro e vibração</strong><small>O aparelho usará o som e a vibração padrão das notificações.</small></span></div></div>{error && <p className="workspace-permission-hint" role="alert">{error}</p>}{notificationPermission === 'denied' && 'Notification' in window && <p className="workspace-permission-hint">As notificações estão bloqueadas nas configurações do navegador. Altere essa permissão nas configurações do aparelho para receber alertas fora do aplicativo.</p>}{/iPhone|iPad|iPod/i.test(navigator.userAgent) && !window.matchMedia('(display-mode: standalone)').matches && <p className="workspace-permission-hint">No iPhone, adicione o VagaFácil à Tela de Início pelo Safari para habilitar notificações push.</p>}{!('PushManager' in window) && <p className="workspace-permission-hint">Este navegador não oferece Web Push. Os avisos continuarão disponíveis enquanto o VagaFácil estiver aberto.</p>}<button className="workspace-permission-enable" type="button" disabled={permissionBusy} onClick={enableNotificationsAndSound}>{permissionBusy ? 'Ativando...' : 'Permitir notificações'}</button><button className="workspace-permission-later" type="button" onClick={() => setNotificationPromptOpen(false)}>Agora não</button></section></div>}
+    {notificationPromptOpen && <div className="workspace-permission-backdrop" role="presentation"><section className="workspace-permission-dialog" role="dialog" aria-modal="true" aria-labelledby="workspace-permission-title"><span className="workspace-permission-icon"><Bell size={27}/></span><span className="portal-kicker">CENTRAL DE AVISOS · VAGAFÁCIL</span><h2 id="workspace-permission-title">Ative seus avisos</h2><p>Permita as notificações do VagaFácil para receber alertas de texto e som na barra de notificações do celular, inclusive com o aplicativo fechado. O som depende das configurações do aparelho.</p><div className="workspace-permission-features"><div><Bell size={19}/><span><strong>Avisos no celular</strong><small>Notificações em segundo plano, tela bloqueada e central de notificações, quando o navegador oferecer suporte.</small></span></div><div><Volume2 size={19}/><span><strong>Alerta sonoro e vibração</strong><small>O aparelho usará o som e a vibração padrão das notificações.</small></span></div></div>{error && <p className="workspace-permission-hint" role="alert">{error}</p>}{notificationPermission === 'denied' && 'Notification' in window && <p className="workspace-permission-hint">As notificações estão bloqueadas nas configurações do navegador. Altere essa permissão nas configurações do aparelho para receber alertas fora do aplicativo.</p>}{/iPhone|iPad|iPod/i.test(navigator.userAgent) && !window.matchMedia('(display-mode: standalone)').matches && <p className="workspace-permission-hint">No iPhone, adicione o VagaFácil à Tela de Início pelo Safari para habilitar notificações push.</p>}{!('PushManager' in window) && <p className="workspace-permission-hint">Este navegador não oferece Web Push. Os avisos continuarão disponíveis enquanto o VagaFácil estiver aberto.</p>}<button className="workspace-permission-enable" type="button" disabled={permissionBusy || !pushReady} onClick={enableNotificationsAndSound}>{permissionBusy ? 'Ativando...' : !pushReady ? 'Preparando notificações...' : 'Permitir notificações'}</button><button className="workspace-permission-later" type="button" onClick={() => setNotificationPromptOpen(false)}>Agora não</button></section></div>}
     <div className="workspace-body">
       {sidebarOpen && <button className="workspace-sidebar-scrim" aria-label="Fechar menu" onClick={() => setSidebarOpen(false)} />}
       <aside className={`workspace-sidebar${sidebarOpen ? " is-open" : ""}`}><div className="workspace-greeting"><small>PORTAL DO CIDADÃO</small><strong>Olá, {profile.full_name?.split(' ')[0] || 'tudo bem'}!</strong><span>Gerencie seus estacionamentos.</span></div><nav>{navItems.map(item => { const Icon = item.icon; return <button key={item.id} className={tab === item.id ? 'active' : ''} onClick={() => { setTab(item.id); setError(''); setSuccess(''); setSidebarOpen(false); }}><Icon size={17}/>{item.label}{item.id === 'notifications' && unread > 0 && <b>{unread}</b>}</button>; })}</nav></aside>
