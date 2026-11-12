@@ -2731,3 +2731,55 @@ body {
     display: flow-root;
   }
 }
+
+
+/* Scroll único no documento: evita body e html disputarem a rolagem após o login. */
+html {
+  height: auto !important;
+  min-height: 100% !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  scroll-behavior: auto;
+}
+body {
+  height: auto !important;
+  min-height: 100dvh !important;
+  overflow: visible !important;
+  overscroll-behavior-y: auto !important;
+  touch-action: pan-y;
+}
+#root {
+  display: flow-root;
+  height: auto !important;
+  min-height: 100dvh !important;
+  overflow: visible !important;
+}
+.app-shell,
+.citizen-workspace,
+.ops-shell,
+.main,
+.ops-main,
+.content,
+.ops-content,
+.workspace-body,
+.workspace-content {
+  height: auto !important;
+  min-height: 0;
+  max-height: none !important;
+  overflow: visible !important;
+}
+.app-shell,
+.citizen-workspace,
+.ops-shell {
+  min-height: 100dvh !important;
+}
+@media (max-width: 760px) {
+  html { overflow-y: auto !important; }
+  body { overflow: visible !important; -webkit-overflow-scrolling: auto; }
+  #root { overflow: visible !important; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .portal-hero-login {
+    animation: portal-login-pulse 2.2s ease-in-out infinite;
+  }
+}
