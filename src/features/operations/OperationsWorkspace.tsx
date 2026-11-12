@@ -382,7 +382,7 @@ export default function OperationsWorkspace({ profile, area, onSignOut }: { prof
             <div className="ops-panel">
               <div className="ops-panel-heading">
                 <div><h2>Gestão de cadastros</h2><p>Escolha qual lista deseja consultar e administrar.</p></div>
-                <div className="ops-user-heading-actions"><span className="ops-pill info">{userList === 'operational' ? filteredOperationalUsers.length : filteredCitizenUsers.length} cadastros</span><button type="button" className="ops-primary" onClick={()=>{setUserForm(v=>({...v,role:userList==='citizens'?'citizen':'agent'}));openCreateUser();}}><Plus size={16}/> Novo {userList === 'citizens' ? 'cidadão' : 'cadastro'}</button></div>
+                <div className="ops-user-heading-actions"><span className="ops-pill info">{userList === 'operational' ? filteredOperationalUsers.length : filteredCitizenUsers.length} cadastros</span><button type="button" className="ops-primary" onClick={()=>{openCreateUser();setUserForm({full_name:'',email:'',password:'',role:userList==='citizens'?'citizen':'agent',is_active:true});}}><Plus size={16}/> Novo {userList === 'citizens' ? 'cidadão' : 'cadastro'}</button></div>
               </div>
               <div className="ops-user-list-switch" role="tablist" aria-label="Selecionar lista de usuários">
                 <button type="button" role="tab" aria-selected={userList === 'operational'} className={userList === 'operational' ? 'active' : ''} onClick={()=>setUserList('operational')}>Usuários e agentes <span>{filteredOperationalUsers.length}</span></button>
