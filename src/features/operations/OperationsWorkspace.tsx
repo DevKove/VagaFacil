@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
-import { Activity, AlertTriangle, Bell, Camera, CarFront, Clock3, Download, FileText, Filter, Images, KeyRound, LayoutDashboard, LogOut, MapPin, MapPinned, Menu, Plus, RefreshCw, Search, ShieldCheck, Users, X } from 'lucide-react';
+import { Activity, AlertTriangle, Bell, Camera, CarFront, Clock3, CreditCard, Download, FileText, Filter, Images, KeyRound, LayoutDashboard, LogOut, MapPin, MapPinned, Menu, Plus, RefreshCw, Search, ShieldCheck, Users, X } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { VehiclePlate } from '../../components/VehiclePlate';
 import AdsManager from './AdsManager';
@@ -13,10 +13,12 @@ type Space = { id: string; code: string; category: string; active: boolean; zone
 type AuditLog = { id: number; actor_id: string | null; action: string; entity_type: string; entity_id: string | null; created_at: string };
 type EnforcementHistory = { id: string; status: string; result: string | null; notes: string | null; created_at: string; alert_id: string; alerts?: { parking_sessions?: { plate_snapshot: string } | null } | null; enforcement_photos?: { storage_path: string }[] };
 type Rule = { id: string; name: string; enabled: boolean; start_time: string; end_time: string; saturday_start: string | null; saturday_end: string | null; conventional_minutes: number; special_minutes: number; grace_minutes: number };
+type PhysicalCardSession = { id: string; plate_snapshot: string; category: string; started_at: string; expires_at: string; status: string; zone_id: string | null; space_id: string | null; created_by: string; created_at: string; notes: string | null };
+const localDateTimeValue = () => { const now = new Date(); const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000); return local.toISOString().slice(0,16); };
 
 const menus = {
-  agent: [{ id: 'overview', label: 'Painel operacional', icon: LayoutDashboard }, { id: 'sessions', label: 'Sessões em andamento', icon: CarFront }, { id: 'alerts', label: 'Alertas e fiscalização', icon: AlertTriangle }, { id: 'history', label: 'Histórico de ações', icon: FileText }, { id: 'map', label: 'Mapa operacional', icon: MapPinned }],
-  admin: [{ id: 'overview', label: 'Visão geral', icon: LayoutDashboard }, { id: 'sessions', label: 'Estacionamentos', icon: CarFront }, { id: 'zones', label: 'Zonas e vagas', icon: MapPin }, { id: 'users', label: 'Usuários e agentes', icon: Users }, { id: 'rules', label: 'Regras e feriados', icon: Clock3 }, { id: 'reports', label: 'Relatórios', icon: FileText }, { id: 'map', label: 'Mapa de vagas', icon: MapPinned }, { id: 'audit', label: 'Auditoria', icon: ShieldCheck }, { id: 'ads', label: 'Ads', icon: Images }],
+  agent: [{ id: 'overview', label: 'Painel operacional', icon: LayoutDashboard }, { id: 'sessions', label: 'Sessões em andamento', icon: CarFront }, { id: 'card', label: 'Cartão', icon: CreditCard }, { id: 'alerts', label: 'Alertas e fiscalização', icon: AlertTriangle }, { id: 'history', label: 'Histórico de ações', icon: FileText }, { id: 'map', label: 'Mapa operacional', icon: MapPinned }],
+  admin: [{ id: 'overview', label: 'Visão geral', icon: LayoutDashboard }, { id: 'sessions', label: 'Estacionamentos', icon: CarFront }, { id: 'card', label: 'Cartão', icon: CreditCard }, { id: 'zones', label: 'Zonas e vagas', icon: MapPin }, { id: 'users', label: 'Usuários e agentes', icon: Users }, { id: 'rules', label: 'Regras e feriados', icon: Clock3 }, { id: 'reports', label: 'Relatórios', icon: FileText }, { id: 'map', label: 'Mapa de vagas', icon: MapPinned }, { id: 'audit', label: 'Auditoria', icon: ShieldCheck }, { id: 'ads', label: 'Ads', icon: Images }],
 };
 const dateTime = (value: string) => new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'medium' }).format(new Date(value));
 const dateOnly = (value: string) => new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short' }).format(new Date(value));
@@ -45,6 +47,8 @@ export default function OperationsWorkspace({ profile, area, onSignOut }: { prof
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [sessions, setSessions] = useState<Session[]>([]);
+  const [physicalCardSessions, setPhysicalCardSessions] = useState<PhysicalCardSession[]>([]);
+  const [cardForm, setCardForm] = useState({ plate: '', category: 'conventional', zone_id: '', space_id: '', started_at: localDateTimeValue(), notes: '' });
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [zones, setZones] = useState<Zone[]>([]);
   const [spaces, setSpaces] = useState<Space[]>([]);
@@ -74,15 +78,21 @@ export default function OperationsWorkspace({ profile, area, onSignOut }: { prof
     setLoading(true);
     setError('');
     try {
-      const [sessionRes, alertRes, spaceMapRes] = await Promise.all([
+      const [sessionRes, alertRes, spaceMapRes, zoneRes, cardRes] = await Promise.all([
         supabase.from('parking_sessions').select('id,plate_snapshot,started_at,expires_at,ended_at,status,user_id,space_id,latitude,longitude,location_accuracy_m,location_captured_at,parking_spaces(code,latitude,longitude,parking_zones(name))').order('started_at', { ascending: false }).limit(1000),
         supabase.from('alerts').select('id,status,severity,created_at,session_id,claimed_by,parking_sessions(id,plate_snapshot,started_at,expires_at,status,user_id,space_id,latitude,longitude,parking_spaces(code,latitude,longitude,parking_zones(name)))').in('status', ['open','claimed']).order('created_at', { ascending: false }).limit(300),
         supabase.from('parking_spaces').select('id,code,category,active,zone_id,latitude,longitude').order('code'),
+        supabase.from('parking_zones').select('id,name,description,active').eq('active', true).order('name'),
+        supabase.from('physical_card_sessions').select('id,plate_snapshot,category,started_at,expires_at,status,zone_id,space_id,created_by,created_at,notes').order('started_at', { ascending: false }).limit(500),
       ]);
       if (sessionRes.error) throw sessionRes.error;
       if (alertRes.error) throw alertRes.error;
       if (spaceMapRes.error) throw spaceMapRes.error;
+      if (zoneRes.error) throw zoneRes.error;
+      if (cardRes.error) throw cardRes.error;
       setSessions((sessionRes.data || []) as unknown as Session[]);
+      setZones((zoneRes.data || []) as Zone[]);
+      setPhysicalCardSessions((cardRes.data || []) as PhysicalCardSession[]);
       setAlerts((alertRes.data || []) as unknown as Alert[]);
       setSpaces((spaceMapRes.data || []) as Space[]);
       if (area === 'agent') {
@@ -100,16 +110,13 @@ export default function OperationsWorkspace({ profile, area, onSignOut }: { prof
         setHistoryPhotoUrls(Object.fromEntries(signedPhotos));
       }
       if (area === 'admin') {
-        const [zoneRes, userRes, ruleRes, auditRes] = await Promise.all([
-          supabase.from('parking_zones').select('id,name,description,active').order('name'),
+        const [userRes, ruleRes, auditRes] = await Promise.all([
           invokeUserManagement({ action: 'list' }),
           supabase.from('parking_rules').select('id,name,enabled,start_time,end_time,saturday_start,saturday_end,conventional_minutes,special_minutes,grace_minutes').order('created_at', { ascending: false }),
           supabase.from('audit_logs').select('id,actor_id,action,entity_type,entity_id,created_at').order('created_at', { ascending: false }).limit(300),
         ]);
-        if (zoneRes.error) throw zoneRes.error;
         if (ruleRes.error) throw ruleRes.error;
         if (auditRes.error) throw auditRes.error;
-        setZones(zoneRes.data || []);
         setUsers((userRes?.users || []) as Profile[]);
         setRules(ruleRes.data || []);
         setAuditLogs((auditRes.data || []) as AuditLog[]);
@@ -191,6 +198,26 @@ export default function OperationsWorkspace({ profile, area, onSignOut }: { prof
     if (!window.confirm(`Resetar o autenticador de ${user.full_name} (${user.email || 'e-mail não informado'})? Os fatores MFA serão removidos e as sessões ativas poderão ser encerradas.`)) return;
     void run(async () => {
       await invokeUserManagement({ action: 'reset_mfa', id: user.id });
+    });
+  };
+  const savePhysicalCardSession = (event: FormEvent) => {
+    event.preventDefault();
+    if (!supabase) return;
+    const plate = cardForm.plate.replace(/[^a-z0-9]/gi, '').toUpperCase();
+    if (!/^[A-Z]{3}[0-9][A-Z0-9][0-9]{2}$/.test(plate)) { setError('Informe uma placa válida no padrão ABC1D23 ou ABC1234.'); return; }
+    const startedAt = new Date(cardForm.started_at);
+    if (Number.isNaN(startedAt.getTime()) || startedAt.getTime() > Date.now()) { setError('O início deve ser uma data e horário válidos, não futuros.'); return; }
+    void run(async () => {
+      const { error } = await supabase!.rpc('register_physical_card_session', {
+        p_plate: plate,
+        p_category: cardForm.category,
+        p_zone_id: cardForm.zone_id || null,
+        p_space_id: cardForm.space_id || null,
+        p_started_at: startedAt.toISOString(),
+        p_notes: cardForm.notes.trim() || null,
+      });
+      if (error) throw error;
+      setCardForm({ plate: '', category: 'conventional', zone_id: '', space_id: '', started_at: localDateTimeValue(), notes: '' });
     });
   };
   const finishSession = (session: Session) => {
@@ -282,6 +309,27 @@ export default function OperationsWorkspace({ profile, area, onSignOut }: { prof
           </section> : <><div className="ops-metrics"><article><span>Sessões em andamento</span><strong>{activeSessions.length}</strong><small>Registros ativos</small></article><article><span>Prazo encerrado</span><strong>{expiredSessions.length}</strong><small>Precisam de atenção</small></article><article><span>Alertas abertos</span><strong>{openAlerts}</strong><small>Na fila de atendimento</small></article><article><span>Usuários cadastrados</span><strong>{users.length}</strong><small>Todos os perfis</small></article></div><div className="ops-panel"><div className="ops-panel-heading"><div><h2>Atividade que exige atenção</h2><p>Dados consultados diretamente no banco</p></div><button onClick={() => setSection('sessions')}>Abrir lista</button></div>{expiredSessions.slice(0,6).map(s=><div className="ops-row" key={s.id}><AlertTriangle size={18}/><div><VehiclePlate value={s.plate_snapshot} compact /><small>{s.parking_spaces?.code || 'Sem vaga vinculada'} · Limite {dateTime(s.expires_at)}</small></div><span className="ops-pill danger">Vencido</span></div>)}{expiredSessions.length === 0 && <div className="ops-empty">Nenhuma sessão vencida identificada.</div>}</div></>)}
           {section === 'map' && <div className="ops-panel"><div className="ops-panel-heading"><div><h2>Mapa de vagas e pontos cadastrados</h2><p>Posições geográficas registradas no cadastro municipal.</p></div><span className="ops-pill info">{mappedSpaces.length} coordenadas</span></div>{mapBounds && mapCenter ? <><iframe title="Mapa de vagas VagaFácil" className="ops-map-frame" loading="lazy" src={`https://www.openstreetmap.org/export/embed.html?bbox=${mapBounds.minLon}%2C${mapBounds.minLat}%2C${mapBounds.maxLon}%2C${mapBounds.maxLat}&layer=mapnik&marker=${mapCenter.lat}%2C${mapCenter.lon}`} /><p className="ops-hint">O marcador indica o centro aproximado das vagas cadastradas. Abra cada coordenada na lista para visualizar o ponto exato.</p><div className="ops-map-list">{mappedSpaces.map(space=><a key={space.id} href={`https://www.openstreetmap.org/?mlat=${space.latitude}&mlon=${space.longitude}#map=19/${space.latitude}/${space.longitude}`} target="_blank" rel="noreferrer"><MapPin size={16}/><span><strong>{space.code}</strong><small>{space.active?'Vaga ativa':'Vaga inativa'} · {Number(space.latitude).toFixed(6)}, {Number(space.longitude).toFixed(6)}</small></span></a>)}</div></> : <div className="ops-empty">Ainda não existem vagas com latitude e longitude cadastradas. Cadastre as coordenadas para habilitar o mapa.</div>}</div>}
           {section === 'sessions' && <div className="ops-panel"><div className="ops-panel-heading"><div><h2>Estacionamentos monitorados</h2><p>{filteredSessions.length} registros encontrados</p></div><label className="ops-search"><Search size={16}/><input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar placa ou coordenadas"/></label></div><div className="ops-table-wrap ops-sessions-table-wrap"><table><thead><tr><th>PLACA</th><th>LOCALIZAÇÃO</th><th>DATA</th><th>CHEGADA</th><th>VENCIMENTO</th><th>ENCERRAMENTO</th><th>SITUAÇÃO</th>{area === 'admin' && <th>AÇÃO</th>}</tr></thead><tbody>{filteredSessions.map(s=><tr key={s.id}><td><VehiclePlate value={s.plate_snapshot} compact /></td><td>{s.latitude != null && s.longitude != null ? <a className="ops-location-link" href={'https://www.openstreetmap.org/?mlat=' + s.latitude + '&mlon=' + s.longitude + '#map=18/' + s.latitude + '/' + s.longitude} target="_blank" rel="noreferrer" title="Abrir localização no mapa"><MapPin size={15}/><span><strong>{Number(s.latitude).toFixed(6)}, {Number(s.longitude).toFixed(6)}</strong><small>{s.location_accuracy_m != null ? 'Precisão ±' + Math.round(s.location_accuracy_m) + ' m' : 'Precisão não informada'}{s.location_captured_at ? ' · ' + dateTime(s.location_captured_at) : ''}</small></span></a> : <span className="ops-muted-location">Geolocalização não disponível no registro</span>}</td><td>{dateOnly(s.started_at)}</td><td>{timeOnly(s.started_at)}</td><td><strong className="ops-expiry-time">{timeOnly(s.expires_at)}</strong></td><td>{s.ended_at ? timeOnly(s.ended_at) : "—"}</td><td><span className={`ops-pill ${s.status === 'expired' || (s.status === 'active' && new Date(s.expires_at).getTime() <= Date.now()) ? 'danger' : 'success'}`}>{s.status === 'active' && new Date(s.expires_at).getTime() <= Date.now() ? 'Período excedido · em aberto' : statusText(s.status)}</span></td>{area === 'admin' && <td>{s.status === 'active' ? <div className="ops-user-actions"><button className="ops-primary" onClick={() => sendManualAlert(s)} disabled={busy}><Bell size={15}/> Emitir alerta</button><button className="ops-small-action danger" onClick={() => finishSession(s)} disabled={busy}>Encerrar</button></div> : <span className="ops-muted-location">Encerrado</span>}</td>}</tr>)}{filteredSessions.length === 0 && <tr><td colSpan={area === 'admin' ? 8 : 7} className="ops-empty">Nenhum estacionamento encontrado.</td></tr>}</tbody></table></div></div>}
+          {section === 'card' && <div className="ops-card-layout">
+            <section className="ops-panel ops-card-form-panel">
+              <div className="ops-panel-heading"><div><h2>Novo registro com cartão físico</h2><p>Informe os dados do veículo e o horário real de início da utilização.</p></div><span className="ops-card-heading-icon"><CreditCard size={22}/></span></div>
+              <form className="ops-form" onSubmit={savePhysicalCardSession}>
+                <label>Placa do veículo<input value={cardForm.plate} onChange={e=>setCardForm(v=>({...v,plate:e.target.value.toUpperCase()}))} placeholder="ABC1D23" maxLength={7} autoComplete="off" required/></label>
+                <div className="ops-form-grid">
+                  <label>Categoria<select value={cardForm.category} onChange={e=>setCardForm(v=>({...v,category:e.target.value,space_id:''}))}><option value="conventional">Convencional</option><option value="elderly">Idoso</option><option value="accessible">Pessoa com deficiência</option></select></label>
+                  <label>Zona<select value={cardForm.zone_id} onChange={e=>setCardForm(v=>({...v,zone_id:e.target.value,space_id:''}))}><option value="">Não informada</option>{zones.map(zone=><option key={zone.id} value={zone.id}>{zone.name}</option>)}</select></label>
+                </div>
+                <label>Vaga (opcional)<select value={cardForm.space_id} onChange={e=>setCardForm(v=>({...v,space_id:e.target.value}))}><option value="">Sem vaga específica</option>{spaces.filter(space=>space.active && (!cardForm.zone_id || space.zone_id===cardForm.zone_id)).map(space=><option key={space.id} value={space.id}>{space.code}</option>)}</select></label>
+                <label>Data e horário de início<input type="datetime-local" value={cardForm.started_at} max={localDateTimeValue()} onChange={e=>setCardForm(v=>({...v,started_at:e.target.value}))} required/><small>Você pode informar o horário em que o cartão físico começou a ser utilizado, mesmo que o lançamento seja feito depois.</small></label>
+                <label>Observações (opcional)<textarea rows={3} maxLength={500} value={cardForm.notes} onChange={e=>setCardForm(v=>({...v,notes:e.target.value}))} placeholder="Informações complementares do atendimento"/></label>
+                <div className="ops-card-notice"><Clock3 size={17}/><span>O vencimento será calculado automaticamente a partir do horário de início informado, conforme a duração configurada para a categoria.</span></div>
+                <button className="ops-primary" disabled={busy}><CreditCard size={16}/> Registrar cartão físico</button>
+              </form>
+            </section>
+            <section className="ops-panel">
+              <div className="ops-panel-heading"><div><h2>Registros de cartão físico</h2><p>{physicalCardSessions.length} registro(s) recentes · lançamentos feitos por agentes e administradores</p></div><span className="ops-pill info">{physicalCardSessions.filter(item=>item.expires_at>new Date().toISOString()).length} em andamento</span></div>
+              <div className="ops-table-wrap"><table><thead><tr><th>PLACA</th><th>INÍCIO</th><th>VENCIMENTO</th><th>ZONA / VAGA</th><th>LANÇADO POR</th><th>SITUAÇÃO</th></tr></thead><tbody>{physicalCardSessions.map(item=>{const expired=new Date(item.expires_at).getTime()<=Date.now();const zone=zones.find(value=>value.id===item.zone_id);const space=spaces.find(value=>value.id===item.space_id);return <tr key={item.id}><td><VehiclePlate value={item.plate_snapshot} compact/></td><td>{dateTime(item.started_at)}</td><td><strong className="ops-expiry-time">{dateTime(item.expires_at)}</strong></td><td>{zone?.name||'—'}<small className="ops-report-cell-sub">{space?.code||'Sem vaga vinculada'}</small></td><td>{users.find(value=>value.id===item.created_by)?.full_name || (item.created_by===profile.id?'Você':'Agente / administrador')}</td><td><span className={`ops-pill ${expired?'danger':'success'}`}>{expired?'Vencido':'Em andamento'}</span></td></tr>})}{physicalCardSessions.length===0&&<tr><td colSpan={6} className="ops-empty">Nenhum registro com cartão físico até o momento.</td></tr>}</tbody></table></div>
+            </section>
+          </div>}
           {section === 'alerts' && area === 'agent' && <div className="ops-panel"><div className="ops-panel-heading"><div><h2>Fila de fiscalização</h2><p>Assuma um alerta e registre a verificação em campo.</p></div></div>{filteredAlerts.map(a=><article className="ops-alert" key={a.id}><div className="ops-alert-icon"><AlertTriangle size={20}/></div><div className="ops-alert-body">{a.parking_sessions?.plate_snapshot ? <VehiclePlate value={a.parking_sessions.plate_snapshot} compact /> : <strong>Veículo não identificado</strong>}<small>{a.severity === 'expired' ? 'Tempo de estacionamento encerrado' : a.severity === 'attention' ? 'Próximo do limite' : 'Solicitação de fiscalização'} · {dateTime(a.created_at)}</small><span className={`ops-pill ${a.status === 'open' ? 'warning' : 'info'}`}>{statusText(a.status)}</span></div><div className="ops-alert-actions">{a.status === 'open' && <button onClick={() => claimAlert(a)} disabled={busy}>Assumir</button>}<button className="ops-primary" onClick={() => setEnforcement(a)}>Registrar fiscalização</button></div></article>)}{filteredAlerts.length === 0 && <div className="ops-empty">Nenhum alerta pendente.</div>}</div>}
           {section === 'history' && area === 'agent' && <div className="ops-panel"><div className="ops-panel-heading"><div><h2>Atendimentos recentes</h2><p>Histórico de fiscalizações registradas pelo sistema.</p></div></div>{filteredHistory.map(item=><article className="ops-rule" key={item.id}><div><div className="ops-history-title">{item.alerts?.parking_sessions?.plate_snapshot ? <VehiclePlate value={item.alerts.parking_sessions.plate_snapshot} compact /> : <strong>Veículo sem placa</strong>}<strong>{item.result === 'irregular' ? 'Irregularidade constatada' : 'Situação regular'}</strong></div><small>{dateTime(item.created_at)} · {statusText(item.status)}</small><small>{item.notes || 'Sem observações registradas.'}</small>{(historyPhotoUrls[item.id] || []).map((url,index)=><a className="ops-photo-link" key={url} href={url} target="_blank" rel="noreferrer">Ver evidência {index+1}</a>)}</div></article>)}{filteredHistory.length===0&&<div className="ops-empty">Você ainda não registrou fiscalizações.</div>}</div>}
           {section === 'zones' && area === 'admin' && <div className="ops-two-col"><div className="ops-panel"><div className="ops-panel-heading"><div><h2>Zonas de estacionamento</h2><p>Cadastre e mantenha as áreas regulamentadas.</p></div></div><form className="ops-form" onSubmit={addZone}><label>Nome da zona<input required maxLength={80} value={zoneForm.name} onChange={e=>setZoneForm(v=>({...v,name:e.target.value}))} placeholder="Ex.: Centro"/></label><label>Descrição<input maxLength={200} value={zoneForm.description} onChange={e=>setZoneForm(v=>({...v,description:e.target.value}))} placeholder="Referência ou limites"/></label><button className="ops-primary" disabled={busy}><Plus size={16}/> Adicionar zona</button></form>{filteredZones.map(z=><div className="ops-row" key={z.id}><MapPin size={18}/><div><strong>{z.name}</strong><small>{z.description || 'Sem descrição'} · {z.active ? 'Ativa' : 'Inativa'}</small></div></div>)}</div><div className="ops-panel"><div className="ops-panel-heading"><div><h2>Cadastro de vagas</h2><p>Vincule cada vaga a uma zona.</p></div></div><form className="ops-form" onSubmit={addSpace}><label>Código da vaga<input required maxLength={24} value={spaceForm.code} onChange={e=>setSpaceForm(v=>({...v,code:e.target.value}))} placeholder="C-001"/></label><label>Zona<select value={spaceForm.zone_id} onChange={e=>setSpaceForm(v=>({...v,zone_id:e.target.value}))}><option value="">Sem zona</option>{zones.map(z=><option key={z.id} value={z.id}>{z.name}</option>)}</select></label><label>Categoria<select value={spaceForm.category} onChange={e=>setSpaceForm(v=>({...v,category:e.target.value}))}><option value="conventional">Convencional</option><option value="elderly">Idoso</option><option value="accessible">Pessoa com deficiência</option></select></label><div className="ops-form-grid"><label>Latitude<input type="number" step="any" min="-90" max="90" value={spaceForm.latitude} onChange={e=>setSpaceForm(v=>({...v,latitude:e.target.value}))} placeholder="-23.000000"/></label><label>Longitude<input type="number" step="any" min="-180" max="180" value={spaceForm.longitude} onChange={e=>setSpaceForm(v=>({...v,longitude:e.target.value}))} placeholder="-47.000000"/></label></div><button className="ops-primary" disabled={busy}><Plus size={16}/> Cadastrar vaga</button></form>{filteredSpaces.map(s=><div className="ops-row" key={s.id}><MapPin size={18}/><div><strong>{s.code}</strong><small>{s.category === 'elderly' ? 'Idoso' : s.category === 'accessible' ? 'Pessoa com deficiência' : 'Convencional'} · {s.active ? 'Ativa' : 'Inativa'}</small></div><button className="ops-small-action" onClick={()=>void run(async()=>{const {error}=await supabase!.from('parking_spaces').update({active:!s.active}).eq('id',s.id);if(error)throw error;})}>{s.active?'Desativar':'Ativar'}</button></div>)}</div></div>}
