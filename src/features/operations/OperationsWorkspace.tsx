@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
-import { AlertTriangle, Bell, Camera, CarFront, Clock3, Download, FileText, Filter, Images, LayoutDashboard, LogOut, MapPin, MapPinned, Menu, Plus, RefreshCw, Search, ShieldCheck, Users, X } from 'lucide-react';
+import { Activity, AlertTriangle, Bell, Camera, CarFront, Clock3, Download, FileText, Filter, Images, LayoutDashboard, LogOut, MapPin, MapPinned, Menu, Plus, RefreshCw, Search, ShieldCheck, Users, X } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { VehiclePlate } from '../../components/VehiclePlate';
 import AdsManager from './AdsManager';
