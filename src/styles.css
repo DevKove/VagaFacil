@@ -2687,3 +2687,47 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .portal-hero-login { animation: none; }
 }
+
+
+/* Correção definitiva do scroll global nas telas autenticadas */
+html {
+  min-height: 100% !important;
+  height: auto !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overscroll-behavior-y: auto !important;
+}
+body {
+  min-height: 100dvh !important;
+  height: auto !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overscroll-behavior-y: auto !important;
+  position: static !important;
+  touch-action: pan-y !important;
+}
+#root {
+  min-height: 100dvh !important;
+  height: auto !important;
+  overflow: visible !important;
+}
+.app-shell,
+.citizen-workspace,
+.ops-shell,
+.ops-main,
+.ops-content,
+.workspace-body,
+.workspace-content {
+  height: auto !important;
+  max-height: none !important;
+  overflow-y: visible !important;
+}
+@media (max-width: 760px) {
+  html, body {
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior-y: auto !important;
+  }
+  #root {
+    display: flow-root;
+  }
+}
