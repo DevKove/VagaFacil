@@ -56,17 +56,35 @@ function usePwaInstall() {
   }, []);
 
   const install = async () => {
-    if (!installPrompt || installed) return;
+    if (installed) return true;
+    let promptEvent = installPrompt;
+    if (!promptEvent) {
+      promptEvent = await new Promise<InstallPromptEvent | null>(resolve => {
+        const onPrompt = (event: Event) => {
+          event.preventDefault();
+          window.clearTimeout(timeout);
+          window.removeEventListener('beforeinstallprompt', onPrompt);
+          resolve(event as InstallPromptEvent);
+        };
+        const timeout = window.setTimeout(() => {
+          window.removeEventListener('beforeinstallprompt', onPrompt);
+          resolve(null);
+        }, 2500);
+        window.addEventListener('beforeinstallprompt', onPrompt);
+      });
+    }
+    if (!promptEvent) return false;
     try {
-      await installPrompt.prompt();
-      const choice = await installPrompt.userChoice;
+      await promptEvent.prompt();
+      const choice = await promptEvent.userChoice;
       if (choice.outcome === 'accepted') setInstalled(true);
+      return choice.outcome === 'accepted';
     } finally {
       setInstallPrompt(null);
     }
   };
 
-  return { canInstall: Boolean(installPrompt) && !installed, installed, install };
+  return { installed, install };
 }
 
 const portalRoles: { id: PortalRole; title: string; description: string; action: string; icon: typeof CarFront; featured?: boolean; details: string[] }[] = [
@@ -78,12 +96,16 @@ const portalRoles: { id: PortalRole; title: string; description: string; action:
 function Portal({ onSelect }: { onSelect: (role: PortalRole) => void }) {
   const [accessOpen, setAccessOpen] = useState(false);
   const [adminOptionsOpen, setAdminOptionsOpen] = useState(false);
-  const [installHelp, setInstallHelp] = useState<'android' | 'ios' | null>(null);
-  const { canInstall, installed, install } = usePwaInstall();
+  const [installHelp, setInstallHelp] = useState<'ios' | null>(null);
+  const [androidInstallMessage, setAndroidInstallMessage] = useState('');
+  const { installed, install } = usePwaInstall();
   const openAndroidInstall = async () => {
     if (installed) return;
-    if (canInstall) { await install(); return; }
-    setInstallHelp('android');
+    setAndroidInstallMessage('');
+    const started = await install();
+    if (!started && !window.matchMedia('(display-mode: standalone)').matches) {
+      setAndroidInstallMessage('O Chrome ainda não liberou a instalação. Abra esta página no Chrome atualizado e tente novamente.');
+    }
   };
   return <main className="portal-page">
     <section className="portal-hero">
@@ -96,26 +118,23 @@ function Portal({ onSelect }: { onSelect: (role: PortalRole) => void }) {
       </div>
       <div className="portal-hero-actions">
         <div className="portal-install-platforms" aria-label="Instalar aplicativo">
-          <button type="button" className="portal-platform-install portal-platform-android" onClick={() => void openAndroidInstall()} disabled={installed} aria-label="Instalar no Android"><Smartphone size={17}/><span>Android</span></button>
+          <button type="button" className="portal-platform-install portal-platform-android" onClick={() => void openAndroidInstall()} disabled={installed} aria-label="Instalar no Android"><Smartphone size={17}/><span>{installed ? 'Instalado' : 'Android'}</span></button>
           <button type="button" className="portal-platform-install portal-platform-ios" onClick={() => setInstallHelp('ios')} disabled={installed} aria-label="Instalar no iOS"><Apple size={17}/><span>iOS</span></button>
         </div>
+        {androidInstallMessage && <p className="android-install-feedback" role="status">{androidInstallMessage}</p>}
         <button type="button" className="portal-login-trigger portal-hero-login" onClick={() => setAccessOpen(true)}><LockKeyhole size={18}/> Entrar <ArrowUpRight size={17}/></button>
       </div>
       {installHelp && <div className="install-help-backdrop" role="presentation" onMouseDown={event => { if (event.target === event.currentTarget) setInstallHelp(null); }}>
         <section className="install-help-dialog" role="dialog" aria-modal="true" aria-labelledby="install-help-title">
           <button type="button" className="access-picker-close" aria-label="Fechar" onClick={() => setInstallHelp(null)}><X size={20}/></button>
           <span className="portal-kicker">VAGAFÁCIL NO SEU CELULAR</span>
-          <h2 id="install-help-title">Instalar no {installHelp === 'ios' ? 'iPhone ou iPad' : 'Android'}</h2>
-          {installHelp === 'ios' ? <ol className="install-help-steps">
+          <h2 id="install-help-title">Instalar no iPhone ou iPad</h2>
+          <ol className="install-help-steps">
             <li><Share2 size={19}/><span>No Safari, toque em <strong>Compartilhar</strong> (ícone de compartilhar).</span></li>
             <li><span className="install-step-number">2</span><span>Role as opções e escolha <strong>Adicionar à Tela de Início</strong>.</span></li>
             <li><span className="install-step-number">3</span><span>Confirme em <strong>Adicionar</strong>. O VagaFácil ficará disponível como aplicativo.</span></li>
-          </ol> : <ol className="install-help-steps">
-            <li><span className="install-step-number">1</span><span>Abra esta página no <strong>Google Chrome</strong>.</span></li>
-            <li><span className="install-step-number">2</span><span>Toque no menu <strong>⋮</strong> e escolha <strong>Instalar aplicativo</strong> ou <strong>Adicionar à tela inicial</strong>.</span></li>
-            <li><span className="install-step-number">3</span><span>Confirme a instalação e abra o VagaFácil pelo ícone criado.</span></li>
-          </ol>}
-          <p className="install-help-note">{installHelp === 'ios' ? 'A instalação no iOS deve ser feita pelo Safari.' : 'Se a opção não aparecer, atualize o Chrome e abra novamente esta página.'}</p>
+          </ol>
+          <p className="install-help-note">A instalação no iOS deve ser feita pelo Safari.</p>
           <button type="button" className="install-help-confirm" onClick={() => setInstallHelp(null)}>Entendi</button>
         </section>
       </div>}
