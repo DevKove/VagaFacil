@@ -191,14 +191,14 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
     ]);
     setVehicles(vehicleRows as Vehicle[]);
     setSessions(sessionRows as unknown as ParkingSession[]);
-    setSpaces(spaceRows as ParkingSpace[]);
+    setSpaces(spaceRows as unknown as ParkingSpace[]);
     const loadedNotices = noticeRows as Notice[];
     setNotices(loadedNotices);
     const pendingManualAlerts = loadedNotices.filter(item => item.kind === 'admin_manual_alert' && !item.read_at);
     setExpiryWarning(pendingManualAlerts.map(item => ({ sessionId: item.id, plate: 'ATENÇÃO', body: item.body })));
     if (pendingManualAlerts.length) playAlertSound(soundEnabledRef.current);
     seenNotificationIds.current = new Set(loadedNotices.map(item => item.id));
-    setSelectedVehicle(current => current || vehicleResult.data?.[0]?.id || '');
+    setSelectedVehicle(current => current || vehicleRows[0]?.id || '');
   }, [profile.id]);
 
   useEffect(() => {
