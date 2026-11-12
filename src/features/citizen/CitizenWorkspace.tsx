@@ -120,7 +120,7 @@ async function showPersistentNotification(title: string, body: string, tag: stri
     const registration = await navigator.serviceWorker?.ready;
     if (registration?.pushManager && await registration.pushManager.getSubscription()) return;
     if (registration) {
-      await registration.showNotification(title, { body, tag, requireInteraction: true, silent: false, vibrate: [250, 120, 250], icon: `${import.meta.env.BASE_URL}favicon.svg`, badge: `${import.meta.env.BASE_URL}favicon.svg` });
+      await registration.showNotification(title, { body, tag, requireInteraction: true, silent: false, icon: `${import.meta.env.BASE_URL}favicon.svg`, badge: `${import.meta.env.BASE_URL}favicon.svg` });
     } else {
       new Notification(title, { body, tag, requireInteraction: true });
     }
