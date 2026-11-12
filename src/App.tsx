@@ -375,14 +375,32 @@ export default function App() {
     return () => { alive = false; listener.subscription.unsubscribe(); };
   }, []);
 
-  // Ao entrar/sair, reinicia a posição da página para evitar herdar o scroll do portal/modal.
+  // Restaura o scroll global após desmontar a tela de autenticação.
   useEffect(() => {
     if (!profile) return;
-    window.requestAnimationFrame(() => {
-      window.scrollTo(0, 0);
-      document.documentElement.scrollTop = 0;
-      document.body.scrollTop = 0;
-    });
+    const restorePageScroll = () => {
+      const html = document.documentElement;
+      const body = document.body;
+      [html, body].forEach((element) => {
+        element.style.removeProperty('overflow');
+        element.style.removeProperty('overflow-y');
+        element.style.removeProperty('position');
+        element.style.removeProperty('height');
+        element.style.removeProperty('touch-action');
+      });
+      html.style.setProperty('overflow-y', 'auto', 'important');
+      body.style.setProperty('overflow-y', 'auto', 'important');
+      body.style.setProperty('height', 'auto', 'important');
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+      html.scrollTop = 0;
+      body.scrollTop = 0;
+    };
+    const frame = window.requestAnimationFrame(restorePageScroll);
+    const fallback = window.setTimeout(restorePageScroll, 120);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.clearTimeout(fallback);
+    };
   }, [profile?.id]);
 
   const signOut = async () => { if (supabase) await supabase.auth.signOut(); setProfile(null); setMfaProfile(null); setSelectedRole(null); setShowDemo(false); };
