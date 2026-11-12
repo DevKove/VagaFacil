@@ -95,22 +95,45 @@ function decodeVapidKey(value: string): Uint8Array {
   return Uint8Array.from(raw, character => character.charCodeAt(0));
 }
 
+function withTimeout<T>(promise: Promise<T>, milliseconds: number, message: string): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const timer = window.setTimeout(() => reject(new Error(message)), milliseconds);
+    promise.then(value => { window.clearTimeout(timer); resolve(value); }, error => { window.clearTimeout(timer); reject(error); });
+  });
+}
+
 async function subscribeToWebPush(userId: string) {
   if (!supabase || !('serviceWorker' in navigator) || !('PushManager' in window)) {
     throw new Error('Este navegador não oferece suporte a notificações push em segundo plano.');
   }
-  const registration = await navigator.serviceWorker.ready;
-  const subscription = await registration.pushManager.getSubscription()
-    ?? await registration.pushManager.subscribe({
+  const registration = await withTimeout(
+    navigator.serviceWorker.ready,
+    8_000,
+    'O serviço de notificações ainda não iniciou. Feche e abra o VagaFácil e tente novamente.',
+  );
+  const existing = await withTimeout(
+    registration.pushManager.getSubscription(),
+    8_000,
+    'O navegador demorou para verificar a inscrição de notificações.',
+  );
+  const subscription = existing ?? await withTimeout(
+    registration.pushManager.subscribe({
       userVisibleOnly: true,
       applicationServerKey: decodeVapidKey(VAPID_PUBLIC_KEY),
-    });
-  const { error } = await supabase.from('push_subscriptions').upsert({
-    user_id: userId,
-    endpoint: subscription.endpoint,
-    subscription: subscription.toJSON(),
-    updated_at: new Date().toISOString(),
-  }, { onConflict: 'user_id,endpoint' });
+    }),
+    12_000,
+    'O navegador não concluiu a inscrição push. Verifique a conexão e tente novamente.',
+  );
+  const { error } = await withTimeout(
+    supabase.from('push_subscriptions').upsert({
+      user_id: userId,
+      endpoint: subscription.endpoint,
+      subscription: subscription.toJSON(),
+      updated_at: new Date().toISOString(),
+    }, { onConflict: 'user_id,endpoint' }),
+    12_000,
+    'A inscrição foi criada no aparelho, mas não foi possível salvá-la no servidor. Tente novamente.',
+  );
   if (error) throw error;
 }
 
@@ -213,25 +236,42 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
   };
 
   const enableNotificationsAndSound = () => {
+    if (permissionBusy) return;
     setPermissionBusy(true);
-    const audioActivation = soundEnabledRef.current ? unlockAlertAudio() : Promise.resolve(false);
-    const notificationActivation = 'Notification' in window ? Notification.requestPermission() : Promise.resolve('denied' as NotificationPermission);
-    void Promise.all([audioActivation, notificationActivation]).then(async ([, permission]) => {
-      setNotificationPermission(permission);
-      if (permission === 'granted') {
-        try {
-          await subscribeToWebPush(profile.id);
-        } catch (pushError) {
-          setError(getErrorMessage(pushError, 'Não foi possível ativar os avisos em segundo plano neste aparelho.'));
+    setError('');
+    // Solicita a permissão diretamente no clique do usuário (requisito dos navegadores móveis).
+    const notificationActivation = 'Notification' in window
+      ? Notification.requestPermission()
+      : Promise.resolve('denied' as NotificationPermission);
+    if (soundEnabledRef.current) void unlockAlertAudio();
+
+    void (async () => {
+      try {
+        const permission = await withTimeout(
+          notificationActivation,
+          15_000,
+          'A solicitação de permissão não foi respondida pelo navegador. Verifique as permissões do site e tente novamente.',
+        );
+        setNotificationPermission(permission);
+        if (permission === 'granted') {
+          try {
+            await subscribeToWebPush(profile.id);
+            window.localStorage.setItem(pushAttemptedKey, '1');
+            setSuccess('Notificações ativadas neste aparelho. Você já pode receber alertas do VagaFácil.');
+          } catch (pushError) {
+            setError(getErrorMessage(pushError, 'A permissão foi concedida, mas não foi possível concluir a inscrição push. Tente novamente.'));
+          }
+        } else if (permission === 'denied') {
+          setError('A permissão foi bloqueada. Libere as notificações do VagaFácil nas configurações do navegador ou do aparelho.');
         }
-        window.localStorage.setItem(pushAttemptedKey, '1');
+        window.localStorage.setItem(notificationConsentKey, '1');
+        setNotificationPromptOpen(false);
+      } catch (activationError) {
+        setError(getErrorMessage(activationError, 'Não foi possível ativar as notificações.'));
+      } finally {
+        setPermissionBusy(false);
       }
-      window.localStorage.setItem(notificationConsentKey, '1');
-      setNotificationPromptOpen(false);
-    }).catch(() => {
-      window.localStorage.setItem(notificationConsentKey, '1');
-      setNotificationPromptOpen(false);
-    }).finally(() => setPermissionBusy(false));
+    })();
   };
 
   useEffect(() => {
