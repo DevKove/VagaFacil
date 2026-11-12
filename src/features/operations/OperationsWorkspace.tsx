@@ -370,7 +370,7 @@ export default function OperationsWorkspace({ profile, area, onSignOut }: { prof
     if (section === 'map') return exportDataset('Mapa de vagas',['Código','Categoria','Situação','Latitude','Longitude','Zona'],mappedSpaces.map(item=>[item.code,item.category,item.active?'Ativa':'Inativa',item.latitude,item.longitude,zones.find(z=>z.id===item.zone_id)?.name || '']),format);
     if (section === 'alerts') return exportDataset('Alertas de fiscalização',['Placa','Severidade','Situação','Criado em','Responsável'],filteredAlerts.map(item=>[item.parking_sessions?.plate_snapshot || '',item.severity,statusText(item.status),item.created_at,users.find(user=>user.id===item.claimed_by)?.full_name || '']),format);
     if (section === 'history') return exportDataset('Histórico de fiscalizações',['Placa','Data e hora','Situação','Resultado','Observações'],filteredHistory.map(item=>[item.alerts?.parking_sessions?.plate_snapshot || '',item.created_at,statusText(item.status),item.result === 'irregular'?'Irregularidade constatada':item.result === 'regular'?'Situação regular':item.result || '',item.notes || '']),format);
-    const allRows: ExportValue[][] = [
+    const allRows = [
       ...sessionExportRows(monitoredSessions).map(row=>['Estacionamento',...row]),
       ...users.map(item=>['Usuário',item.full_name,item.email || '',roleText(item.role),item.is_active?'Ativo':'Suspenso']),
       ...zones.map(item=>['Zona',item.name,item.description || '',item.active?'Ativa':'Inativa']),
