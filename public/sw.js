@@ -1,5 +1,5 @@
 const BASE = new URL('./', self.registration.scope).pathname;
-const CACHE = 'vagafacil-shell-v11';
+const CACHE = 'vagafacil-shell-v12';
 const INDEX = `${BASE}index.html`;
 const SHELL = [BASE, INDEX, `${BASE}manifest.webmanifest`, `${BASE}IMG/favicon.ico`, `${BASE}IMG/logo.png`, `${BASE}icons/icon-192.svg`, `${BASE}icons/icon-512.svg`, `${BASE}icons/icon-maskable.svg`];
 self.addEventListener('install', event => { event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(SHELL))); self.skipWaiting(); });
