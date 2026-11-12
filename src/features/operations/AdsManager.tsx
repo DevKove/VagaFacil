@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Check, Edit3, ImagePlus, Plus, Trash2, X } from 'lucide-react';
+import type { FormEvent } from 'react';
+import { Check, Edit3, Plus, Trash2, X } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
 type Ad = { id: string; title: string; alt_text: string; image_path: string; link_url: string | null; active: boolean; sort_order: number; created_at: string };
@@ -37,7 +38,7 @@ export default function AdsManager() {
   const reset = () => { setEditing(null); setForm(emptyForm); setFile(null); setPreview(''); };
   const chooseEdit = (ad: Ad) => { setEditing(ad); setForm({ title: ad.title, alt_text: ad.alt_text, link_url: ad.link_url || '', active: ad.active, sort_order: ad.sort_order }); setFile(null); setError(''); setSuccess(''); };
 
-  const save = async (event: React.FormEvent<HTMLFormElement>) => {
+  const save = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!supabase) return;
     if (!editing && !file) { setError('Selecione uma imagem para o anúncio.'); return; }
