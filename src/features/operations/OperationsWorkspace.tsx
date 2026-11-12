@@ -217,7 +217,7 @@ export default function OperationsWorkspace({ profile, area, onSignOut }: { prof
         p_notes: cardForm.notes.trim() || null,
       });
       if (error) throw error;
-      setCardForm({ plate: '', category: 'conventional', zone_id: '', space_id: ...localDateTimeParts(), notes: '' });
+      setCardForm({ plate: '', category: 'conventional', zone_id: '', ...localDateTimeParts(), notes: '' });
     });
   };
   const finishSession = (session: Session) => {
