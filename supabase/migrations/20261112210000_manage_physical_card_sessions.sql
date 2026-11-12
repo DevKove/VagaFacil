@@ -10,14 +10,14 @@ create policy "Operations update own physical card sessions"
     exists (
       select 1 from public.profiles p
       where p.id = (select auth.uid()) and p.is_active
-        and (p.role = 'admin' or (p.role = 'agent' and p.id = created_by))
+        and (private.current_app_role() = 'admin' or (private.current_app_role() = 'agent' and created_by = (select auth.uid())))
     )
   )
   with check (
     exists (
       select 1 from public.profiles p
       where p.id = (select auth.uid()) and p.is_active
-        and (p.role = 'admin' or (p.role = 'agent' and p.id = created_by))
+        and (private.current_app_role() = 'admin' or (private.current_app_role() = 'agent' and created_by = (select auth.uid())))
     )
   );
 grant update (plate_snapshot, category, zone_id, space_id, started_at, expires_at, status, ended_at, notes)
