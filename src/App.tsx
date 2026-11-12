@@ -375,28 +375,24 @@ export default function App() {
     return () => { alive = false; listener.subscription.unsubscribe(); };
   }, []);
 
-  // Restaura o scroll global após desmontar a tela de autenticação.
+  // Mantém o documento como único contêiner de rolagem após sair do modal de autenticação.
   useEffect(() => {
     if (!profile) return;
-    const restorePageScroll = () => {
+    const restoreDocumentScroll = () => {
       const html = document.documentElement;
       const body = document.body;
-      [html, body].forEach((element) => {
-        element.style.removeProperty('overflow');
-        element.style.removeProperty('overflow-y');
-        element.style.removeProperty('position');
-        element.style.removeProperty('height');
-        element.style.removeProperty('touch-action');
-      });
-      html.style.setProperty('overflow-y', 'auto', 'important');
-      body.style.setProperty('overflow-y', 'auto', 'important');
-      body.style.setProperty('height', 'auto', 'important');
-      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-      html.scrollTop = 0;
-      body.scrollTop = 0;
+      html.style.setProperty('overflow-x', 'hidden');
+      html.style.setProperty('overflow-y', 'auto');
+      html.style.removeProperty('position');
+      html.style.removeProperty('height');
+      body.style.setProperty('overflow', 'visible');
+      body.style.setProperty('height', 'auto');
+      body.style.removeProperty('position');
+      body.style.removeProperty('touch-action');
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
     };
-    const frame = window.requestAnimationFrame(restorePageScroll);
-    const fallback = window.setTimeout(restorePageScroll, 120);
+    const frame = window.requestAnimationFrame(restoreDocumentScroll);
+    const fallback = window.setTimeout(restoreDocumentScroll, 180);
     return () => {
       window.cancelAnimationFrame(frame);
       window.clearTimeout(fallback);
