@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
-import { Activity, AlertTriangle, ArrowDownRight, ArrowUpRight, Bell, CarFront, CheckCircle2, ChevronDown, Clock3, Download, LockKeyhole, MapPin, Menu, Search, ShieldCheck, Users, X } from 'lucide-react';
+import { Activity, AlertTriangle, ArrowDownRight, ArrowUpRight, Apple, Bell, CarFront, CheckCircle2, ChevronDown, Clock3, Download, LockKeyhole, MapPin, Menu, Search, Share2, ShieldCheck, Smartphone, Users, X } from 'lucide-react';
 import { isSupabaseConfigured, supabase } from './lib/supabase';
 import CitizenWorkspace from './features/citizen/CitizenWorkspace';
 import OperationsWorkspace from './features/operations/OperationsWorkspace';
@@ -78,7 +78,13 @@ const portalRoles: { id: PortalRole; title: string; description: string; action:
 function Portal({ onSelect }: { onSelect: (role: PortalRole) => void }) {
   const [accessOpen, setAccessOpen] = useState(false);
   const [adminOptionsOpen, setAdminOptionsOpen] = useState(false);
+  const [installHelp, setInstallHelp] = useState<'android' | 'ios' | null>(null);
   const { canInstall, installed, install } = usePwaInstall();
+  const openAndroidInstall = async () => {
+    if (installed) return;
+    if (canInstall) { await install(); return; }
+    setInstallHelp('android');
+  };
   return <main className="portal-page">
     <header className="portal-header">
       <a className="portal-brand" href="#" aria-label="VagaFácil início"><img className="portal-brand-logo" src={`${import.meta.env.BASE_URL}IMG/logo-vagafacil.svg`} alt="VagaFácil" /><span><strong>VagaFácil</strong><small>Estacionar ficou mais fácil.</small></span></a>
@@ -92,7 +98,31 @@ function Portal({ onSelect }: { onSelect: (role: PortalRole) => void }) {
           <img className="portal-hero-image" src={new URL('../IMG/banner.jpg', import.meta.url).href} alt="" />
         </picture>
       </div>
-      <button type="button" className="portal-login-trigger portal-hero-login" onClick={() => setAccessOpen(true)}><LockKeyhole size={18}/> Entrar <ArrowUpRight size={17}/></button>
+      <div className="portal-hero-actions">
+        <div className="portal-install-platforms" aria-label="Instalar aplicativo">
+          <button type="button" className="portal-platform-install portal-platform-android" onClick={() => void openAndroidInstall()} disabled={installed} aria-label="Instalar no Android"><Smartphone size={17}/><span>Android</span></button>
+          <button type="button" className="portal-platform-install portal-platform-ios" onClick={() => setInstallHelp('ios')} disabled={installed} aria-label="Instalar no iOS"><Apple size={17}/><span>iOS</span></button>
+        </div>
+        <button type="button" className="portal-login-trigger portal-hero-login" onClick={() => setAccessOpen(true)}><LockKeyhole size={18}/> Entrar <ArrowUpRight size={17}/></button>
+      </div>
+      {installHelp && <div className="install-help-backdrop" role="presentation" onMouseDown={event => { if (event.target === event.currentTarget) setInstallHelp(null); }}>
+        <section className="install-help-dialog" role="dialog" aria-modal="true" aria-labelledby="install-help-title">
+          <button type="button" className="access-picker-close" aria-label="Fechar" onClick={() => setInstallHelp(null)}><X size={20}/></button>
+          <span className="portal-kicker">VAGAFÁCIL NO SEU CELULAR</span>
+          <h2 id="install-help-title">Instalar no {installHelp === 'ios' ? 'iPhone ou iPad' : 'Android'}</h2>
+          {installHelp === 'ios' ? <ol className="install-help-steps">
+            <li><Share2 size={19}/><span>No Safari, toque em <strong>Compartilhar</strong> (ícone de compartilhar).</span></li>
+            <li><span className="install-step-number">2</span><span>Role as opções e escolha <strong>Adicionar à Tela de Início</strong>.</span></li>
+            <li><span className="install-step-number">3</span><span>Confirme em <strong>Adicionar</strong>. O VagaFácil ficará disponível como aplicativo.</span></li>
+          </ol> : <ol className="install-help-steps">
+            <li><span className="install-step-number">1</span><span>Abra esta página no <strong>Google Chrome</strong>.</span></li>
+            <li><span className="install-step-number">2</span><span>Toque no menu <strong>⋮</strong> e escolha <strong>Instalar aplicativo</strong> ou <strong>Adicionar à tela inicial</strong>.</span></li>
+            <li><span className="install-step-number">3</span><span>Confirme a instalação e abra o VagaFácil pelo ícone criado.</span></li>
+          </ol>}
+          <p className="install-help-note">{installHelp === 'ios' ? 'A instalação no iOS deve ser feita pelo Safari.' : 'Se a opção não aparecer, atualize o Chrome e abra novamente esta página.'}</p>
+          <button type="button" className="install-help-confirm" onClick={() => setInstallHelp(null)}>Entendi</button>
+        </section>
+      </div>}
     </section>
     <footer className="portal-footer portal-footer-refined">
       <span>© 2026 VagaFácil · Plataforma municipal de estacionamento rotativo</span>
