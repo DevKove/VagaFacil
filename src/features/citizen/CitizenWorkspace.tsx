@@ -95,7 +95,7 @@ function decodeVapidKey(value: string): Uint8Array {
   return Uint8Array.from(raw, character => character.charCodeAt(0));
 }
 
-function withTimeout<T>(promise: Promise<T>, milliseconds: number, message: string): Promise<T> {
+function withTimeout<T>(promise: PromiseLike<T>, milliseconds: number, message: string): Promise<T> {
   return new Promise((resolve, reject) => {
     const timer = window.setTimeout(() => reject(new Error(message)), milliseconds);
     promise.then(value => { window.clearTimeout(timer); resolve(value); }, error => { window.clearTimeout(timer); reject(error); });
