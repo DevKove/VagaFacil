@@ -375,6 +375,16 @@ export default function App() {
     return () => { alive = false; listener.subscription.unsubscribe(); };
   }, []);
 
+  // Ao entrar/sair, reinicia a posição da página para evitar herdar o scroll do portal/modal.
+  useEffect(() => {
+    if (!profile) return;
+    window.requestAnimationFrame(() => {
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    });
+  }, [profile?.id]);
+
   const signOut = async () => { if (supabase) await supabase.auth.signOut(); setProfile(null); setMfaProfile(null); setSelectedRole(null); setShowDemo(false); };
   if (authLoading) return <main className="portal-page"><div className="auth-loading">Verificando sessão segura...</div></main>;
   if (mfaProfile) return <AdminMfaScreen profile={mfaProfile} onVerified={() => { setProfile(mfaProfile); setMfaProfile(null); setSelectedRole(null); }} onCancel={signOut}/>;
