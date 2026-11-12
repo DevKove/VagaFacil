@@ -1,5 +1,5 @@
 const BASE = new URL('./', self.registration.scope).pathname;
-const CACHE = 'vagafacil-shell-v12';
+const CACHE = 'vagafacil-shell-v13';
 const INDEX = `${BASE}index.html`;
 const SHELL = [BASE, INDEX, `${BASE}manifest.webmanifest`, `${BASE}IMG/favicon.ico`, `${BASE}IMG/logo.png`, `${BASE}icons/icon-192.svg`, `${BASE}icons/icon-512.svg`, `${BASE}icons/icon-maskable.svg`];
 self.addEventListener('install', event => { event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(SHELL))); self.skipWaiting(); });
@@ -16,9 +16,11 @@ self.addEventListener('push', event => {
   const title = payload.title || 'Alerta do VagaFácil';
   const options = {
     body: payload.body || 'Você recebeu um novo aviso.',
-    icon: `${BASE}favicon.svg`,
-    badge: `${BASE}favicon.svg`,
+    icon: `${BASE}IMG/logo.png`,
+    badge: `${BASE}IMG/favicon.ico`,
     tag: payload.tag || `vagafacil-${Date.now()}`,
+    renotify: true,
+    timestamp: Date.now(),
     data: { url: payload.url || BASE },
     requireInteraction: true,
     silent: false,
