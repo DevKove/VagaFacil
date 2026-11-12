@@ -2,7 +2,7 @@ type ExportValue = string | number | boolean | null | undefined;
 
 const escapeExportText = (value: unknown): string =>
   String(value ?? '')
-    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '')
+    .replace(/[\s\S]/g, char => { const code = char.charCodeAt(0); return code < 32 && code !== 9 && code !== 10 && code !== 13 ? '' : char; })
     .replace(/[&<>"']/g, char => ({
       '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;',
     })[char] || char);
