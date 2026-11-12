@@ -87,7 +87,7 @@ function playAlertSound(enabled = true) {
   try { playAlertTone(audio); } catch { /* áudio indisponível neste navegador */ }
 }
 
-const VAPID_PUBLIC_KEY = 'idaraFn22zt2bNl8f9ntA_cmOmaopHX15n3yuzf0URA';
+const VAPID_PUBLIC_KEY = 'BInWq2hZ9ts7dmzZfH_Z7QP3JjpmqKR19eZ98rs39FEQg-R6s9eURtYLC6HKvxYzkyOEWuw8dS2H8llPev6fDLw';
 
 function decodeVapidKey(value: string): Uint8Array {
   const padding = '='.repeat((4 - value.length % 4) % 4);
