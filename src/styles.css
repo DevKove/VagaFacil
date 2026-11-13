@@ -3887,15 +3887,15 @@ html.ios-device .content {
 /* Identidade institucional no rodapé de todos os menus laterais. */
 .workspace-sidebar{display:flex;flex-direction:column;min-height:420px}
 .workspace-sidebar-partner{display:flex;align-items:center;justify-content:center;margin-top:auto;padding:20px 10px 4px;border-top:1px solid #edf1f4}
-.workspace-sidebar-partner img{display:block;width:min(100%,190px);max-height:92px;object-fit:contain;object-position:center;opacity:.96}
+.workspace-sidebar-partner img{display:block;width:min(100%,323px);max-height:156px;object-fit:contain;object-position:center;opacity:.96}
 .ops-sidebar-partner{display:flex;align-items:center;justify-content:center;flex:0 0 auto;margin-top:14px;padding:17px 10px 2px;border-top:1px solid rgba(255,255,255,.14)}
-.ops-sidebar-partner img{display:block;width:min(100%,205px);max-height:96px;object-fit:contain;object-position:center;opacity:.96}
+.ops-sidebar-partner img{display:block;width:min(100%,349px);max-height:163px;object-fit:contain;object-position:center;opacity:.96}
 @media(max-width:850px){
   .workspace-sidebar{min-height:0}
   .workspace-sidebar-partner{padding:12px 8px 2px}
-  .workspace-sidebar-partner img{width:min(55%,170px);max-height:72px}
+  .workspace-sidebar-partner img{width:min(93.5%,289px);max-height:122px}
 }
 @media(max-width:900px){
   .ops-sidebar-partner{margin-top:12px;padding:14px 10px 2px}
-  .ops-sidebar-partner img{width:min(100%,190px);max-height:82px}
+  .ops-sidebar-partner img{width:min(100%,323px);max-height:139px}
 }
