@@ -3798,3 +3798,51 @@ html.ios-device .content {
   .ops-agent-top-actions>button{width:30px;height:30px;flex-basis:30px}
 }
 @media(prefers-reduced-motion:reduce){.ops-agent-top-actions>button{transition:none}}
+
+
+/* Controles do cabeçalho do agente: mesmos acabamentos e microinterações do cidadão. */
+.ops-agent-topbar .ops-mobile-toggle{
+  position:relative;overflow:hidden;
+  border:1px solid rgba(255,255,255,.55) !important;
+  border-radius:10px !important;
+  background:linear-gradient(145deg,rgba(255,255,255,.38),rgba(255,255,255,.16)) !important;
+  color:#7c2d12 !important;
+  box-shadow:0 3px 10px rgba(124,45,18,.15),inset 0 1px 0 rgba(255,255,255,.35);
+  transition:transform .22s ease,background .22s ease,box-shadow .22s ease;
+}
+.ops-agent-topbar .ops-mobile-toggle:active{transform:scale(.91)}
+.ops-agent-top-actions>button:first-of-type{
+  border:1px solid rgba(255,205,112,.8) !important;
+  background:linear-gradient(135deg,#fff0c2 0%,#ffc65c 100%) !important;
+  color:#633400 !important;
+  box-shadow:0 3px 10px rgba(124,45,18,.18) !important;
+  transition:transform .22s ease,filter .22s ease,box-shadow .22s ease;
+}
+.ops-agent-top-actions>button:last-of-type{
+  border:1px solid rgba(255,255,255,.4) !important;
+  background:linear-gradient(135deg,#e34e4e 0%,#a91f36 100%) !important;
+  color:#fff !important;
+  box-shadow:0 3px 10px rgba(124,45,18,.22) !important;
+  transition:transform .22s ease,filter .22s ease,box-shadow .22s ease;
+}
+.ops-agent-top-actions>button:first-of-type:hover,
+.ops-agent-top-actions>button:last-of-type:hover{
+  filter:brightness(1.08);
+  transform:translateY(-1px);
+}
+.ops-agent-top-actions>button:active{transform:scale(.94)}
+.ops-agent-top-actions>button svg,
+.ops-agent-topbar .ops-mobile-toggle svg{display:block;flex:0 0 auto;color:inherit}
+.ops-agent-top-actions>button:focus-visible,
+.ops-agent-topbar .ops-mobile-toggle:focus-visible{
+  outline:3px solid rgba(124,45,18,.3);
+  outline-offset:2px;
+}
+@media(max-width:560px){
+  .ops-agent-top-actions>button:first-of-type,
+  .ops-agent-top-actions>button:last-of-type{width:35px;height:35px;min-width:35px;min-height:35px;padding:0 !important}
+}
+@media(prefers-reduced-motion:reduce){
+  .ops-agent-top-actions>button,
+  .ops-agent-topbar .ops-mobile-toggle{transition:none}
+}
