@@ -4115,3 +4115,66 @@ html.ios-device .content {
   color:#65798a;
   opacity:1;
 }
+
+/* Acessibilidade: textos secundários em superfícies claras com contraste reforçado. */
+.workspace-rule-note small,
+.workspace-page-heading p,
+.workspace-metrics article span,
+.workspace-section-title p,
+.workspace-empty,
+.workspace-session-card>small,
+.workspace-form-intro p,
+.workspace-vehicle-card small,
+.workspace-table th,
+.workspace-notices small,
+.workspace-modal>p,
+.workspace-footer,
+.workspace-table td::before,
+.workspace-rule-metrics em,
+.ops-topbar>div:first-of-type small,
+.ops-loading,
+.ops-empty,
+.ops-panel-heading p,
+.ops-row small,
+.ops-table-wrap th,
+.ops-hint,
+.ops-alert-body small,
+.ops-footer,
+.ops-footer span,
+.ops-map-list a small,
+.ops-upload small,
+.ops-agent-metrics button small,
+.ops-agent-queue-info>small,
+.ops-agent-history-item small,
+.ops-agent-empty,
+.ops-agent-quick-actions>div span,
+.ops-manual-search input::placeholder,
+.citizen-manual-search>span,
+.citizen-manual-topic-toggle small,
+.citizen-manual-footnote,
+.ops-audit-table .ops-audit-technical{
+  color:#526779;
+}
+.workspace-table th,
+.ops-table-wrap th{
+  color:#465f73;
+}
+.workspace-table td::before{
+  color:#526779;
+}
+.workspace-search input::placeholder,
+.workspace-form input::placeholder,
+.workspace-form textarea::placeholder,
+.ops-search-control input::placeholder,
+.ops-manual-search input::placeholder,
+.citizen-manual-search input::placeholder{
+  color:#65798a;
+  opacity:1;
+}
+.workspace-inline-note,
+.workspace-danger-outline,
+.workspace-vehicle-card>button,
+.ops-small-action.danger,
+.ops-toggle{
+  color:#a33e33;
+}
