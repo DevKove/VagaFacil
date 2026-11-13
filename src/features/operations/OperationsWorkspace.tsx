@@ -407,7 +407,7 @@ export default function OperationsWorkspace({ profile, area, onSignOut }: { prof
   const mapBounds = mappedSpaces.length ? { minLon: Math.min(...mappedSpaces.map(item=>Number(item.longitude))) - 0.002, maxLon: Math.max(...mappedSpaces.map(item=>Number(item.longitude))) + 0.002, minLat: Math.min(...mappedSpaces.map(item=>Number(item.latitude))) - 0.002, maxLat: Math.max(...mappedSpaces.map(item=>Number(item.latitude))) + 0.002 } : null;
   const menu = area === 'admin' && profile.role === 'admin' ? menus.admin : area === 'admin' ? menus.admin.filter(item => item.id !== 'ads' && item.id !== 'card') : menus.agent;
   const heading = menu.find(item => item.id === section)?.label || 'Painel';
-  return <div className="ops-shell">
+  return <div className={`ops-shell${area === 'admin' ? ' ops-admin-shell' : ''}`}>
     <aside className={mobileOpen ? 'ops-sidebar open' : 'ops-sidebar'}>
       <div className="ops-brand"><img src={`${import.meta.env.BASE_URL}IMG/logo-vagafacil.svg`} alt="VagaFácil"/><div><strong>VagaFácil</strong><small>{area === 'admin' ? 'Gestão municipal' : 'Fiscalização de trânsito'}</small></div><button onClick={() => setMobileOpen(false)} aria-label="Fechar menu"><X size={19}/></button></div>
       <div className="ops-profile"><span>{profile.full_name.slice(0,1).toUpperCase()}</span><div><strong>{profile.full_name}</strong><small>{roleText(profile.role)}</small></div></div>
