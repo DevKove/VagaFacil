@@ -116,6 +116,7 @@ function Portal({ onSelect }: { onSelect: (role: PortalRole) => void }) {
           <img className="portal-hero-image" src={new URL('../IMG/banner.jpeg?rev=20261113-2', import.meta.url).href} alt="" />
         </picture>
       </div>
+      <div className="portal-hero-slogan" aria-label="Cidade em Movimento"><span>Cidade em Movimento</span></div>
       <div className="portal-hero-actions">
         <div className="portal-install-platforms" aria-label="Instalar aplicativo">
           <button type="button" className="portal-platform-install portal-platform-android" onClick={() => void openAndroidInstall()} disabled={installed} aria-label="Instalar no Android"><Smartphone size={17}/><span>{installed ? 'Instalado' : 'Android'}</span></button>
