@@ -3990,3 +3990,23 @@ html.ios-device .content {
     flex:1 1 132px;
   }
 }
+
+
+/* Ajuste de área segura para iPhone/iPad e telas com recortes. */
+.workspace-header{height:calc(76px + env(safe-area-inset-top, 0px));padding-top:env(safe-area-inset-top, 0px)}
+.ops-topbar{height:calc(76px + env(safe-area-inset-top, 0px));padding-top:env(safe-area-inset-top, 0px)}
+.workspace-content,.ops-content{padding-top:var(--screen-extra-top, 0px);padding-bottom:var(--screen-extra-bottom, 0px)}
+.screen-adjuster{position:fixed;right:max(14px,env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:10000;display:flex;flex-direction:column;align-items:flex-end;gap:10px;font-family:Inter,system-ui,sans-serif}
+.screen-adjuster-trigger{min-height:44px;display:flex;align-items:center;gap:8px;padding:0 14px;border:1px solid #c8d8e5;border-radius:24px;background:#102f49;color:#fff;box-shadow:0 5px 20px #102f4933;font-size:12px;font-weight:800;cursor:pointer;touch-action:manipulation}
+.screen-adjuster-panel{width:min(320px,calc(100vw - 28px));padding:16px;border:1px solid #dbe5ed;border-radius:16px;background:#fff;color:#17354b;box-shadow:0 12px 38px #102f4930}
+.screen-adjuster-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:14px}
+.screen-adjuster-heading button{width:34px;height:34px;display:grid;place-items:center;border:0;border-radius:9px;background:#eef3f7;color:#29465d;cursor:pointer}
+.screen-adjuster-panel p{margin:8px 0 14px;color:#63788a;font-size:12px;line-height:1.5}
+.screen-adjuster-toggle{display:flex;align-items:center;gap:9px;margin:0 0 15px;font-size:12px;font-weight:750}
+.screen-adjuster-range{display:block;margin:12px 0;font-size:12px;font-weight:700}
+.screen-adjuster-range span{display:flex;justify-content:space-between;margin-bottom:7px}
+.screen-adjuster-range output{color:#087ca7}
+.screen-adjuster-range input{width:100%;accent-color:#087fa9;touch-action:pan-x}
+.screen-adjuster-range input:disabled{opacity:.4}
+.screen-adjuster-reset{width:100%;min-height:38px;margin-top:5px;border:1px solid #d7e2ea;border-radius:9px;background:#f5f8fa;color:#29465d;font-size:12px;font-weight:750;cursor:pointer}
+@media(max-width:600px){.screen-adjuster-trigger{min-height:46px;padding:0 13px}.screen-adjuster-panel{padding:14px}}
