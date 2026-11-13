@@ -3495,3 +3495,32 @@ body {
     z-index:1;
   }
 }
+
+/* Cabeçalho do portal do cidadão: gradiente institucional diagonal */
+.citizen-workspace .workspace-header{
+  background:linear-gradient(125deg,#061b2d 0%,#0a3c59 48%,#087fa3 100%) !important;
+  border-bottom:1px solid rgba(83,210,237,.42) !important;
+  box-shadow:0 6px 20px rgba(4,27,45,.2);
+}
+.citizen-workspace .workspace-header .portal-brand,
+.citizen-workspace .workspace-header .portal-brand strong,
+.citizen-workspace .workspace-header .portal-brand small{
+  color:#fff !important;
+}
+.citizen-workspace .workspace-header .portal-brand small{opacity:.82}
+.citizen-workspace .workspace-header .workspace-brand-mark{
+  background:rgba(255,255,255,.16) !important;
+  border:1px solid rgba(255,255,255,.24);
+  box-shadow:0 4px 12px rgba(0,0,0,.18);
+}
+.citizen-workspace .workspace-header .workspace-user,
+.citizen-workspace .workspace-header .workspace-user button,
+.citizen-workspace .workspace-header .workspace-audio-toggle{
+  color:#fff;
+}
+@media(max-width:760px){
+  .citizen-workspace .workspace-header{
+    background:linear-gradient(125deg,#061b2d 0%,#0a3c59 48%,#087fa3 100%) !important;
+  }
+}
+
