@@ -413,7 +413,7 @@ export default function OperationsWorkspace({ profile, area, onSignOut }: { prof
       <div className="ops-profile"><span>{profile.full_name.slice(0,1).toUpperCase()}</span><div><strong>{profile.full_name}</strong><small>{roleText(profile.role)}</small></div></div>
       <nav>{menu.map(item => <button key={item.id} className={section === item.id ? 'active' : ''} onClick={() => { setSection(item.id); setMobileOpen(false); }}><item.icon size={18}/>{item.label}{item.id === 'alerts' && openAlerts > 0 && <b>{openAlerts}</b>}</button>)}</nav>
       <button className="ops-signout" onClick={onSignOut}><LogOut size={18}/> Sair da conta</button>
-      <div className="ops-sidebar-partner"><img src={`${import.meta.env.BASE_URL}IMG/PMAS.png`} alt="Prefeitura Municipal de Pilar do Sul" loading="lazy"/></div>
+      <div className="ops-sidebar-partner"><img src={"https://raw.githubusercontent.com/DevKove/VagaFacil/main/IMG/PMAS.png"} alt="Prefeitura Municipal de Pilar do Sul" loading="lazy"/></div>
     </aside>
     {mobileOpen && <button className="ops-scrim" onClick={() => setMobileOpen(false)} aria-label="Fechar menu"/>}
     <main className="ops-main">
