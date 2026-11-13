@@ -3667,3 +3667,39 @@ html.ios-device .content {
     max-height: calc(100dvh - var(--ios-safe-top) - var(--ios-safe-bottom) - 16px);
   }
 }
+
+/* Carrossel isolado: a animação fica restrita ao próprio banner. */
+.citizen-ads {
+  contain: layout paint;
+  isolation: isolate;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+.citizen-ads-slide {
+  animation: citizen-ads-local-enter .42s cubic-bezier(.22,.75,.25,1) both !important;
+  will-change: transform;
+  backface-visibility: hidden;
+  transform: translate3d(0,0,0);
+}
+@keyframes citizen-ads-local-enter {
+  from { transform: translate3d(18px,0,0); }
+  to { transform: translate3d(0,0,0); }
+}
+/* Setas mais translúcidas, preservando contraste e área de toque. */
+.citizen-ads-arrow {
+  background: rgba(255,255,255,.56) !important;
+  border-color: rgba(255,255,255,.42) !important;
+  color: rgba(12,43,64,.88) !important;
+  box-shadow: 0 2px 9px rgba(0,0,0,.12) !important;
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+  transition: background-color .18s ease, border-color .18s ease, transform .18s ease;
+}
+.citizen-ads-arrow:hover {
+  background: rgba(255,255,255,.76) !important;
+  border-color: rgba(255,255,255,.62) !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .citizen-ads-slide { animation: none !important; will-change: auto; }
+  .citizen-ads-arrow { transition: none; }
+}
