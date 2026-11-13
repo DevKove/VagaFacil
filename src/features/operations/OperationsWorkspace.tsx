@@ -431,7 +431,7 @@ export default function OperationsWorkspace({ profile, area, onSignOut }: { prof
         </section> : loading ? <div className="ops-loading">Carregando dados do Supabase...</div> : <>
           {section === 'overview' && (area === 'agent' ? <section className="ops-agent-dashboard">
              <div className="ops-agent-welcome">
-               <div><span className="ops-agent-kicker">CENTRAL DO AGENTE</span><h2>Olá, {profile.full_name.split(' ')[0]}.</h2><p>Acompanhe sua área de atuação, priorize os alertas e registre as fiscalizações em campo.</p></div>
+               <div><span className="ops-agent-kicker">CENTRAL DO AGENTE</span><h2>Olá, {profile.full_name?.trim() || 'Agente'}.</h2><p>Acompanhe sua área de atuação, priorize os alertas e registre as fiscalizações em campo.</p></div>
                <div className="ops-agent-status"><i/> Operação conectada</div>
              </div>
              <div className="ops-agent-metrics">
