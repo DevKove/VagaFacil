@@ -4048,19 +4048,19 @@ html.ios-device .content {
 }
 
 
-/* Identidade visual do portal: título institucional em imagem. */
+/* Identidade visual do portal: título institucional em imagem, com destaque real. */
 .portal-hero-title-image{
-  position:absolute;z-index:6;top:clamp(18px,4vh,42px);left:50%;
-  display:block;width:min( min(680px, 66vw), calc(100% - 40px) );
-  max-height:clamp(54px,10vh,112px);height:auto;object-fit:contain;
+  position:absolute;z-index:6;top:clamp(20px,4vh,48px);left:50%;
+  display:block;width:min(1100px,90vw);
+  max-height:clamp(110px,22vh,220px);height:auto;object-fit:contain;
   object-position:center;transform:translateX(-50%);
-  pointer-events:none;filter:drop-shadow(0 4px 14px rgba(0,12,32,.72));
+  pointer-events:none;filter:drop-shadow(0 5px 18px rgba(0,8,24,.82));
 }
 @media(max-width:760px){
   .portal-hero-title-image{
-    top:18px;width:calc(100% - 32px);max-height:clamp(48px,9vh,82px);
+    top:20px;width:calc(100% - 20px);max-height:clamp(90px,18vh,160px);
   }
 }
 @media(max-width:390px){
-  .portal-hero-title-image{top:14px;width:calc(100% - 26px);max-height:64px}
+  .portal-hero-title-image{top:16px;width:calc(100% - 16px);max-height:clamp(82px,17vh,138px)}
 }
