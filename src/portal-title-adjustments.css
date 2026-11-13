@@ -1,11 +1,18 @@
 /* Ajuste fino do título institucional no banner inicial. */
 .portal-hero-title-image{
-  top:-68px !important;
+  top:-90px !important;
+  width:min(3240px,212vw) !important;
   filter:brightness(1.3) contrast(1.08) saturate(1.12) drop-shadow(0 8px 24px rgba(0,8,24,.68)) !important;
 }
 @media(max-width:760px){
-  .portal-hero-title-image{top:-48px !important}
+  .portal-hero-title-image{
+    top:-64px !important;
+    width:216vw !important;
+  }
 }
 @media(max-width:390px){
-  .portal-hero-title-image{top:-40px !important}
+  .portal-hero-title-image{
+    top:-54px !important;
+    width:216vw !important;
+  }
 }
