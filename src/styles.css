@@ -4010,3 +4010,39 @@ html.ios-device .content {
 .screen-adjuster-range input:disabled{opacity:.4}
 .screen-adjuster-reset{width:100%;min-height:38px;margin-top:5px;border:1px solid #d7e2ea;border-radius:9px;background:#f5f8fa;color:#29465d;font-size:12px;font-weight:750;cursor:pointer}
 @media(max-width:600px){.screen-adjuster-trigger{min-height:46px;padding:0 13px}.screen-adjuster-panel{padding:14px}}
+
+
+/* Alerta destacado quando uma placa já possui estacionamento em andamento. */
+.workspace-duplicate-backdrop{
+  position:fixed;inset:0;z-index:12000;display:grid;place-items:center;
+  padding:20px;background:rgba(8,20,32,.76);backdrop-filter:blur(5px);
+  animation:duplicate-backdrop-in .22s ease-out both;
+}
+.workspace-duplicate-alert{
+  width:min(540px,100%);display:grid;justify-items:center;gap:13px;
+  padding:clamp(24px,5vw,38px);border:2px solid #ef4444;border-radius:20px;
+  background:linear-gradient(155deg,#fff 0%,#fff7ed 100%);color:#263746;
+  text-align:center;box-shadow:0 22px 80px rgba(0,0,0,.38),0 0 0 7px rgba(239,68,68,.15);
+  animation:duplicate-alert-pulse 1.15s ease-in-out infinite;
+}
+.workspace-duplicate-icon{
+  display:grid;width:64px;height:64px;place-items:center;border-radius:50%;
+  background:#fee2e2;color:#b91c1c;box-shadow:0 0 0 8px rgba(239,68,68,.1);
+}
+.workspace-duplicate-kicker{color:#b91c1c;font-size:11px;font-weight:900;letter-spacing:1.3px}
+.workspace-duplicate-alert h2{margin:0;color:#991b1b;font-size:clamp(20px,4vw,27px);font-weight:900;line-height:1.2}
+.workspace-duplicate-alert p{max-width:420px;margin:0;color:#5b6470;font-size:14px;line-height:1.65}
+.workspace-duplicate-alert button{
+  min-width:150px;min-height:45px;margin-top:5px;padding:0 24px;border:0;border-radius:11px;
+  background:linear-gradient(135deg,#dc2626,#991b1b);color:#fff;font-size:13px;font-weight:850;
+  box-shadow:0 6px 16px rgba(185,28,28,.25);cursor:pointer;
+}
+.workspace-duplicate-alert button:hover{filter:brightness(1.08);transform:translateY(-1px)}
+@keyframes duplicate-alert-pulse{
+  0%,100%{border-color:#ef4444;box-shadow:0 22px 80px rgba(0,0,0,.38),0 0 0 5px rgba(239,68,68,.12);filter:brightness(1)}
+  50%{border-color:#f59e0b;box-shadow:0 22px 80px rgba(0,0,0,.38),0 0 0 11px rgba(245,158,11,.22);filter:brightness(1.035)}
+}
+@keyframes duplicate-backdrop-in{from{opacity:0}to{opacity:1}}
+@media(prefers-reduced-motion:reduce){
+  .workspace-duplicate-backdrop,.workspace-duplicate-alert{animation:none}
+}
