@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
-import { Activity, Bell, CarFront, CheckCircle2, Clock3, History, MapPin, Menu, Plus, Power, Trash2, Volume2, VolumeX, X } from 'lucide-react';
+import { Activity, Bell, CarFront, CheckCircle2, Clock3, History, MapPin, Plus, Power, Trash2, Volume2, VolumeX, X } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { VehiclePlate } from '../../components/VehiclePlate';
 import AdsCarousel from '../../components/AdsCarousel';
