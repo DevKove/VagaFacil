@@ -3899,3 +3899,41 @@ html.ios-device .content {
   .ops-sidebar-partner{margin-top:12px;padding:14px 10px 2px}
   .ops-sidebar-partner img{width:min(100%,323px);max-height:139px}
 }
+
+
+/* Menu administrativo independente da rolagem do conteúdo principal. */
+.ops-shell.ops-admin-shell .ops-sidebar{
+  position:fixed;
+  inset:0 auto 0 0;
+  width:270px;
+  height:100vh;
+  height:100dvh;
+  min-height:0;
+  overflow-x:hidden;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  scrollbar-width:thin;
+  scrollbar-color:#42647c #102b43;
+}
+.ops-shell.ops-admin-shell .ops-sidebar nav{flex:0 0 auto}
+.ops-shell.ops-admin-shell .ops-sidebar-partner{flex:0 0 auto}
+.ops-shell.ops-admin-shell .ops-main{
+  width:calc(100% - 270px);
+  min-width:0;
+  margin-left:270px;
+}
+.ops-shell.ops-admin-shell .ops-content{min-height:calc(100vh - 76px)}
+.ops-shell.ops-admin-shell .ops-sidebar::-webkit-scrollbar{width:6px}
+.ops-shell.ops-admin-shell .ops-sidebar::-webkit-scrollbar-track{background:#102b43}
+.ops-shell.ops-admin-shell .ops-sidebar::-webkit-scrollbar-thumb{background:#42647c;border-radius:8px}
+@media(max-width:900px){
+  .ops-shell.ops-admin-shell .ops-sidebar{
+    width:min(310px,86vw);
+    height:100vh;
+    height:100dvh;
+    transform:translateX(-105%);
+  }
+  .ops-shell.ops-admin-shell .ops-sidebar.open{transform:translateX(0)}
+  .ops-shell.ops-admin-shell .ops-main{width:100%;margin-left:0}
+  .ops-shell.ops-admin-shell .ops-content{min-height:calc(100vh - 76px)}
+}
