@@ -434,6 +434,10 @@ export default function OperationsWorkspace({ profile, area, onSignOut }: { prof
                <div><span className="ops-agent-kicker">CENTRAL DO AGENTE</span><h2>Olá, {profile.full_name?.trim() || 'Agente'}.</h2><p>Acompanhe sua área de atuação, priorize os alertas e registre as fiscalizações em campo.</p></div>
                <div className="ops-agent-status"><i/> Operação conectada</div>
              </div>
+             <div className="ops-agent-dashboard-actions">
+               <button type="button" className="ops-filter-trigger" aria-expanded={filtersOpen} onClick={() => setFiltersOpen(value => !value)}><Filter size={17}/> Filtrar</button>
+               <button type="button" className="ops-primary" onClick={() => void load()}><RefreshCw size={16}/> Atualizar</button>
+             </div>
              <div className="ops-agent-metrics">
                <button type="button" onClick={() => setSection('alerts')}><span className="ops-agent-metric-icon urgent"><AlertTriangle size={19}/></span><span>Alertas disponíveis</span><strong>{alerts.filter(item => item.status === 'open').length}</strong><small>Aguardando atendimento</small></button>
                <button type="button" onClick={() => setSection('alerts')}><span className="ops-agent-metric-icon assigned"><Activity size={19}/></span><span>Em meu atendimento</span><strong>{alerts.filter(item => item.status === 'claimed' && item.claimed_by === profile.id).length}</strong><small>Alertas assumidos por você</small></button>
