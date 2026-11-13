@@ -4,6 +4,7 @@ import { Activity, Bell, BookOpen, CarFront, CheckCircle2, ChevronDown, Clock3, 
 import { supabase } from '../../lib/supabase';
 import { VehiclePlate } from '../../components/VehiclePlate';
 import AdsCarousel from '../../components/AdsCarousel';
+import ScreenAdjuster from '../../components/ScreenAdjuster';
 
 type Vehicle = { id: string; plate: string; make: string | null; model: string | null; color: string | null; vehicle_type: string | null };
 type ParkingSpace = { id: string; code: string; category: string; zone_id: string | null; parking_zones?: { name: string } | null };
@@ -621,6 +622,7 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
     </div>
     {showVehicleForm && <div className="workspace-modal-backdrop" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)setShowVehicleForm(false);}}><form className="workspace-modal" onSubmit={addVehicle}><button type="button" className="workspace-modal-close" onClick={()=>setShowVehicleForm(false)} aria-label="Fechar"><X size={18}/></button><span className="portal-kicker">GARAGEM DIGITAL</span><h2>Adicionar veículo</h2><p>Cadastre os dados para usar nos registros de estacionamento.</p><label>Placa<input value={vehicleForm.plate} onChange={e=>setVehicleForm(v=>({...v,plate:e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,7)}))} placeholder="ABC1D23" maxLength={7} required/></label><div className="workspace-form-row"><label>Marca<input value={vehicleForm.make} onChange={e=>setVehicleForm(v=>({...v,make:e.target.value}))} maxLength={50}/></label><label>Modelo<input value={vehicleForm.model} onChange={e=>setVehicleForm(v=>({...v,model:e.target.value}))} maxLength={60}/></label></div><div className="workspace-form-row"><label>Cor<input value={vehicleForm.color} onChange={e=>setVehicleForm(v=>({...v,color:e.target.value}))} maxLength={30}/></label><label>Tipo<select value={vehicleForm.vehicle_type} onChange={e=>setVehicleForm(v=>({...v,vehicle_type:e.target.value}))}><option>Passeio</option><option>Motocicleta</option><option>Utilitário</option><option>Outro</option></select></label></div><button className="workspace-primary workspace-full" type="submit" disabled={busy}>{busy ? 'Salvando...' : 'Salvar veículo'}</button></form></div>}
     <footer className="workspace-footer">© 2026 VagaFácil</footer>
+    <ScreenAdjuster />
   </main>;
 }
 
