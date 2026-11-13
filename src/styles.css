@@ -4178,3 +4178,10 @@ html.ios-device .content {
 .ops-toggle{
   color:#a33e33;
 }
+
+/* Cabeçalho das páginas internas: o identificador institucional fica sobre fundo claro. */
+.workspace-page-heading .portal-kicker{
+  color:#075675 !important;
+  font-weight:850;
+  opacity:1;
+}
