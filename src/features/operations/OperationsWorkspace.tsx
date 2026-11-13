@@ -405,7 +405,7 @@ export default function OperationsWorkspace({ profile, area, onSignOut }: { prof
   const mappedSpaces = spaces.filter(item => item.latitude !== null && item.longitude !== null);
   const mapCenter = mappedSpaces.length ? { lat: mappedSpaces.reduce((sum,item)=>sum + Number(item.latitude),0)/mappedSpaces.length, lon: mappedSpaces.reduce((sum,item)=>sum + Number(item.longitude),0)/mappedSpaces.length } : null;
   const mapBounds = mappedSpaces.length ? { minLon: Math.min(...mappedSpaces.map(item=>Number(item.longitude))) - 0.002, maxLon: Math.max(...mappedSpaces.map(item=>Number(item.longitude))) + 0.002, minLat: Math.min(...mappedSpaces.map(item=>Number(item.latitude))) - 0.002, maxLat: Math.max(...mappedSpaces.map(item=>Number(item.latitude))) + 0.002 } : null;
-  const menu = area === 'admin' && profile.role === 'admin' ? menus.admin : area === 'admin' ? menus.admin.filter(item => item.id !== 'ads' && item.id !== 'card') : menus.agent;
+  const menu = area === 'admin' && profile.role === 'admin' ? menus.admin : area === 'admin' ? menus.admin.filter(item => item.id !== 'ads' && item.id !== 'card') : menus.agent.filter(item => !['alerts', 'history', 'map'].includes(item.id));
   const heading = menu.find(item => item.id === section)?.label || 'Painel';
   return <div className={`ops-shell${area === 'admin' ? ' ops-admin-shell' : ''}`}>
     <aside className={mobileOpen ? 'ops-sidebar open' : 'ops-sidebar'}>
