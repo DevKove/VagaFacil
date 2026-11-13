@@ -401,7 +401,7 @@ export default function OperationsWorkspace({ profile, area, onSignOut }: { prof
   };
 
 
-  const filteredManualTopics = filteredManualTopics;
+  const filteredManualTopics = agentManualTopics.filter(topic => `${topic.title} ${topic.summary} ${topic.keywords} ${topic.steps.join(' ')}`.toLocaleLowerCase('pt-BR').includes(manualSearch.trim().toLocaleLowerCase('pt-BR')));
   const mappedSpaces = spaces.filter(item => item.latitude !== null && item.longitude !== null);
   const mapCenter = mappedSpaces.length ? { lat: mappedSpaces.reduce((sum,item)=>sum + Number(item.latitude),0)/mappedSpaces.length, lon: mappedSpaces.reduce((sum,item)=>sum + Number(item.longitude),0)/mappedSpaces.length } : null;
   const mapBounds = mappedSpaces.length ? { minLon: Math.min(...mappedSpaces.map(item=>Number(item.longitude))) - 0.002, maxLon: Math.max(...mappedSpaces.map(item=>Number(item.longitude))) + 0.002, minLat: Math.min(...mappedSpaces.map(item=>Number(item.latitude))) - 0.002, maxLat: Math.max(...mappedSpaces.map(item=>Number(item.latitude))) + 0.002 } : null;
