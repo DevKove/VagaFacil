@@ -554,7 +554,7 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
   return <main className="citizen-workspace">
     <header className="workspace-header">
       <button className="workspace-menu-toggle" type="button" aria-label={sidebarOpen ? "Fechar menu" : "Abrir menu"} aria-expanded={sidebarOpen} onClick={() => setSidebarOpen(open => !open)}><Menu size={20}/></button>
-      <a className="portal-brand" href={import.meta.env.BASE_URL}><span className="workspace-brand-mark"><CarFront size={23}/></span><span><strong>VagaFácil</strong><small>Área do cidadão</small></span></a>
+      <a className="portal-brand" href={import.meta.env.BASE_URL}><span className="workspace-brand-mark"><img src={`${import.meta.env.BASE_URL}IMG/install.png`} alt="" /></span><span><strong>VagaFácil</strong><small>Área do cidadão</small></span></a>
       <div className="workspace-user"><button className={`workspace-audio-toggle${soundEnabled ? ' is-ready' : ' is-muted'}`} type="button" onClick={toggleAlertSound} aria-pressed={soundEnabled} title={soundEnabled ? 'Desativar alertas sonoros (não recomendado)' : 'Ativar alertas sonoros'}>{soundEnabled ? <Volume2 size={16}/> : <VolumeX size={16}/>}<span>{soundEnabled ? 'Som ativado' : 'Som desativado'}</span></button><span className="workspace-avatar">{(profile.full_name || 'C').slice(0,1).toUpperCase()}</span><span><strong>{profile.full_name || 'Cidadão'}</strong><small>Conta ativa</small></span><button className="workspace-signout" onClick={onSignOut}><Power size={16}/> Sair</button></div>
     </header>
     <AdsCarousel />
