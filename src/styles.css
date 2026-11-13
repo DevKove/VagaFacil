@@ -3846,3 +3846,40 @@ html.ios-device .content {
   .ops-agent-top-actions>button,
   .ops-agent-topbar .ops-mobile-toggle{transition:none}
 }
+
+/* Manual do cidadão */
+.citizen-manual{display:grid;gap:18px}
+.citizen-manual-hero{display:flex;align-items:center;gap:17px;padding:24px;background:linear-gradient(125deg,#102f49,#176b8b 62%,#159fc1);border-radius:14px;color:#fff;box-shadow:0 12px 28px #0c496326}
+.citizen-manual-hero>span{width:58px;height:58px;flex:none;border-radius:16px;background:#ffffff20;border:1px solid #ffffff35;display:grid;place-items:center}
+.citizen-manual-hero .portal-kicker{color:#bdeeff}
+.citizen-manual-hero h2{font:800 23px Manrope,sans-serif;margin:5px 0}
+.citizen-manual-hero p{font-size:12px;line-height:1.6;color:#e0f2f8;margin:0;max-width:680px}
+.citizen-manual-search{height:48px;display:flex;align-items:center;gap:11px;padding:0 14px;background:#fff;border:1px solid #dce7ee;border-radius:10px;color:#1685aa;box-shadow:0 3px 12px #12364a08}
+.citizen-manual-search input{flex:1;min-width:0;border:0;outline:0;background:transparent;color:#20394c;font:inherit;font-size:12px}
+.citizen-manual-search>span{font-size:10px;color:#8293a1;white-space:nowrap}
+.citizen-manual-layout{display:grid;grid-template-columns:minmax(190px,.65fr) minmax(0,1.8fr);gap:15px;align-items:start}
+.citizen-manual-index,.citizen-manual-topic{background:#fff;border:1px solid #e2eaf0;border-radius:11px;box-shadow:0 3px 12px #12364a08}
+.citizen-manual-index{padding:14px;display:grid;gap:5px;position:sticky;top:82px}
+.citizen-manual-index>strong{font:700 12px Manrope;color:#233d51;padding:4px 6px 9px}
+.citizen-manual-index button{border:0;background:transparent;text-align:left;padding:9px 8px;border-radius:7px;color:#607487;font-size:11px;line-height:1.4}
+.citizen-manual-index button:hover,.citizen-manual-index button.active{background:#eaf6fb;color:#087da7;font-weight:700}
+.citizen-manual-topics{display:grid;gap:9px;min-width:0}
+.citizen-manual-topic{overflow:hidden;transition:border-color .2s,box-shadow .2s}
+.citizen-manual-topic.expanded{border-color:#a9d7e8;box-shadow:0 7px 20px #087da710}
+.citizen-manual-topic-toggle{width:100%;display:flex;align-items:center;gap:13px;padding:15px;border:0;background:transparent;text-align:left;color:#263f53}
+.citizen-manual-number{width:35px;height:35px;flex:none;border-radius:9px;background:#eaf6fb;color:#0a86ad;display:grid;place-items:center;font:800 11px Manrope}
+.citizen-manual-topic-toggle>span:nth-child(2){display:grid;gap:4px;flex:1;min-width:0}
+.citizen-manual-topic-toggle strong{font:700 12px Manrope}
+.citizen-manual-topic-toggle small{font-size:10px;color:#81909e;line-height:1.4}
+.citizen-manual-topic-toggle>svg{color:#7e96a5;transition:transform .2s}
+.citizen-manual-topic.expanded .citizen-manual-topic-toggle>svg{transform:rotate(180deg);color:#0785ad}
+.citizen-manual-topic-content{padding:0 18px 17px 63px}
+.citizen-manual-topic-content ol{margin:0;padding-left:18px;display:grid;gap:9px;color:#536b7e;font-size:11px;line-height:1.65}
+.citizen-manual-tip{display:flex;gap:9px;align-items:flex-start;margin-top:15px;padding:12px;border-radius:8px;background:#fff8e9;color:#b27a1d;font-size:10px;line-height:1.55}
+.citizen-manual-tip>svg{flex:none;margin-top:1px}
+.citizen-manual-tip span{display:grid;gap:3px;color:#806b48}
+.citizen-manual-tip strong{color:#9b6816}
+.citizen-manual-open{margin-top:13px;min-height:35px;padding:0 12px;font-size:10px}
+.citizen-manual-footnote{margin:0;color:#81909d;font-size:10px;line-height:1.6}
+@media(max-width:760px){.citizen-manual{gap:13px}.citizen-manual-hero{padding:18px;gap:12px}.citizen-manual-hero>span{width:46px;height:46px;border-radius:12px}.citizen-manual-hero h2{font-size:20px}.citizen-manual-hero p{font-size:11px}.citizen-manual-search{height:46px;padding:0 11px}.citizen-manual-search input{font-size:11px}.citizen-manual-layout{grid-template-columns:1fr}.citizen-manual-index{position:static;display:flex;overflow-x:auto;gap:5px;padding:10px}.citizen-manual-index>strong{display:none}.citizen-manual-index button{flex:none;white-space:nowrap;background:#f4f8fa}.citizen-manual-topic-toggle{padding:12px;gap:10px}.citizen-manual-number{width:31px;height:31px}.citizen-manual-topic-toggle strong{font-size:11px}.citizen-manual-topic-content{padding:0 13px 14px 53px}.citizen-manual-topic-content ol{font-size:10px}}
+@media(prefers-reduced-motion:reduce){.citizen-manual-topic,.citizen-manual-topic-toggle>svg{transition:none}}
