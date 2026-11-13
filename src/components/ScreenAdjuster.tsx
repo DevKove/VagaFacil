@@ -8,7 +8,10 @@ const DEFAULTS: ScreenInsets = { enabled: false, top: 24, bottom: 24 };
 function readSettings(): ScreenInsets {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
-    return saved ? { ...DEFAULTS, ...JSON.parse(saved) } : DEFAULTS;
+    if (!saved) return DEFAULTS;
+    const parsed = JSON.parse(saved) as Partial<ScreenInsets>;
+    const bounded = (value: unknown) => typeof value === 'number' && Number.isFinite(value) ? Math.min(100, Math.max(0, value)) : 24;
+    return { enabled: parsed.enabled === true, top: bounded(parsed.top), bottom: bounded(parsed.bottom) };
   } catch {
     return DEFAULTS;
   }
@@ -22,7 +25,7 @@ export default function ScreenAdjuster() {
     const root = document.documentElement;
     root.style.setProperty('--screen-extra-top', settings.enabled ? `${settings.top}px` : '0px');
     root.style.setProperty('--screen-extra-bottom', settings.enabled ? `${settings.bottom}px` : '0px');
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(settings)); } catch { /* O ajuste continua ativo durante a sessão. */ }
   }, [settings]);
 
   const update = (patch: Partial<ScreenInsets>) => setSettings(current => ({ ...current, ...patch }));
