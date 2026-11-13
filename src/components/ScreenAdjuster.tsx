@@ -11,7 +11,8 @@ function readSettings(): ScreenInsets {
     if (!saved) return DEFAULTS;
     const parsed = JSON.parse(saved) as Partial<ScreenInsets>;
     const bounded = (value: unknown) => typeof value === 'number' && Number.isFinite(value) ? Math.min(100, Math.max(0, value)) : 24;
-    // A margem inicia sempre habilitada, mesmo que uma sessão anterior a tenha desativado.\n    return { enabled: true, top: bounded(parsed.top), bottom: bounded(parsed.bottom) };
+    // A margem inicia sempre habilitada, mesmo que uma sessão anterior a tenha desativado.
+    return { enabled: true, top: bounded(parsed.top), bottom: bounded(parsed.bottom) };
   } catch {
     return DEFAULTS;
   }
