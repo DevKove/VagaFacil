@@ -1,10 +1,39 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="360" viewBox="0 0 1200 360" role="img" aria-labelledby="title desc">
-<title id="title">VagaFácil — Estacionar ficou mais fácil</title><desc id="desc">Ilustração vetorial de uma vaga de estacionamento com carro, sinalização e painel digital.</desc>
-<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#102a43"/><stop offset="1" stop-color="#174e70"/></linearGradient><linearGradient id="blue" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#4bd4ef"/><stop offset="1" stop-color="#1699ce"/></linearGradient></defs>
-<rect width="1200" height="360" rx="28" fill="url(#bg)"/><circle cx="1040" cy="50" r="170" fill="#2caed2" opacity=".09"/><circle cx="1120" cy="330" r="230" fill="#2caed2" opacity=".08"/>
-<path d="M0 300h1200" stroke="#8fb8ca" stroke-opacity=".2" stroke-width="2"/><path d="M730 300l70-115h270l70 115" fill="none" stroke="#d7eaf0" stroke-opacity=".28" stroke-width="5" stroke-dasharray="18 14"/>
-<g transform="translate(770 118)"><rect x="0" y="0" width="210" height="142" rx="18" fill="#f4fbff" opacity=".1" stroke="#a8d9e8" stroke-opacity=".4"/><rect x="19" y="20" width="172" height="102" rx="10" fill="#0d263d"/><path d="M39 46h67" stroke="#5bd4ed" stroke-width="7" stroke-linecap="round"/><path d="M39 68h130" stroke="#d7eaf0" stroke-opacity=".6" stroke-width="5" stroke-linecap="round"/><path d="M39 87h92" stroke="#d7eaf0" stroke-opacity=".35" stroke-width="5" stroke-linecap="round"/><circle cx="164" cy="91" r="13" fill="#35c18b"/><path d="m158 91 4 4 8-9" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></g>
-<g transform="translate(450 170)"><path d="M0 80 24 28q8-17 27-17h143q20 0 31 18l27 51v49H0z" fill="url(#blue)"/><path d="m43 31 16-20h125l19 20 13 37H28z" fill="#dff6fc"/><path d="M98 13v55" stroke="#7bb9cb" stroke-width="4"/><rect x="16" y="72" width="220" height="29" rx="8" fill="#0c3854" opacity=".75"/><circle cx="48" cy="128" r="17" fill="#0b2034" stroke="#c7e7f0" stroke-width="5"/><circle cx="202" cy="128" r="17" fill="#0b2034" stroke="#c7e7f0" stroke-width="5"/><rect x="12" y="82" width="17" height="8" rx="3" fill="#f8f1c8"/><rect x="225" y="82" width="17" height="8" rx="3" fill="#f8f1c8"/></g>
-<g transform="translate(310 92)"><path d="M45 0h58l45 45-45 45H45L0 45z" fill="#fff" opacity=".96"/><text x="74" y="58" font-family="Arial,sans-serif" font-size="43" font-weight="700" text-anchor="middle" fill="#168bb8">P</text><path d="M74 91v76" stroke="#d8e9ee" stroke-width="8"/><path d="M48 167h52" stroke="#d8e9ee" stroke-width="8" stroke-linecap="round"/></g>
-<text x="72" y="126" fill="#fff" font-family="Arial,sans-serif" font-size="53" font-weight="700" letter-spacing="-2">VagaFácil</text><text x="75" y="169" fill="#a9d9e8" font-family="Arial,sans-serif" font-size="22">Estacionar ficou mais fácil.</text><rect x="75" y="205" width="210" height="42" rx="21" fill="#35c5e8" opacity=".18"/><text x="180" y="232" fill="#b8f0fb" font-family="Arial,sans-serif" font-size="14" font-weight="700" text-anchor="middle">MOBILIDADE INTELIGENTE</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-labelledby="t d">
+<title id="t">VagaFácil — mobilidade urbana inteligente</title><desc id="d">Ilustração vetorial de um veículo em uma vaga, sinalização de estacionamento e painel digital.</desc>
+<defs>
+ <linearGradient id="bg" x2="1" y2="1"><stop stop-color="#071b32"/><stop offset=".58" stop-color="#103d5c"/><stop offset="1" stop-color="#087fa4"/></linearGradient>
+ <linearGradient id="cyan" x2="1" y2="1"><stop stop-color="#63e4f5"/><stop offset="1" stop-color="#078fc4"/></linearGradient>
+ <linearGradient id="gold" x2="1" y2="1"><stop stop-color="#ffe17a"/><stop offset="1" stop-color="#ffad32"/></linearGradient>
+ <filter id="shadow" x="-30%" y="-30%" width="160%" height="180%"><feDropShadow dx="0" dy="12" stdDeviation="12" flood-color="#00101f" flood-opacity=".35"/></filter>
+</defs>
+<rect width="1200" height="420" rx="30" fill="url(#bg)"/>
+<circle cx="1030" cy="65" r="210" fill="#54d7ed" opacity=".08"/><circle cx="1120" cy="390" r="260" fill="#ffbd4a" opacity=".07"/>
+<path d="M0 345H1200" stroke="#b8e8f4" stroke-opacity=".22" stroke-width="2"/>
+<path d="M700 345l75-130h300l75 130" fill="none" stroke="#d5f4fa" stroke-opacity=".25" stroke-width="5" stroke-dasharray="18 15"/>
+<g transform="translate(72 95)">
+ <text x="0" y="0" fill="#8feafa" font-family="Arial,sans-serif" font-size="16" font-weight="700" letter-spacing="4">MOBILIDADE URBANA</text>
+ <text x="0" y="76" fill="#fff" font-family="Arial,sans-serif" font-size="68" font-weight="800" letter-spacing="-3">VagaFácil</text>
+ <text x="3" y="119" fill="#c5eaf4" font-family="Arial,sans-serif" font-size="25">Estacionar ficou mais fácil.</text>
+ <rect x="2" y="158" width="238" height="48" rx="24" fill="url(#gold)"/>
+ <text x="121" y="189" text-anchor="middle" fill="#172d40" font-family="Arial,sans-serif" font-size="14" font-weight="800" letter-spacing="1">GESTÃO INTELIGENTE</text>
+</g>
+<g transform="translate(760 82)" filter="url(#shadow)">
+ <rect x="95" y="0" width="205" height="158" rx="22" fill="#f5fbff" fill-opacity=".12" stroke="#b9e9f3" stroke-opacity=".55"/>
+ <rect x="113" y="18" width="169" height="121" rx="12" fill="#071d32"/>
+ <circle cx="142" cy="48" r="10" fill="#42d6a0"/><path d="M137 48l4 4 7-9" fill="none" stroke="#062c2a" stroke-width="2.5" stroke-linecap="round"/>
+ <path d="M163 47h91M132 76h120M132 96h92M132 116h65" stroke="#bfe8f2" stroke-opacity=".65" stroke-width="6" stroke-linecap="round"/>
+</g>
+<g transform="translate(720 222)" filter="url(#shadow)">
+ <path d="M0 75 32 20q10-18 32-18h174q23 0 35 20l32 53v58H0z" fill="url(#cyan)"/>
+ <path d="m54 24 18-18h145l24 18 16 39H34z" fill="#dff8ff"/>
+ <path d="M145 7v57" stroke="#75b8cb" stroke-width="4"/>
+ <rect x="18" y="75" width="269" height="27" rx="8" fill="#075074" opacity=".85"/>
+ <circle cx="60" cy="132" r="20" fill="#071b2d" stroke="#c8e9f1" stroke-width="5"/><circle cx="245" cy="132" r="20" fill="#071b2d" stroke="#c8e9f1" stroke-width="5"/>
+ <rect x="9" y="83" width="18" height="9" rx="3" fill="#fff2b7"/><rect x="278" y="83" width="18" height="9" rx="3" fill="#fff2b7"/>
+</g>
+<g transform="translate(1010 95)" filter="url(#shadow)">
+ <path d="M48 0h62l48 48-48 48H48L0 48z" fill="#fff"/>
+ <text x="79" y="66" text-anchor="middle" fill="#0786b6" font-family="Arial,sans-serif" font-size="52" font-weight="800">P</text>
+ <path d="M79 98v130" stroke="#e1f2f7" stroke-width="9"/><path d="M47 228h64" stroke="#e1f2f7" stroke-width="9" stroke-linecap="round"/>
+</g>
 </svg>
