@@ -1,5 +1,5 @@
 -- VagaFácil | HostGator MySQL/MariaDB schema
--- Target: MySQL 8.0.16+ or MariaDB 10.3+
+-- Target: MySQL 5.7.44+
 -- All timestamps are UTC. Application timezone for rules: America/Sao_Paulo.
 -- This file creates structure only; it does not import or delete production data.
 
@@ -281,7 +281,7 @@ CREATE TABLE IF NOT EXISTS push_subscriptions (
   subscription JSON NOT NULL,
   created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
   updated_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
-  UNIQUE KEY uq_push_user_endpoint (user_id,endpoint(191)),
+  endpoint_hash CHAR(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  UNIQUE KEY uq_push_user_endpoint_hash (user_id,endpoint_hash),
   KEY idx_push_subscriptions_user (user_id),
   CONSTRAINT fk_push_subscriptions_user FOREIGN KEY (user_id) REFERENCES app_users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
