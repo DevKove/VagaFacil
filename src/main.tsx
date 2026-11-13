@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import './styles.css';
+import './portal-title-adjustments.css';
 
 // Detecta iPhone, iPad e iPadOS (que pode se identificar como macOS).
 const isAppleMobile =
