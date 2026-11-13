@@ -4048,19 +4048,19 @@ html.ios-device .content {
 }
 
 
-/* Título institucional: dimensão ampliada para leitura imediata no portal. */
+/* Título institucional: escala duplicada conforme solicitado. */
 .portal-hero-title-image{
-  position:absolute;z-index:20;top:8px;left:50%;
-  display:block;width:min(1500px,98vw);
-  max-height:340px;height:auto;object-fit:contain;
+  position:absolute;z-index:20;top:0;left:50%;
+  display:block;width:min(3000px,196vw);
+  max-height:680px;height:auto;object-fit:contain;
   object-position:center;transform:translateX(-50%);
-  pointer-events:none;filter:drop-shadow(0 7px 22px rgba(0,8,24,.9));
+  pointer-events:none;filter:drop-shadow(0 9px 28px rgba(0,8,24,.92));
 }
 @media(max-width:760px){
   .portal-hero-title-image{
-    top:8px;width:100vw;max-height:250px;
+    top:0;width:200vw;max-height:500px;
   }
 }
 @media(max-width:390px){
-  .portal-hero-title-image{top:6px;width:100vw;max-height:220px}
+  .portal-hero-title-image{top:0;width:200vw;max-height:440px}
 }
