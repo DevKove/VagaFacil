@@ -67,6 +67,7 @@
 .citizen-workspace{min-height:100vh;background:#f4f7fa;color:#18354b;font-family:Inter,Manrope,system-ui,sans-serif}
 .workspace-header{height:76px;padding:0 max(4vw,22px);display:flex;align-items:center;justify-content:space-between;background:#fff;border-bottom:1px solid #e6edf2;position:sticky;top:0;z-index:20}
 .workspace-brand-mark{width:43px;height:43px;border-radius:13px;background:#e5f6fc;color:#1189b5;display:grid;place-items:center}
+.workspace-brand-mark img{width:100%;height:100%;object-fit:contain;padding:3px;border-radius:inherit;display:block}
 .workspace-user{display:flex;align-items:center;gap:10px}.workspace-avatar{width:37px;height:37px;border-radius:50%;display:grid;place-items:center;background:#e6f4fa;color:#117da5;font-weight:800}
 .workspace-user>span:nth-child(2){display:grid;gap:3px}.workspace-user strong{font-size:11px}.workspace-user small{font-size:9px;color:#8b9aa7}
 .workspace-signout{margin-left:16px;border:1px solid #e4ebf0;border-radius:8px;background:#fff;color:#647b8c;padding:9px 12px;display:flex;align-items:center;gap:7px;font-size:10px;font-weight:700}
