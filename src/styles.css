@@ -4064,3 +4064,54 @@ html.ios-device .content {
 @media(max-width:390px){
   .portal-hero-title-image{top:0;width:200vw;max-height:440px}
 }
+
+/* Acessibilidade: contraste reforçado em textos de modais sobre superfícies claras. */
+.access-picker .portal-kicker,
+.auth-modal .portal-kicker,
+.install-help-dialog .portal-kicker,
+.workspace-modal .portal-kicker,
+.workspace-permission-dialog .portal-kicker,
+.ops-modal .ops-eyebrow{
+  color:#075675 !important;
+}
+.access-picker,
+.auth-modal,
+.install-help-dialog,
+.workspace-modal,
+.workspace-permission-dialog,
+.ops-modal{
+  color:#102b40;
+}
+.access-picker>p,
+.access-picker-option small,
+.auth-modal .login-card>p,
+.install-help-dialog,
+.install-help-steps,
+.install-help-note,
+.workspace-modal>p,
+.workspace-permission-dialog>p,
+.workspace-permission-features small,
+.workspace-permission-later,
+.ops-modal>p,
+.ops-modal small{
+  color:#40586b;
+}
+.workspace-modal label,
+.ops-modal label,
+.mfa-content>p,
+.mfa-qr label,
+.mfa-content form label{
+  color:#18394f !important;
+}
+.workspace-modal-close,
+.ops-modal-close,
+.access-picker-close{
+  color:#173b52 !important;
+}
+.workspace-modal input::placeholder,
+.ops-modal input::placeholder,
+.ops-modal textarea::placeholder,
+.auth-modal input::placeholder{
+  color:#65798a;
+  opacity:1;
+}
