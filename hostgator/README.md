@@ -14,7 +14,7 @@ A configuração do banco deve ficar fora do DocumentRoot em:
 
 Não versionar `config.php`, senhas, chaves VAPID, chaves de criptografia ou tokens.
 
-## Esquema
+## Compatibilidade confirmada\nO servidor HostGator reportou MySQL `5.7.44-48`. O DDL foi ajustado para MySQL 5.7; assinaturas Web Push devem persistir `endpoint_hash` como SHA-256 do endpoint para garantir unicidade sem índice longo em utf8mb4.\n\n## Esquema
 O arquivo `database/001_schema.sql` cria as 15 tabelas funcionais existentes no PostgreSQL e as tabelas auxiliares de autenticação:
 - `app_users`, `auth_sessions`, `password_reset_tokens`, `mfa_factors`, `mfa_recovery_codes`, `login_attempts`, `mail_outbox`.
 - `active_plate_registry` garante unicidade de placa ativa entre registros de cidadão e cartão físico, com reserva transacional.
@@ -34,4 +34,4 @@ Senhas e fatores TOTP não são exportados nesta etapa. Contas serão importadas
 7. Fazer corte somente após testes e backup; manter Supabase disponível até então.
 
 ## Importante
-Não importar este esquema por cima de tabelas existentes sem backup e sem conferir a versão do servidor. O script usa recursos de MySQL 8.0.16+/MariaDB 10.3+ (JSON, colunas geradas e índices).
+Não importar este esquema por cima de tabelas existentes sem backup e sem conferir a versão do servidor. O script usa recursos de MySQL 5.7.44+ (JSON, colunas geradas e índices).
