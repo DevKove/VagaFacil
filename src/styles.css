@@ -3747,3 +3747,54 @@ html.ios-device .content {
 @media(max-width:760px){.ops-manual-layout{grid-template-columns:1fr}.ops-manual-index{position:static;display:flex;flex-wrap:wrap;gap:5px}.ops-manual-index>strong{flex:0 0 100%;padding-bottom:5px}.ops-manual-index button{flex:1 1 auto;padding:8px}.ops-manual-hero{padding:17px}.ops-manual-hero h2{font-size:20px}}
 @media(max-width:520px){.ops-manual-search{gap:8px;padding:0 11px}.ops-manual-search input{font-size:12px}.ops-manual-search>span{font-size:10px}.ops-manual-topic-toggle{gap:9px;padding:13px 11px}.ops-manual-topic-toggle strong{font-size:13px}.ops-manual-topic-toggle small{font-size:11px}.ops-manual-topic-content{padding:0 12px 14px 53px}.ops-manual-topic-content ol{font-size:12px}.ops-manual-hero-icon{width:46px;height:46px;flex-basis:46px}.ops-manual-hero p{font-size:12px}}
 @media(prefers-reduced-motion:reduce){.ops-manual-topic-content{animation:none}.ops-manual-topic-toggle>svg{transition:none}}
+
+
+/* Cabeçalho do agente: mesmo arranjo visual do cidadão, em gradiente laranja-amarelo. */
+.ops-agent-topbar{
+  min-height:76px;height:auto;padding:10px 28px !important;gap:18px;
+  background:linear-gradient(125deg,#f97316 0%,#fb923c 46%,#facc15 100%) !important;
+  border-bottom:1px solid rgba(180,83,9,.28) !important;
+  box-shadow:0 6px 20px rgba(124,45,18,.18);
+  color:#422006;
+}
+.ops-agent-brand{display:flex;align-items:center;gap:12px;min-width:0;margin-right:auto}
+.ops-agent-brand img{width:44px;height:44px;flex:0 0 44px;object-fit:contain;padding:6px;border:1px solid rgba(255,255,255,.48);border-radius:13px;background:rgba(255,255,255,.78);box-shadow:0 4px 12px rgba(124,45,18,.15)}
+.ops-agent-brand span,.ops-agent-brand strong,.ops-agent-brand small{display:block;min-width:0}
+.ops-agent-brand strong{color:#422006;font-size:18px;font-weight:900;letter-spacing:-.35px}
+.ops-agent-brand small{margin-top:3px;color:#713f12;font-size:11px;font-weight:700}
+.ops-agent-top-actions{display:flex;align-items:center;gap:10px;min-width:0}
+.ops-agent-identity{display:flex;align-items:center;gap:9px;min-width:0;margin-right:5px}
+.ops-agent-identity>span{display:grid;width:39px;height:39px;flex:0 0 39px;place-items:center;border:1px solid rgba(255,255,255,.65);border-radius:50%;background:rgba(255,255,255,.84);color:#9a3412;font-size:15px;font-weight:900;box-shadow:0 3px 10px rgba(124,45,18,.15)}
+.ops-agent-identity>div{min-width:0}
+.ops-agent-identity strong,.ops-agent-identity small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ops-agent-identity strong{max-width:220px;color:#422006;font-size:12px;font-weight:850}
+.ops-agent-identity small{margin-top:3px;color:#713f12;font-size:10px;font-weight:700}
+.ops-agent-top-actions>button{display:grid;width:38px;height:38px;flex:0 0 38px;place-items:center;border:1px solid rgba(255,255,255,.62) !important;border-radius:11px !important;background:rgba(255,255,255,.78) !important;color:#7c2d12 !important;box-shadow:0 3px 10px rgba(124,45,18,.12);cursor:pointer}
+.ops-agent-top-actions>button:hover{background:#fff !important;transform:translateY(-1px)}
+.ops-agent-topbar .ops-mobile-toggle{border:1px solid rgba(255,255,255,.65) !important;background:rgba(255,255,255,.78) !important;color:#7c2d12 !important}
+@media(max-width:900px){
+  .ops-agent-topbar{padding:9px 16px !important;gap:11px}
+  .ops-agent-brand img{width:40px;height:40px;flex-basis:40px}
+  .ops-agent-brand strong{font-size:16px}
+  .ops-agent-top-actions{gap:7px}
+}
+@media(max-width:560px){
+  .ops-agent-topbar{min-height:68px;padding:8px 11px !important;gap:8px}
+  .ops-agent-brand{gap:7px}
+  .ops-agent-brand img{width:35px;height:35px;flex-basis:35px;padding:4px;border-radius:10px}
+  .ops-agent-brand strong{font-size:14px}
+  .ops-agent-brand small{font-size:9px}
+  .ops-agent-identity{gap:6px;margin-right:0}
+  .ops-agent-identity>span{width:32px;height:32px;flex-basis:32px;font-size:12px}
+  .ops-agent-identity strong{max-width:105px;font-size:10px}
+  .ops-agent-identity small{display:none}
+  .ops-agent-top-actions{gap:5px}
+  .ops-agent-top-actions>button{width:33px;height:33px;flex-basis:33px;border-radius:9px !important}
+}
+@media(max-width:390px){
+  .ops-agent-topbar{padding-inline:8px !important;gap:6px}
+  .ops-agent-brand small{display:none}
+  .ops-agent-identity strong{max-width:82px;font-size:9px}
+  .ops-agent-top-actions>button{width:30px;height:30px;flex-basis:30px}
+}
+@media(prefers-reduced-motion:reduce){.ops-agent-top-actions>button{transition:none}}
