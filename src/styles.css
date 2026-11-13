@@ -927,7 +927,7 @@ th{font-size:12px!important;color:#263e54;background:#e4edf5}
   position: relative;
   isolation: isolate;
   background-color: #071b30 !important;
-  background-image: url('../IMG/banner.jpg?rev=20261113-2') !important;
+  background-image: url('../IMG/banner.jpeg?rev=20261113-2') !important;
   background-position: center center !important;
   background-size: 96% 96% !important;
   background-repeat: no-repeat !important;
@@ -1254,7 +1254,7 @@ th{font-size:12px!important;color:#263e54;background:#e4edf5}
 }
 
 
-/* Banner vertical exclusivo para mobile: desktop continua usando banner.jpg */
+/* Banner vertical exclusivo para mobile: desktop continua usando banner.jpeg */
 @media (max-width: 760px) {
   .portal-hero-art {
     position: fixed !important;
@@ -1266,7 +1266,7 @@ th{font-size:12px!important;color:#263e54;background:#e4edf5}
   }
 
   .portal-hero-backdrop {
-    content: url('../IMG/banner%20mobile.jpg?rev=20261113-2');
+    content: url('../IMG/banner%20mobile.jpeg?rev=20261113-2');
     inset: -12px !important;
     width: calc(100% + 24px) !important;
     height: calc(100% + 24px) !important;
@@ -1535,7 +1535,7 @@ th{font-size:12px!important;color:#263e54;background:#e4edf5}
   pointer-events:none;
   background-image:
     linear-gradient(115deg,rgba(7,28,46,.84) 0%,rgba(10,48,72,.68) 48%,rgba(8,64,86,.50) 100%),
-    url("../IMG/banner.jpg?rev=20261113-2");
+    url("../IMG/banner.jpeg?rev=20261113-2");
   background-position:center;
   background-size:cover;
   background-repeat:no-repeat;
@@ -1543,7 +1543,7 @@ th{font-size:12px!important;color:#263e54;background:#e4edf5}
 .citizen-workspace::before{
   background-image:
     linear-gradient(115deg,rgba(7,28,46,.84) 0%,rgba(10,48,72,.68) 48%,rgba(8,64,86,.50) 100%),
-    url("../IMG/banner.jpg?rev=20261113-2"),
+    url("../IMG/banner.jpeg?rev=20261113-2"),
     url("./vagafacil-city-background.svg");
   background-position:center,center,right bottom;
   background-size:cover,cover,min(88vw,1180px) auto;
@@ -1561,7 +1561,7 @@ th{font-size:12px!important;color:#263e54;background:#e4edf5}
   .ops-shell::before{
     background-image:
       linear-gradient(145deg,rgba(7,28,46,.82),rgba(8,53,76,.62)),
-      url("../IMG/banner mobile.jpg?rev=20261113-2");
+      url("../IMG/banner mobile.jpeg?rev=20261113-2");
     background-position:center;
     background-size:cover;
   }
