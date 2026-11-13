@@ -3476,3 +3476,21 @@ body {
 .workspace-export-button{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:40px;padding:0 13px;border:1px solid #d0d5dd;border-radius:10px;background:#fff;color:#344054;font-size:13px;font-weight:700;cursor:pointer}
 .workspace-export-button:hover{border-color:#d6a400;background:#fffaf0}
 @media(max-width:640px){.workspace-export-actions{width:100%}.workspace-export-actions>*{flex:1}.workspace-page-heading{align-items:flex-start;flex-direction:column}}
+
+/* Corrige a sobreposição do carrossel quando a navegação mobile está aberta. */
+@media(max-width:900px){
+  .sidebar.sidebar-open,
+  .ops-sidebar.open,
+  .workspace-sidebar.is-open{
+    z-index:2000 !important;
+  }
+  .scrim,
+  .ops-scrim,
+  .workspace-sidebar-scrim{
+    z-index:1999 !important;
+  }
+  .citizen-ads-arrow,
+  .citizen-ads-dots{
+    z-index:1;
+  }
+}
