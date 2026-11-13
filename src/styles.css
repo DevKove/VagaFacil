@@ -3883,3 +3883,19 @@ html.ios-device .content {
 .citizen-manual-footnote{margin:0;color:#81909d;font-size:10px;line-height:1.6}
 @media(max-width:760px){.citizen-manual{gap:13px}.citizen-manual-hero{padding:18px;gap:12px}.citizen-manual-hero>span{width:46px;height:46px;border-radius:12px}.citizen-manual-hero h2{font-size:20px}.citizen-manual-hero p{font-size:11px}.citizen-manual-search{height:46px;padding:0 11px}.citizen-manual-search input{font-size:11px}.citizen-manual-layout{grid-template-columns:1fr}.citizen-manual-index{position:static;display:flex;overflow-x:auto;gap:5px;padding:10px}.citizen-manual-index>strong{display:none}.citizen-manual-index button{flex:none;white-space:nowrap;background:#f4f8fa}.citizen-manual-topic-toggle{padding:12px;gap:10px}.citizen-manual-number{width:31px;height:31px}.citizen-manual-topic-toggle strong{font-size:11px}.citizen-manual-topic-content{padding:0 13px 14px 53px}.citizen-manual-topic-content ol{font-size:10px}}
 @media(prefers-reduced-motion:reduce){.citizen-manual-topic,.citizen-manual-topic-toggle>svg{transition:none}}
+
+/* Identidade institucional no rodapé de todos os menus laterais. */
+.workspace-sidebar{display:flex;flex-direction:column;min-height:420px}
+.workspace-sidebar-partner{display:flex;align-items:center;justify-content:center;margin-top:auto;padding:20px 10px 4px;border-top:1px solid #edf1f4}
+.workspace-sidebar-partner img{display:block;width:min(100%,190px);max-height:92px;object-fit:contain;object-position:center;opacity:.96}
+.ops-sidebar-partner{display:flex;align-items:center;justify-content:center;flex:0 0 auto;margin-top:14px;padding:17px 10px 2px;border-top:1px solid rgba(255,255,255,.14)}
+.ops-sidebar-partner img{display:block;width:min(100%,205px);max-height:96px;object-fit:contain;object-position:center;opacity:.96}
+@media(max-width:850px){
+  .workspace-sidebar{min-height:0}
+  .workspace-sidebar-partner{padding:12px 8px 2px}
+  .workspace-sidebar-partner img{width:min(55%,170px);max-height:72px}
+}
+@media(max-width:900px){
+  .ops-sidebar-partner{margin-top:12px;padding:14px 10px 2px}
+  .ops-sidebar-partner img{width:min(100%,190px);max-height:82px}
+}
