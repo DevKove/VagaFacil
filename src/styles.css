@@ -4046,3 +4046,36 @@ html.ios-device .content {
 @media(prefers-reduced-motion:reduce){
   .workspace-duplicate-backdrop,.workspace-duplicate-alert{animation:none}
 }
+
+
+/* Assinatura institucional sobre o banner inicial */
+.portal-hero-slogan{
+  position:absolute;z-index:4;left:50%;bottom:clamp(148px,19vh,190px);
+  width:max-content;max-width:calc(100% - 36px);transform:translateX(-50%);
+  pointer-events:none;text-align:center;
+}
+.portal-hero-slogan span{
+  display:inline-block;font-family:Manrope,'DM Sans',sans-serif;
+  font-size:clamp(25px,3.5vw,43px);font-weight:900;line-height:1.12;
+  letter-spacing:-1.35px;color:#fff;
+  background:linear-gradient(100deg,#fff 0%,#baf4ff 42%,#fff 68%,#9ce8ff 100%);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 3px 10px rgba(0,16,36,.82));
+  text-wrap:balance;
+}
+.portal-hero-slogan:before,.portal-hero-slogan:after{
+  content:"";display:inline-block;vertical-align:middle;width:clamp(16px,3vw,42px);
+  height:2px;margin:0 12px;background:linear-gradient(90deg,transparent,#67e5ff);
+  box-shadow:0 0 10px #35d9ff99;
+}
+.portal-hero-slogan:after{background:linear-gradient(90deg,#67e5ff,transparent)}
+@media(max-width:760px){
+  .portal-hero-slogan{bottom:clamp(112px,17vh,150px);max-width:calc(100% - 24px)}
+  .portal-hero-slogan span{font-size:clamp(22px,6.1vw,31px);letter-spacing:-.8px}
+  .portal-hero-slogan:before,.portal-hero-slogan:after{width:12px;margin:0 6px}
+}
+@media(max-width:390px){
+  .portal-hero-slogan{bottom:112px}
+  .portal-hero-slogan span{font-size:21px}
+  .portal-hero-slogan:before,.portal-hero-slogan:after{display:none}
+}
