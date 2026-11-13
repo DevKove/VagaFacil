@@ -3549,3 +3549,64 @@ body {
   .citizen-workspace .citizen-hamburger i{transition:none}
 }
 
+/* Correção dos controles do cabeçalho do cidadão sobre o gradiente escuro. */
+.citizen-workspace .workspace-header .workspace-user .workspace-audio-toggle{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:7px !important;
+  min-height:36px !important;
+  padding:0 11px !important;
+  border:1px solid rgba(255,205,112,.72) !important;
+  border-radius:10px !important;
+  background:linear-gradient(135deg,#fff0c2 0%,#ffc65c 100%) !important;
+  color:#633400 !important;
+  box-shadow:0 3px 10px rgba(0,0,0,.16) !important;
+}
+.citizen-workspace .workspace-header .workspace-user .workspace-audio-toggle.is-ready{
+  border-color:rgba(121,239,174,.8) !important;
+  background:linear-gradient(135deg,#d8ffe7 0%,#78e5a8 100%) !important;
+  color:#075b35 !important;
+}
+.citizen-workspace .workspace-header .workspace-user .workspace-audio-toggle svg{
+  display:block !important;
+  flex:0 0 auto !important;
+  color:inherit !important;
+}
+.citizen-workspace .workspace-header .workspace-user .workspace-signout{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:7px !important;
+  min-height:36px !important;
+  padding:0 12px !important;
+  border:1px solid rgba(255,255,255,.38) !important;
+  border-radius:10px !important;
+  background:linear-gradient(135deg,#e34e4e 0%,#a91f36 100%) !important;
+  color:#fff !important;
+  box-shadow:0 3px 10px rgba(0,0,0,.2) !important;
+}
+.citizen-workspace .workspace-header .workspace-user .workspace-signout svg{
+  display:block !important;
+  flex:0 0 auto !important;
+  color:inherit !important;
+}
+.citizen-workspace .workspace-header .workspace-user .workspace-audio-toggle:hover,
+.citizen-workspace .workspace-header .workspace-user .workspace-signout:hover{
+  filter:brightness(1.08);
+  transform:translateY(-1px);
+}
+@media(max-width:760px){
+  .citizen-workspace .workspace-header .workspace-user .workspace-audio-toggle{
+    width:35px !important;
+    min-width:35px !important;
+    height:35px !important;
+    min-height:35px !important;
+    padding:0 !important;
+  }
+  .citizen-workspace .workspace-header .workspace-user .workspace-signout{
+    min-height:36px !important;
+    padding:0 9px !important;
+  }
+}
+
