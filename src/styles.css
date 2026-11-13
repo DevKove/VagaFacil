@@ -3610,3 +3610,60 @@ body {
   }
 }
 
+/* iOS: respeita as áreas seguras e mantém a faixa superior na cor do cabeçalho. */
+html.ios-device {
+  --ios-safe-top: env(safe-area-inset-top, 0px);
+  --ios-safe-bottom: env(safe-area-inset-bottom, 0px);
+  background: #061b2d;
+}
+html.ios-device body::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto;
+  height: var(--ios-safe-top);
+  min-height: var(--ios-safe-top);
+  background: linear-gradient(125deg, #061b2d 0%, #0a3c59 48%, #087fa3 100%);
+  z-index: 10000;
+  pointer-events: none;
+}
+html.ios-device #root {
+  min-height: calc(100dvh - var(--ios-safe-top));
+}
+html.ios-device .citizen-workspace,
+html.ios-device .ops-shell,
+html.ios-device .portal-page,
+html.ios-device .app-shell {
+  padding-top: var(--ios-safe-top);
+  padding-bottom: var(--ios-safe-bottom);
+  min-height: 100dvh;
+}
+html.ios-device .citizen-workspace {
+  --ios-header-surface: linear-gradient(125deg, #061b2d 0%, #0a3c59 48%, #087fa3 100%);
+}
+html.ios-device .citizen-workspace .workspace-header {
+  scroll-margin-top: var(--ios-safe-top);
+}
+html.ios-device .workspace-body,
+html.ios-device .ops-content,
+html.ios-device .content {
+  padding-bottom: calc(20px + var(--ios-safe-bottom));
+}
+@media (max-width: 760px) {
+  html.ios-device .workspace-sidebar {
+    top: var(--ios-safe-top);
+    height: calc(100dvh - var(--ios-safe-top));
+    max-height: calc(100dvh - var(--ios-safe-top));
+    padding-bottom: calc(22px + var(--ios-safe-bottom));
+  }
+  html.ios-device .sidebar {
+    height: calc(100dvh - var(--ios-safe-top));
+    padding-top: 18px;
+    padding-bottom: calc(14px + var(--ios-safe-bottom));
+  }
+  html.ios-device .workspace-modal,
+  html.ios-device .ops-modal,
+  html.ios-device .auth-modal,
+  html.ios-device .access-picker {
+    max-height: calc(100dvh - var(--ios-safe-top) - var(--ios-safe-bottom) - 16px);
+  }
+}
