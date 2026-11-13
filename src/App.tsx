@@ -110,10 +110,10 @@ function Portal({ onSelect }: { onSelect: (role: PortalRole) => void }) {
   return <main className="portal-page">
     <section className="portal-hero">
       <div className="portal-hero-art" aria-hidden="true">
-        <img className="portal-hero-backdrop" src={new URL('../IMG/banner mobile.jpg?rev=20261113-2', import.meta.url).href} alt="" />
+        <img className="portal-hero-backdrop" src={new URL('../IMG/banner mobile.jpeg?rev=20261113-2', import.meta.url).href} alt="" />
         <picture className="portal-hero-picture">
-          <source media="(max-width: 760px)" srcSet={new URL('../IMG/banner mobile.jpg?rev=20261113-2', import.meta.url).href} />
-          <img className="portal-hero-image" src={new URL('../IMG/banner.jpg?rev=20261113-2', import.meta.url).href} alt="" />
+          <source media="(max-width: 760px)" srcSet={new URL('../IMG/banner mobile.jpeg?rev=20261113-2', import.meta.url).href} />
+          <img className="portal-hero-image" src={new URL('../IMG/banner.jpeg?rev=20261113-2', import.meta.url).href} alt="" />
         </picture>
       </div>
       <div className="portal-hero-actions">
