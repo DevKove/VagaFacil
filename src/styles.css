@@ -3967,3 +3967,26 @@ html.ios-device .content {
 @media(prefers-reduced-motion:reduce){
   .citizen-ads-slide{animation:none !important;will-change:auto}
 }
+
+
+/* Ações do painel do agente centralizadas e com espaçamento uniforme. */
+.ops-agent-dashboard-actions{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:18px;
+  width:100%;
+  margin:18px 0 22px;
+}
+.ops-agent-dashboard-actions > button{
+  min-width:132px;
+}
+@media(max-width:520px){
+  .ops-agent-dashboard-actions{
+    gap:14px;
+    flex-wrap:wrap;
+  }
+  .ops-agent-dashboard-actions > button{
+    flex:1 1 132px;
+  }
+}
