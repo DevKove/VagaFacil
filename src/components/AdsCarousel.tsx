@@ -1,26 +1,27 @@
 import { useEffect, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { apiRequest } from '../lib/hostgator';
 
-type Ad = { id: string; title: string; alt_text: string; image_path: string; link_url: string | null; sort_order: number; duration_seconds: number };
+type Ad = { id: string; title: string; alt_text: string; image_path: string; image_url: string; link_url: string | null; sort_order: number; duration_seconds: number };
 
 export default function AdsCarousel() {
   const [ads, setAds] = useState<Ad[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
-    if (!supabase) return;
     let alive = true;
     const load = async () => {
-      const { data, error } = await supabase!.from('ads').select('id,title,alt_text,image_path,link_url,sort_order,duration_seconds').eq('active', true).order('sort_order').order('created_at');
-      if (!error && alive) {
-        setAds((data || []) as Ad[]);
-        setActiveIndex(index => Math.min(index, Math.max(0, (data || []).length - 1)));
-      }
+      try {
+        const { ads: rows } = await apiRequest<{ ads: Ad[] }>('/ads');
+        if (alive) {
+          setAds(rows);
+          setActiveIndex(index => Math.min(index, Math.max(0, rows.length - 1)));
+        }
+      } catch { /* a próxima consulta recupera indisponibilidade temporária */ }
     };
     void load();
-    const channel = supabase.channel('citizen-ads').on('postgres_changes', { event: '*', schema: 'public', table: 'ads' }, () => void load()).subscribe();
-    return () => { alive = false; void supabase!.removeChannel(channel); };
+    const poll = window.setInterval(() => void load(), 30000);
+    return () => { alive = false; window.clearInterval(poll); };
   }, []);
 
   useEffect(() => {
@@ -31,9 +32,9 @@ export default function AdsCarousel() {
     return () => window.clearTimeout(timer);
   }, [ads, activeIndex]);
 
-  if (!ads.length || !supabase) return null;
+  if (!ads.length) return null;
   const ad = ads[activeIndex];
-  const imageUrl = supabase.storage.from('vagafacil-ads').getPublicUrl(ad.image_path).data.publicUrl;
+  const imageUrl = ad.image_url;
   const move = (direction: number) => setActiveIndex(index => (index + direction + ads.length) % ads.length);
   const content = <><img className="citizen-ads-image" src={imageUrl} alt={ad.alt_text || ad.title} loading="eager"/>{ad.title && <span className="citizen-ads-caption">{ad.title}</span>}</>;
   return <section className="citizen-ads" aria-label="Anúncios e comunicados">
