@@ -121,6 +121,20 @@ try {
     }
 
     $pdo = database();
+    if ($method === 'GET' && $path === '/api/ads') {
+        $query = $pdo->query(
+            "SELECT id,title,alt_text,image_path,link_url,sort_order,duration_seconds
+             FROM ads WHERE active = 1 ORDER BY sort_order ASC, created_at DESC"
+        );
+        $ads = $query->fetchAll();
+        foreach ($ads as &$ad) {
+            $segments = array_map('rawurlencode', explode('/', ltrim((string)$ad['image_path'], '/')));
+            $ad['image_url'] = '/uploads/ads/' . implode('/', $segments);
+        }
+        unset($ad);
+        respond(200, ['ok' => true, 'ads' => $ads]);
+    }
+
     if (handleAuthRoute($pdo, $method, $path)) {
         exit;
     }
