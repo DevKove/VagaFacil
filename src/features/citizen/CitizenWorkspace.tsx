@@ -341,6 +341,7 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
     void refresh().catch(err => { if (alive) setError(getErrorMessage(err, 'Falha ao carregar seus dados.')); })
       .finally(() => { if (alive) setLoading(false); });
     const timer = window.setInterval(() => setNow(Date.now()), 1000);
+    const dataPoll = window.setInterval(() => { void refresh().catch(() => undefined); }, 30000);
     const notificationPoll = window.setInterval(async () => {
       try {
         const { notifications } = await apiRequest<{ notifications: Notice[] }>('/citizen/notifications');
@@ -357,7 +358,7 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
         if (incoming.length) setNotices(notifications);
       } catch { /* próxima consulta recupera falhas temporárias */ }
     }, 5000);
-    return () => { alive = false; window.clearInterval(timer); window.clearInterval(notificationPoll); };
+    return () => { alive = false; window.clearInterval(timer); window.clearInterval(dataPoll); window.clearInterval(notificationPoll); };
   }, [profile.id, refresh]);
 
   const activeSessions = useMemo(() => sessions.filter(item => item.status === 'active'), [sessions]);
