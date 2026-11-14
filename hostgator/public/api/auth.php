@@ -134,9 +134,9 @@ function handleAuthRoute(PDO $pdo, string $method, string $path): bool
             if ($user) {
                 $update = $pdo->prepare(
                     'UPDATE app_users
-                     SET failed_login_attempts = LEAST(failed_login_attempts + 1, 1000),
-                         locked_until = CASE WHEN failed_login_attempts + 1 >= 5
-                           THEN DATE_ADD(UTC_TIMESTAMP(3), INTERVAL 15 MINUTE) ELSE locked_until END
+                     SET locked_until = CASE WHEN failed_login_attempts + 1 >= 5
+                           THEN DATE_ADD(UTC_TIMESTAMP(3), INTERVAL 15 MINUTE) ELSE locked_until END,
+                         failed_login_attempts = LEAST(failed_login_attempts + 1, 1000)
                      WHERE id = :id'
                 );
                 $update->execute(['id' => $user['id']]);
