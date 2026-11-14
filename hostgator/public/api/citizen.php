@@ -22,6 +22,12 @@ function citizenUuid(): string
     return substr($hex, 0, 8) . '-' . substr($hex, 8, 4) . '-' . substr($hex, 12, 4) . '-' . substr($hex, 16, 4) . '-' . substr($hex, 20);
 }
 
+function citizenIsoDateTime(mixed $value): ?string
+{
+    if (!is_string($value) || $value === '') return null;
+    return (new DateTimeImmutable($value, new DateTimeZone('UTC')))->format('Y-m-d\\TH:i:s.v\\Z');
+}
+
 function citizenRows(PDO $pdo, string $sql, array $params = []): array
 {
     $statement = $pdo->prepare($sql);
@@ -53,6 +59,10 @@ function handleCitizenRoute(PDO $pdo, string $method, string $path): bool
             ['user_id' => $userId]
         );
         foreach ($parkingSessions as &$row) {
+            $row['started_at'] = citizenIsoDateTime($row['started_at']);
+            $row['expires_at'] = citizenIsoDateTime($row['expires_at']);
+            $row['ended_at'] = citizenIsoDateTime($row['ended_at']);
+            $row['location_captured_at'] = citizenIsoDateTime($row['location_captured_at']);
             $row['parking_spaces'] = $row['space_id'] ? [
                 'code' => $row['space_code'],
                 'parking_zones' => $row['zone_name'] ? ['name' => $row['zone_name']] : null,
@@ -77,6 +87,11 @@ function handleCitizenRoute(PDO $pdo, string $method, string $path): bool
              FROM notifications WHERE user_id = :user_id ORDER BY created_at DESC LIMIT 100',
             ['user_id' => $userId]
         );
+        foreach ($notifications as &$notice) {
+            $notice['created_at'] = citizenIsoDateTime($notice['created_at']);
+            $notice['read_at'] = citizenIsoDateTime($notice['read_at']);
+        }
+        unset($notice);
         respond(200, ['ok' => true, 'vehicles' => $vehicles, 'sessions' => $parkingSessions, 'spaces' => $spaces, 'notifications' => $notifications]);
     }
 
@@ -212,6 +227,11 @@ function handleCitizenRoute(PDO $pdo, string $method, string $path): bool
              WHERE user_id = :user_id ORDER BY created_at DESC LIMIT 30',
             ['user_id' => $session['user_id']]
         );
+        foreach ($rows as &$notice) {
+            $notice['created_at'] = citizenIsoDateTime($notice['created_at']);
+            $notice['read_at'] = citizenIsoDateTime($notice['read_at']);
+        }
+        unset($notice);
         respond(200, ['ok' => true, 'notifications' => $rows]);
     }
 
