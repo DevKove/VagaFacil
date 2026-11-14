@@ -42,6 +42,7 @@ function apiSetAuthCookies(string $token, string $csrf, int $expires): void
 {
     setcookie('vf_session', $token, apiCookieOptions($expires));
     $csrfOptions = apiCookieOptions($expires);
+    $csrfOptions['path'] = '/';
     $csrfOptions['httponly'] = false;
     setcookie('vf_csrf', $csrf, $csrfOptions);
 }
@@ -50,6 +51,7 @@ function apiClearAuthCookies(): void
 {
     setcookie('vf_session', '', apiCookieOptions(time() - 3600));
     $csrfOptions = apiCookieOptions(time() - 3600);
+    $csrfOptions['path'] = '/';
     $csrfOptions['httponly'] = false;
     setcookie('vf_csrf', '', $csrfOptions);
 }
