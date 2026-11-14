@@ -1,0 +1,42 @@
+name: Validate HostGator PHP
+
+on:
+  push:
+    branches:
+      - migration/mysql-hostgator
+    paths:
+      - "hostgator/**/*.php"
+      - ".github/workflows/hostgator-php.yml"
+  pull_request:
+    paths:
+      - "hostgator/**/*.php"
+      - ".github/workflows/hostgator-php.yml"
+  workflow_dispatch:
+
+jobs:
+  php-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          extensions: pdo, pdo_mysql
+          coverage: none
+
+      - name: Validate PHP syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t files < <(find hostgator -type f -name "*.php" -print | sort)
+          if [ "${#files[@]}" -eq 0 ]; then
+            echo "No PHP files found."
+            exit 1
+          fi
+          for file in "${files[@]}"; do
+            echo "Linting $file"
+            php -l "$file"
+          done
