@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Activity, AlertTriangle, ArrowDownRight, ArrowUpRight, Apple, Bell, CarFront, CheckCircle2, ChevronDown, Clock3, LockKeyhole, MapPin, Menu, Search, Share2, ShieldCheck, Smartphone, Users, X } from 'lucide-react';
-import { isSupabaseConfigured, supabase } from './lib/supabase';
+import { supabase } from './lib/supabase';
+import { hostgatorAuth } from './lib/hostgator';
 import CitizenWorkspace from './features/citizen/CitizenWorkspace';
 import OperationsWorkspace from './features/operations/OperationsWorkspace';
 
@@ -185,52 +186,21 @@ function LoginScreen({ role, onBack, onAuthenticated, onMfaRequired }: { role: P
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!supabase) { setError('Serviço de autenticação não configurado. Configure VITE_SUPABASE_URL e VITE_SUPABASE_PUBLISHABLE_KEY.'); return; }
-    const client = supabase;
     void run(async () => {
-      if (mode === 'signup') {
-        if (password.length < 10) throw new Error('A senha deve ter pelo menos 10 caracteres.');
-        if (!name.trim()) throw new Error('Informe seu nome completo.');
-        const { data, error: authError } = await client.auth.signUp({
-          email: email.trim().toLowerCase(), password,
-          options: { emailRedirectTo: redirectUrl, data: { full_name: name.trim(), phone: phone.trim() || null } },
-        });
-        if (authError) throw authError;
-        if (data.session) {
-          const { data: profile, error: profileError } = await client.from('profiles').select('id,full_name,role,is_active').eq('id', data.user!.id).single();
-          if (profileError) throw profileError;
-          if (profile.role !== 'citizen' || !profile.is_active) throw new Error('Este cadastro não possui autorização para a área do cidadão.');
-          onAuthenticated(profile);
-        } else {
-          setMessage('Cadastro recebido. Verifique seu e-mail para confirmar a conta e depois entre na plataforma.');
-          setMode('login');
-        }
-        return;
+      if (mode !== 'login') {
+        throw new Error('Este recurso está sendo migrado para a infraestrutura própria. O acesso por senha já utiliza a HostGator.');
       }
-      if (mode === 'recover') {
-        const { error: resetError } = await client.auth.resetPasswordForEmail(email.trim().toLowerCase(), { redirectTo: `${redirectUrl}?recovery=1` });
-        if (resetError) throw resetError;
-        setMessage('Se o endereço estiver cadastrado, você receberá as instruções para redefinir a senha.');
-        return;
+      const result = await hostgatorAuth.login(email.trim().toLowerCase(), password);
+      const user = result.user;
+      if (user.role !== role && !(role === 'admin' && user.role === 'supervisor')) {
+        await hostgatorAuth.logout();
+        throw new Error('Esta conta não tem permissão para acessar este ambiente.');
       }
-      if (mode === 'password') {
-        if (password.length < 10) throw new Error('A nova senha deve ter pelo menos 10 caracteres.');
-        if (password !== confirmation) throw new Error('As senhas não coincidem.');
-        const { error: updateError } = await client.auth.updateUser({ password });
-        if (updateError) throw updateError;
-        setMessage('Senha atualizada. Você já pode continuar usando sua conta.');
-        window.history.replaceState({}, '', redirectUrl);
-        setMode('login');
-        return;
+      if (!user.is_active) {
+        await hostgatorAuth.logout();
+        throw new Error('Acesso desativado. Procure a administração municipal.');
       }
-      const { data, error: authError } = await client.auth.signInWithPassword({ email: email.trim().toLowerCase(), password });
-      if (authError) throw authError;
-      const { data: profile, error: profileError } = await client.from('profiles').select('id,full_name,role,is_active').eq('id', data.user.id).single();
-      if (profileError) { await client.auth.signOut(); throw new Error('Perfil não encontrado. Verifique se a migração do banco foi aplicada.'); }
-      if (!profile.is_active) { await client.auth.signOut(); throw new Error('Acesso desativado. Procure a administração municipal.'); }
-      if (profile.role !== role && !(role === 'admin' && profile.role === 'supervisor')) { await client.auth.signOut(); throw new Error('Esta conta não tem permissão para acessar este ambiente.'); }
-      if (profile.role === 'admin' || profile.role === 'supervisor' || profile.role === 'agent') onMfaRequired(profile);
-      else onAuthenticated(profile);
+      onAuthenticated(user);
     });
   };
 
@@ -245,10 +215,10 @@ function LoginScreen({ role, onBack, onAuthenticated, onMfaRequired }: { role: P
         {mode !== 'password' && <label>E-mail<input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="seu@email.com" autoComplete="email" required /></label>}
         {(mode === 'login' || mode === 'signup' || mode === 'password') && <label>{mode === 'password' ? 'Nova senha' : 'Senha'}<input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Mínimo de 10 caracteres" autoComplete={mode === 'login' ? 'current-password' : 'new-password'} minLength={10} required /></label>}
         {mode === 'password' && <label>Confirmar nova senha<input type="password" value={confirmation} onChange={e=>setConfirmation(e.target.value)} autoComplete="new-password" minLength={10} required /></label>}
-        <button type="submit" disabled={busy || !isSupabaseConfigured}>{busy ? 'Aguarde...' : mode === 'signup' ? 'Criar minha conta' : mode === 'recover' ? 'Enviar instruções' : mode === 'password' ? 'Salvar nova senha' : 'Entrar'} <ArrowUpRight size={17}/></button>
+        <button type="submit" disabled={busy}>{busy ? 'Aguarde...' : mode === 'signup' ? 'Criar minha conta' : mode === 'recover' ? 'Enviar instruções' : mode === 'password' ? 'Salvar nova senha' : 'Entrar'} <ArrowUpRight size={17}/></button>
         {error && <div className="auth-feedback error" role="alert">{error}</div>}
         {message && <div className="auth-feedback success" role="status">{message}</div>}
-        {!isSupabaseConfigured && <div className="login-unavailable"><LockKeyhole size={16}/><span>Configure as credenciais públicas do Supabase para habilitar o acesso.</span></div>}
+        
         {role === 'citizen' && mode === 'login' && <div className="auth-links"><button type="button" onClick={()=>{setMode('recover');setError('');setMessage('');}}>Esqueci minha senha</button><button type="button" onClick={()=>{setMode('signup');setError('');setMessage('');}}>Criar minha conta</button></div>}
         {mode !== 'login' && <button type="button" className="login-create" onClick={()=>{setMode('login');setError('');setMessage('');}}>Voltar para entrar</button>}
       </form>
@@ -384,41 +354,18 @@ export default function App() {
   const [authLoading, setAuthLoading] = useState(Boolean(supabase));
 
   useEffect(() => {
-    if (!supabase) { setAuthLoading(false); return; }
-    const client = supabase;
     let alive = true;
-    const loadProfile = async () => {
-      const { data: { session } } = await client.auth.getSession();
-      if (!alive) return;
-      if (new URLSearchParams(window.location.search).get('recovery') === '1') { setAuthLoading(false); return; }
-      if (!session) { setAuthLoading(false); return; }
-      const { data, error } = await client.from('profiles').select('id,full_name,role,is_active').eq('id', session.user.id).single();
-      if (!alive) return;
-      if (error || !data?.is_active) { await client.auth.signOut(); setProfile(null); }
-      else if (['admin', 'supervisor', 'agent'].includes(data.role)) {
-        const { data: assurance } = await client.auth.mfa.getAuthenticatorAssuranceLevel();
-        if (assurance?.currentLevel !== 'aal2') setMfaProfile(data); else setProfile(data);
-      } else setProfile(data);
+    if (new URLSearchParams(window.location.search).get('recovery') === '1') {
       setAuthLoading(false);
-    };
-    void loadProfile();
-    const { data: listener } = client.auth.onAuthStateChange((_event, session) => {
-      if (!session) { setProfile(null); setAuthLoading(false); return; }
-      if (new URLSearchParams(window.location.search).get('recovery') === '1') return;
-      window.setTimeout(() => {
-        void client.from('profiles').select('id,full_name,role,is_active').eq('id', session.user.id).single()
-          .then(async ({ data, error }) => {
-            if (!error && data?.is_active) {
-              if (['admin', 'supervisor', 'agent'].includes(data.role)) {
-                const { data: assurance } = await client.auth.mfa.getAuthenticatorAssuranceLevel();
-                if (assurance?.currentLevel !== 'aal2') setMfaProfile(data); else setProfile(data);
-              } else setProfile(data);
-            }
-            setAuthLoading(false);
-          });
-      }, 0);
-    });
-    return () => { alive = false; listener.subscription.unsubscribe(); };
+      return () => { alive = false; };
+    }
+    void hostgatorAuth.me()
+      .then(({ user }) => {
+        if (alive && user.is_active && user.role === 'citizen') setProfile(user);
+      })
+      .catch(() => { if (alive) setProfile(null); })
+      .finally(() => { if (alive) setAuthLoading(false); });
+    return () => { alive = false; };
   }, []);
 
   // Mantém o documento como único contêiner de rolagem após sair do modal de autenticação.
@@ -445,7 +392,7 @@ export default function App() {
     };
   }, [profile?.id]);
 
-  const signOut = async () => { if (supabase) await supabase.auth.signOut(); setProfile(null); setMfaProfile(null); setSelectedRole(null); setShowDemo(false); };
+  const signOut = async () => { try { await hostgatorAuth.logout(); } finally { setProfile(null); setMfaProfile(null); setSelectedRole(null); setShowDemo(false); } };
   if (authLoading) return <main className="portal-page"><div className="auth-loading">Verificando sessão segura...</div></main>;
   if (mfaProfile) return <AdminMfaScreen profile={mfaProfile} onVerified={() => { setProfile(mfaProfile); setMfaProfile(null); setSelectedRole(null); }} onCancel={signOut}/>;
   if (profile) {
