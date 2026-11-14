@@ -470,7 +470,7 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
         if (err.code === 3) throw new Error('A localização demorou demais. Ative o GPS e tente novamente.');
         throw new Error('Não foi possível obter a localização do dispositivo.');
       });
-      await apiRequest('/citizen/sessions', { method: 'POST', body: JSON.stringify({ vehicle_id: selectedVehicle, space_id: selectedSpace || null, beneficiary_category: beneficiaryCategory, latitude: position.coords.latitude, longitude: position.coords.longitude, accuracy_m: position.coords.accuracy }) });
+      await apiRequest('/citizen/sessions', { method: 'POST', body: JSON.stringify({ vehicle_id: selectedVehicle, space_id: selectedSpace || null, beneficiary_category: beneficiaryCategory, credential_confirmed: credentialConfirmed, latitude: position.coords.latitude, longitude: position.coords.longitude, accuracy_m: position.coords.accuracy }) });
       setSuccess('Estacionamento registrado com sucesso. A localização foi salva junto ao registro e o cronômetro já está em andamento.');
       setBeneficiaryCategory('conventional'); setCredentialConfirmed(false); setSelectedSpace('');
       setTab('overview'); await refresh();
