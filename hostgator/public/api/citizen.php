@@ -165,6 +165,7 @@ function handleCitizenRoute(PDO $pdo, string $method, string $path): bool
         $expires = $now->modify('+' . $minutes . ' minutes');
         $pdo->beginTransaction();
         try {
+            $pdo->prepare("UPDATE parking_sessions SET status = 'expired' WHERE status = 'active' AND expires_at <= UTC_TIMESTAMP(3)")->execute();
             $pdo->prepare('DELETE FROM active_plate_registry WHERE expires_at <= UTC_TIMESTAMP(3)')->execute();
             $active = $pdo->prepare(
                 "SELECT id FROM parking_sessions WHERE status = 'active' AND (vehicle_id = :vehicle_id OR plate_snapshot = :plate OR user_id = :user_id) LIMIT 1 FOR UPDATE"
