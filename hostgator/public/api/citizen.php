@@ -205,6 +205,16 @@ function handleCitizenRoute(PDO $pdo, string $method, string $path): bool
         respond(200, ['ok' => true]);
     }
 
+    if ($path === '/api/citizen/notifications' && $method === 'GET') {
+        $session = citizenSession($pdo, $method);
+        $rows = citizenRows($pdo,
+            'SELECT id,title,body,kind,read_at,created_at FROM notifications
+             WHERE user_id = :user_id ORDER BY created_at DESC LIMIT 30',
+            ['user_id' => $session['user_id']]
+        );
+        respond(200, ['ok' => true, 'notifications' => $rows]);
+    }
+
     if ($path === '/api/citizen/notifications' && $method === 'POST') {
         $session = citizenSession($pdo, $method);
         $body = apiJsonBody();
