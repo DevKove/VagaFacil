@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Activity, Bell, BookOpen, CarFront, CheckCircle2, ChevronDown, Clock3, History, MapPin, Plus, Power, Search, ShieldCheck, Trash2, Volume2, VolumeX, X } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
+import { apiRequest } from '../../lib/hostgator';
 import { VehiclePlate } from '../../components/VehiclePlate';
 import AdsCarousel from '../../components/AdsCarousel';
 import ScreenAdjuster from '../../components/ScreenAdjuster';
@@ -29,16 +29,7 @@ const fmtTime = (value: string) => new Intl.DateTimeFormat('pt-BR', { timeStyle:
 const remaining = (expiresAt: string, now: number) => Math.max(0, Math.floor((new Date(expiresAt).getTime() - now) / 1000));
 const timerLabel = (seconds: number) => `${String(Math.floor(seconds / 3600)).padStart(2, '0')}:${String(Math.floor((seconds % 3600) / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
 
-async function fetchAllPages<T>(fetchPage: (from: number, to: number) => PromiseLike<{ data: T[] | null; error: unknown }>) {
-  const records: T[] = [];
-  for (let offset = 0; ; offset += 1000) {
-    const { data, error } = await fetchPage(offset, offset + 999);
-    if (error) throw error;
-    const page = data || [];
-    records.push(...page);
-    if (page.length < 1000) return records;
-  }
-}
+
 
 let alertAudioContext: AudioContext | null = null;
 let pendingAlertSound = false;
@@ -125,19 +116,12 @@ function withTimeout<T>(promise: PromiseLike<T>, milliseconds: number, message: 
   });
 }
 
-async function savePushSubscription(userId: string, subscription: PushSubscription) {
-  if (!supabase) throw new Error('Conexão com o servidor indisponível.');
-  const { error } = await withTimeout(
-    supabase.from('push_subscriptions').upsert({
-      user_id: userId,
-      endpoint: subscription.endpoint,
-      subscription: subscription.toJSON(),
-      updated_at: new Date().toISOString(),
-    }, { onConflict: 'user_id,endpoint' }),
+async function savePushSubscription(_userId: string, subscription: PushSubscription) {
+  await withTimeout(
+    apiRequest('/citizen/push-subscriptions', { method: 'POST', body: JSON.stringify({ subscription: subscription.toJSON() }) }),
     15_000,
-    'A inscrição foi criada no Android, mas o servidor não confirmou o salvamento. Verifique sua conexão e tente novamente.',
+    'A inscrição foi criada no dispositivo, mas o servidor não confirmou o salvamento. Verifique sua conexão e tente novamente.',
   );
-  if (error) throw new Error(`Falha ao salvar a inscrição no servidor: ${getErrorMessage(error)}`);
 }
 
 async function showPersistentNotification(title: string, body: string, tag: string) {
@@ -194,24 +178,17 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
   const [showVehicleForm, setShowVehicleForm] = useState(false);
 
   const refresh = useCallback(async () => {
-    if (!supabase) return;
-    const client = supabase;
-    const [vehicleRows, sessionRows, spaceRows, noticeRows] = await Promise.all([
-      fetchAllPages((from,to) => client.from('vehicles').select('id,plate,make,model,color,vehicle_type').eq('owner_id', profile.id).order('created_at', { ascending: false }).range(from,to)),
-      fetchAllPages((from,to) => client.from('parking_sessions').select('id,plate_snapshot,started_at,expires_at,ended_at,status,space_id,latitude,longitude,location_accuracy_m,location_captured_at,beneficiary_category,parking_spaces(code,parking_zones(name))').eq('user_id', profile.id).order('started_at', { ascending: false }).range(from,to)),
-      fetchAllPages((from,to) => client.from('parking_spaces').select('id,code,category,zone_id,parking_zones(name)').eq('active', true).order('code').range(from,to)),
-      fetchAllPages((from,to) => client.from('notifications').select('id,title,body,kind,read_at,created_at').eq('user_id', profile.id).order('created_at', { ascending: false }).range(from,to)),
-    ]);
-    setVehicles(vehicleRows as Vehicle[]);
-    setSessions(sessionRows as unknown as ParkingSession[]);
-    setSpaces(spaceRows as unknown as ParkingSpace[]);
-    const loadedNotices = noticeRows as Notice[];
+    const result = await apiRequest<{ vehicles: Vehicle[]; sessions: ParkingSession[]; spaces: ParkingSpace[]; notifications: Notice[] }>('/citizen/bootstrap');
+    setVehicles(result.vehicles);
+    setSessions(result.sessions);
+    setSpaces(result.spaces);
+    const loadedNotices = result.notifications;
     setNotices(loadedNotices);
     const pendingManualAlerts = loadedNotices.filter(item => item.kind === 'admin_manual_alert' && !item.read_at);
     setExpiryWarning(pendingManualAlerts.map(item => ({ sessionId: item.id, plate: 'ATENÇÃO', body: item.body })));
     if (pendingManualAlerts.length) playAlertSound(soundEnabledRef.current);
     seenNotificationIds.current = new Set(loadedNotices.map(item => item.id));
-    setSelectedVehicle(current => current || vehicleRows[0]?.id || '');
+    setSelectedVehicle(current => current || result.vehicles[0]?.id || '');
   }, [profile.id]);
 
   useEffect(() => {
@@ -364,41 +341,23 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
     void refresh().catch(err => { if (alive) setError(getErrorMessage(err, 'Falha ao carregar seus dados.')); })
       .finally(() => { if (alive) setLoading(false); });
     const timer = window.setInterval(() => setNow(Date.now()), 1000);
-    const client = supabase;
-    const channel = client?.channel(`citizen-${profile.id}`)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'parking_sessions', filter: `user_id=eq.${profile.id}` }, () => { void refresh(); })
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${profile.id}` }, payload => {
-        const notice = payload.new as Notice;
-        if (seenNotificationIds.current.has(notice.id)) return;
-        seenNotificationIds.current.add(notice.id);
-        setNotices(current => [notice, ...current.filter(item => item.id !== notice.id)].slice(0, 30));
-        if (notice.kind === 'admin_manual_alert') {
-          setExpiryWarning(current => [...current.filter(item => item.sessionId !== notice.id), { sessionId: notice.id, plate: 'ATENÇÃO', body: notice.body }]);
-          playAlertSound(soundEnabledRef.current);
-          void showPersistentNotification(notice.title, notice.body, notice.id);
-        }
-      })
-      .subscribe();
     const notificationPoll = window.setInterval(async () => {
-      if (!client) return;
-      const { data, error: notificationError } = await client.from('notifications')
-        .select('id,title,body,kind,read_at,created_at')
-        .eq('user_id', profile.id)
-        .order('created_at', { ascending: false })
-        .limit(30);
-      if (!alive || notificationError || !data) return;
-      const incoming = data.filter(item => !seenNotificationIds.current.has(item.id));
-      for (const notice of incoming) {
-        seenNotificationIds.current.add(notice.id);
-        if (notice.kind === 'admin_manual_alert') {
-          setExpiryWarning(current => [...current.filter(item => item.sessionId !== notice.id), { sessionId: notice.id, plate: 'ATENÇÃO', body: notice.body }]);
-          playAlertSound(soundEnabledRef.current);
-          void showPersistentNotification(notice.title, notice.body, notice.id);
+      try {
+        const { notifications } = await apiRequest<{ notifications: Notice[] }>('/citizen/notifications');
+        if (!alive) return;
+        const incoming = notifications.filter(item => !seenNotificationIds.current.has(item.id));
+        for (const notice of incoming) {
+          seenNotificationIds.current.add(notice.id);
+          if (notice.kind === 'admin_manual_alert') {
+            setExpiryWarning(current => [...current.filter(item => item.sessionId !== notice.id), { sessionId: notice.id, plate: 'ATENÇÃO', body: notice.body }]);
+            playAlertSound(soundEnabledRef.current);
+            void showPersistentNotification(notice.title, notice.body, notice.id);
+          }
         }
-      }
-      if (incoming.length) setNotices(data as Notice[]);
+        if (incoming.length) setNotices(notifications);
+      } catch { /* próxima consulta recupera falhas temporárias */ }
     }, 5000);
-    return () => { alive = false; window.clearInterval(timer); window.clearInterval(notificationPoll); if (client && channel) void client.removeChannel(channel); };
+    return () => { alive = false; window.clearInterval(timer); window.clearInterval(notificationPoll); };
   }, [profile.id, refresh]);
 
   const activeSessions = useMemo(() => sessions.filter(item => item.status === 'active'), [sessions]);
@@ -452,17 +411,10 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
         playAlertSound(soundEnabledRef.current);
         void showPersistentNotification(title, notificationBody, storageKey);
 
-        if (supabase) {
-          void supabase.from('notifications').insert({
-            user_id: profile.id,
-            title,
-            body,
-            kind: 'parking_expiry_warning',
-          }).select('id,title,body,kind,read_at,created_at').single()
-            .then(({ data, error: insertError }) => {
-              if (!insertError && data) setNotices(current => [data as Notice, ...current].slice(0, 30));
-            });
-        }
+        void apiRequest<{ id: string }>('/citizen/notifications', {
+          method: 'POST',
+          body: JSON.stringify({ title, body, kind: 'parking_expiry_warning' }),
+        }).then(({ id }) => setNotices(current => [{ id, title, body, kind: 'parking_expiry_warning', read_at: null, created_at: new Date().toISOString() }, ...current].slice(0, 30))).catch(() => undefined);
 
         // A chave de dispensa é mantida separada para que o fechamento não
         // impeça o aviso seguinte (10 ou 5 minutos).
@@ -487,58 +439,37 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
 
   const addVehicle = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const client = supabase;
-    if (!client) return;
     void perform(async () => {
       const plate = vehicleForm.plate.replace(/[^a-z0-9]/gi, '').toUpperCase();
-      if (!platePattern.test(plate)) throw new Error('Informe uma placa válida no padrão ABC1D23 ou ABC1234.');
-      const { error: insertError } = await client.from('vehicles').insert({
-        owner_id: profile.id, plate, make: vehicleForm.make.trim() || null, model: vehicleForm.model.trim() || null,
-        color: vehicleForm.color.trim() || null,
-      });
-      if (insertError) throw insertError;
+      if (!platePattern.test(plate) && !/^[A-Z]{3}[0-9]{4}$/.test(plate)) throw new Error('Informe uma placa válida no padrão ABC1D23 ou ABC1234.');
+      await apiRequest('/citizen/vehicles', { method: 'POST', body: JSON.stringify({ plate, make: vehicleForm.make.trim() || null, model: vehicleForm.model.trim() || null, color: vehicleForm.color.trim() || null }) });
       setVehicleForm({ plate: '', make: '', model: '', color: '' });
       setShowVehicleForm(false); setSuccess('Veículo cadastrado.'); await refresh();
     });
   };
 
   const removeVehicle = (vehicle: Vehicle) => {
-    const client = supabase;
-    if (!client || !window.confirm(`Remover o veículo ${vehicle.plate}?`)) return;
+    if (!window.confirm(`Remover o veículo ${vehicle.plate}?`)) return;
     void perform(async () => {
-      const { error: deleteError } = await client.from('vehicles').delete().eq('id', vehicle.id).eq('owner_id', profile.id);
-      if (deleteError) throw deleteError;
+      await apiRequest(`/citizen/vehicles/${vehicle.id}`, { method: 'DELETE' });
       setSuccess('Veículo removido.'); await refresh();
     });
   };
 
   const startSession = () => {
-    const client = supabase;
-    if (!client || !selectedVehicle) return;
+    if (!selectedVehicle) return;
     void perform(async () => {
       if (beneficiaryCategory !== 'conventional' && !credentialConfirmed) throw new Error('Para utilizar a categoria especial, confirme que atende aos requisitos legais e está utilizando credencial válida emitida pelo órgão de trânsito competente.');
       if (!navigator.geolocation) throw new Error('Este navegador não oferece suporte à geolocalização. Acesse por um navegador atualizado.');
       const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject, {
-          enableHighAccuracy: true,
-          timeout: 20000,
-          maximumAge: 0,
-        });
+        navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 });
       }).catch((err: GeolocationPositionError) => {
         if (err.code === 1) throw new Error('Permita o acesso à localização para registrar o estacionamento.');
         if (err.code === 2) throw new Error('Não foi possível determinar sua localização. Verifique o GPS e tente novamente.');
         if (err.code === 3) throw new Error('A localização demorou demais. Ative o GPS e tente novamente.');
         throw new Error('Não foi possível obter a localização do dispositivo.');
       });
-      const { error: rpcError } = await client.rpc('start_parking_session', {
-        p_vehicle_id: selectedVehicle,
-        p_space_id: selectedSpace || null,
-        p_beneficiary_category: beneficiaryCategory,
-        p_latitude: position.coords.latitude,
-        p_longitude: position.coords.longitude,
-        p_accuracy_m: position.coords.accuracy,
-      });
-      if (rpcError) throw rpcError;
+      await apiRequest('/citizen/sessions', { method: 'POST', body: JSON.stringify({ vehicle_id: selectedVehicle, space_id: selectedSpace || null, beneficiary_category: beneficiaryCategory, latitude: position.coords.latitude, longitude: position.coords.longitude, accuracy_m: position.coords.accuracy }) });
       setSuccess('Estacionamento registrado com sucesso. A localização foi salva junto ao registro e o cronômetro já está em andamento.');
       setBeneficiaryCategory('conventional'); setCredentialConfirmed(false); setSelectedSpace('');
       setTab('overview'); await refresh();
@@ -546,20 +477,15 @@ export default function CitizenWorkspace({ profile, onSignOut }: { profile: Prof
   };
 
   const finishSession = (sessionId: string) => {
-    const client = supabase;
-    if (!client) return;
     void perform(async () => {
-      const { error: rpcError } = await client.rpc('finish_parking_session', { p_session_id: sessionId });
-      if (rpcError) throw rpcError;
+      await apiRequest(`/citizen/sessions/${sessionId}/finish`, { method: 'POST', body: '{}' });
       setSuccess('Estacionamento encerrado.'); await refresh();
     });
   };
 
   const markRead = async (noticeId: string) => {
-    const client = supabase;
-    if (!client) return;
-    const { error: updateError } = await client.from('notifications').update({ read_at: new Date().toISOString() }).eq('id', noticeId).eq('user_id', profile.id);
-    if (!updateError) await refresh();
+    await apiRequest(`/citizen/notifications/${noticeId}/read`, { method: 'PATCH', body: '{}' });
+    await refresh();
   };
 
 
