@@ -65,6 +65,8 @@ function database(): PDO
     return $pdo;
 }
 
+require_once __DIR__ . '/auth.php';
+
 function requestPath(): string
 {
     $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
@@ -91,6 +93,11 @@ try {
             'database' => 'connected',
             'timestamp' => gmdate('c'),
         ]);
+    }
+
+    $pdo = database();
+    if (handleAuthRoute($pdo, $method, $path)) {
+        exit;
     }
 
     respond(404, [
