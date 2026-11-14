@@ -147,6 +147,10 @@ function handleCitizenRoute(PDO $pdo, string $method, string $path): bool
             respond(422, ['ok' => false, 'error' => ['code' => 'INVALID_LOCATION', 'message' => 'Não foi possível validar a localização do dispositivo. Ative o GPS e tente novamente.']]);
         }
 
+        if ($category !== 'conventional' && ($body['credential_confirmed'] ?? false) !== true) {
+            respond(422, ['ok' => false, 'error' => ['code' => 'CREDENTIAL_CONFIRMATION_REQUIRED', 'message' => 'Confirme que possui e utiliza credencial válida para a categoria especial.']]);
+        }
+
         $vehicleQuery = $pdo->prepare('SELECT id, plate FROM vehicles WHERE id = :id AND owner_id = :owner_id LIMIT 1');
         $vehicleQuery->execute(['id' => $vehicleId, 'owner_id' => $session['user_id']]);
         $vehicle = $vehicleQuery->fetch();
