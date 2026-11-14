@@ -129,7 +129,7 @@ try {
         $ads = $query->fetchAll();
         foreach ($ads as &$ad) {
             $segments = array_map('rawurlencode', explode('/', ltrim((string)$ad['image_path'], '/')));
-            $ad['image_url'] = '/uploads/ads/' . implode('/', $segments);
+            $ad['image_url'] = '/uploads/' . implode('/', $segments);
         }
         unset($ad);
         respond(200, ['ok' => true, 'ads' => $ads]);
