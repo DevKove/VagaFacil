@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Activity, AlertTriangle, ArrowDownRight, ArrowUpRight, Apple, Bell, CarFront, CheckCircle2, ChevronDown, Clock3, LockKeyhole, MapPin, Menu, Search, Share2, ShieldCheck, Smartphone, Users, X } from 'lucide-react';
-import { supabase } from './lib/supabase';
+import { isSupabaseConfigured, supabase } from './lib/supabase';
 import { hostgatorAuth } from './lib/hostgator';
 import CitizenWorkspace from './features/citizen/CitizenWorkspace';
 import OperationsWorkspace from './features/operations/OperationsWorkspace';
