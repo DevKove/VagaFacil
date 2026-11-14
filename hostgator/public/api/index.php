@@ -87,10 +87,34 @@ try {
         $pdo = database();
         $pdo->query('SELECT 1')->fetchColumn();
 
-        respond(200, [
-            'ok' => true,
+        // Validate the complete application schema without reading or changing records.
+        $requiredTables = [
+            'active_plate_registry', 'ads', 'alerts', 'app_users', 'audit_logs',
+            'auth_sessions', 'enforcement_photos', 'enforcements', 'holidays',
+            'login_attempts', 'mail_outbox', 'mfa_factors', 'mfa_recovery_codes',
+            'notifications', 'parking_rules', 'parking_sessions', 'parking_spaces',
+            'parking_zones', 'password_reset_tokens', 'physical_card_sessions',
+            'profiles', 'push_subscriptions', 'vehicles',
+        ];
+        $placeholders = implode(',', array_fill(0, count($requiredTables), '?'));
+        $check = $pdo->prepare(
+            "SELECT TABLE_NAME FROM information_schema.TABLES
+             WHERE TABLE_SCHEMA = DATABASE() AND TABLE_TYPE = 'BASE TABLE'
+               AND TABLE_NAME IN ($placeholders)"
+        );
+        $check->execute($requiredTables);
+        $existingTables = $check->fetchAll(PDO::FETCH_COLUMN);
+        $missingTables = array_values(array_diff($requiredTables, $existingTables));
+        $schemaReady = count($missingTables) === 0;
+
+        respond($schemaReady ? 200 : 503, [
+            'ok' => $schemaReady,
             'service' => 'vagafacil-api',
             'database' => 'connected',
+            'schema' => $schemaReady ? 'ready' : 'incomplete',
+            'tables_expected' => count($requiredTables),
+            'tables_found' => count($existingTables),
+            'missing_tables' => $missingTables,
             'timestamp' => gmdate('c'),
         ]);
     }
