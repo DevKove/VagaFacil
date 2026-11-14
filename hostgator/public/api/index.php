@@ -66,6 +66,7 @@ function database(): PDO
 }
 
 require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/citizen.php';
 
 function requestPath(): string
 {
@@ -121,6 +122,9 @@ try {
 
     $pdo = database();
     if (handleAuthRoute($pdo, $method, $path)) {
+        exit;
+    }
+    if (handleCitizenRoute($pdo, $method, $path)) {
         exit;
     }
 
